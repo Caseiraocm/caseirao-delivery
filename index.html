@@ -75,6 +75,7 @@ button,.card,.tableitem,.metric,.financeCard,.quickbtn,.chip{transition:transfor
 <nav class="quicknav" aria-label="Atalhos"><button id="homeBtn" class="quickbtn">⌂ Início</button><button id="loyaltyBtn" class="quickbtn">★ Minha fidelidade</button><button id="installBtn" class="quickbtn">↓ Instalar</button></nav>
 <div id="cats" class="cats"></div>
 <div id="products" class="grid"><div class="card skeleton" aria-label="Carregando"><div class="pic"></div><div class="pc"><div class="name">Carregando...</div><div class="desc">Preparando o cardápio</div></div></div><div class="card skeleton" aria-hidden="true"><div class="pic"></div><div class="pc"><div class="name">&nbsp;</div><div class="desc">&nbsp;</div></div></div></div>
+<footer class="siteFooter">© 2026 O Caseirão Burger — Todos os direitos reservados.</footer>
 </main>
 <div class="cartbar"><button id="cartBtn" class="cartbtn"><span style="display:flex;align-items:center;gap:11px;min-width:0"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:0 0 25px;filter:drop-shadow(0 3px 5px rgba(0,0,0,.2))"><path d="M3 3h2l2.25 11.2a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 1.95-1.55L20.5 7H6.1"/><circle cx="9.5" cy="20" r="1.25" fill="currentColor" stroke="none"/><circle cx="17.5" cy="20" r="1.25" fill="currentColor" stroke="none"/></svg><span id="cartLabel">Carrinho • 0 itens</span></span><span id="cartTotal">R$ 0,00</span></button></div>
 <div id="modalRoot"></div>
@@ -525,6 +526,7 @@ html,body{background:var(--bg);color:var(--txt)}body{background:linear-gradient(
 .cartBreakdown .sumrow .mini{color:#68717b}
 .cartBreakdown .sumrow.total{margin-top:7px;padding-top:11px;border-top:1px solid #e1e4e8;color:#17191c;font-size:18px}
 .cartBreakdown .sumrow.total b{color:#c94d14;font-size:20px}
+.siteFooter{margin:34px auto 82px;padding:22px 12px 0;border-top:1px solid #dfe3e8;color:#737a83;text-align:center;font-size:12px;font-weight:700;letter-spacing:.01em}
 @media(max-width:640px){.admbar{background:rgba(247,248,250,.96)}.sheet.full{background:#f7f8fa}}
 `;document.head.appendChild(lightThemeStyle);
 function customerCategoryRank(category){const c=String(category||'Outros').toLowerCase();if(c.includes('hamb'))return 0;if(c.includes('combo'))return 1;if(c.includes('batata'))return 2;if(c.includes('bebida'))return 3;return 4}
