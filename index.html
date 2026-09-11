@@ -572,6 +572,12 @@ const renderPromotionsAdminDeactivateBase=renderPromotionsAdmin;renderPromotions
 const renderAdminPromotionsBase=renderAdmin;renderAdmin=function(){const result=renderAdminPromotionsBase();const bar=document.querySelector('.admbar');if(bar&&!bar.querySelector('[data-tab="promocoes"]')){const button=document.createElement('button');button.dataset.tab='promocoes';button.className=adminTab==='promocoes'?'on':'';button.textContent='Promoções';button.onclick=()=>{adminTab='promocoes';renderAdmin()};const products=bar.querySelector('[data-tab="produtos"]');products?products.before(button):bar.appendChild(button)}return result};
 const renderAdminTabPromotionsBase=renderAdminTab;renderAdminTab=function(){if(adminTab==='promocoes'){const box=$('#admContent');if(box)renderPromotionsAdmin(box);return}return renderAdminTabPromotionsBase()};
 
+/* Sincronização rápida do ADM: inclui pedidos lançados por funcionários nas mesas. */
+let adminOrderSyncBusy=false;
+checkNewOrders=async function(){if(adminOrderSyncBusy||!sessionStorage.getItem('caseirao_admin_pin'))return;adminOrderSyncBusy=true;try{const fresh=await adminCall('snapshot'),newOrders=(fresh.orders||[]).filter(o=>!knownOrderIds.has(o.id));(fresh.orders||[]).forEach(o=>knownOrderIds.add(o.id));admin=fresh;if(newOrders.length){playOrderSound();showOrderToast(newOrders[0]);const box=$('#admContent');if(box){if(adminTab==='pedidos')renderOrders(box);else if(adminTab==='producao')renderKitchen(box);else if(adminTab==='caixa')renderCash(box);else if(adminTab==='mesas')await renderRemoteTables(box)}}}catch(e){}finally{adminOrderSyncBusy=false}};
+startOrderWatcher=function(){if(orderWatcher)clearInterval(orderWatcher);knownOrderIds=new Set((admin?.orders||[]).map(o=>o.id));orderWatcher=setInterval(checkNewOrders,2500);checkNewOrders()};
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&sessionStorage.getItem('caseirao_admin_pin'))checkNewOrders()});
+
 restoreCart();lastCartCount=cartCount();updateCartBar();installManifest();
 $('#search').addEventListener('input',e=>{search=e.target.value;renderCatalog()});$('#cartBtn').onclick=renderCart;$('#trackBtn').onclick=()=>openTracking();$('#adminBtn').onclick=openAdmin;$('#homeBtn').onclick=goHome;$('#promotionsBtn').onclick=openDailyPromotions;$('#loyaltyBtn').onclick=openCustomerLoyalty;$('#installBtn').onclick=installApp;catalog();const driverToken=decodeURIComponent((location.hash.match(/^#entregador=([^&]+)/)||[])[1]||'');if(driverToken)setTimeout(()=>openDriverTracking(driverToken),100);
 })();
