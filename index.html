@@ -528,7 +528,7 @@ html,body{background:var(--bg);color:var(--txt)}body{background:linear-gradient(
 @media(max-width:640px){.admbar{background:rgba(247,248,250,.96)}.sheet.full{background:#f7f8fa}}
 `;document.head.appendChild(lightThemeStyle);
 function customerCategoryRank(category){const c=String(category||'Outros').toLowerCase();if(c.includes('hamb'))return 0;if(c.includes('combo'))return 1;if(c.includes('batata'))return 2;if(c.includes('bebida'))return 3;return 4}
-const renderCatalogCategoryOrderBase=renderCatalog;renderCatalog=function(){if(Array.isArray(data?.products))data.products.sort((a,b)=>customerCategoryRank(a.category)-customerCategoryRank(b.category)||String(a.name||'').localeCompare(String(b.name||''),'pt-BR'));return renderCatalogCategoryOrderBase()};
+const renderCatalogCategoryOrderBase=renderCatalog;renderCatalog=function(){if(Array.isArray(data?.products))data.products.sort((a,b)=>customerCategoryRank(a.category)-customerCategoryRank(b.category)||Number(priceOf(a))-Number(priceOf(b))||String(a.name||'').localeCompare(String(b.name||''),'pt-BR'));return renderCatalogCategoryOrderBase()};
 let operationalMode=null;
 function leaveOperationalMode(){operationalMode=null;closeModal();window.scrollTo({top:0,behavior:'smooth'});if($('#search'))$('#search').value='';search='';cat='Todos';if(data.products?.length)renderCatalog()}
 function operationalPanelHome(){if(operationalMode==='admin'&&admin)return renderAdmin();if(operationalMode==='employee'&&employeeSnapshot)return renderEmployeePanel();leaveOperationalMode()}
