@@ -519,6 +519,12 @@ html,body{background:var(--bg);color:var(--txt)}body{background:linear-gradient(
 .employeeLimit{background:#eef2f6;color:#515b65;border-color:#d6dde4}.employeeProductSearch{background:#f7f8fa}.employeeProductCard{background:linear-gradient(145deg,#fff,#f7f8fa);border-color:#dde1e5}.employeeProductCard.selected{background:linear-gradient(145deg,#fff8f2,#ffecdd);border-color:#df8b52}.employeeProductPhoto{background:#eceff2}.employeeProductInfo>b{color:#1f2226}.employeeProductInfo>span,.unitNotesTitle{color:#bd4c15}.unitNotes{border-top-color:#e1d7cf}.unitNoteRow>span{color:#626971}.unitNoteRow>.in{background:#fff}.employeeLoginCard{background:#fff;border:1px solid #e0e3e7;border-radius:18px;padding:18px;box-shadow:0 10px 28px rgba(27,33,40,.08)}
 .pixPaymentPanel{background:#edf9f2;border-color:#bee2cc}.pixPaymentTitle{color:#176f40}.pixPaymentRow{border-bottom-color:#d7eadf}.pixPaymentRow span{color:#59816a}.pixPaymentRow b{color:#26372d}.pixKeyBox{background:#fff;border-color:#8fc9a7}.pixKeyBox code{color:#1d2922}.pixWarning{background:#fff4d9;color:#78560f}.whatsappAction{background:#168c4c}.deliveryAction{background:#e9f4fc;color:#23648f;border-color:#bdd8eb}.locationState{background:#eef5fa;color:#3f5c72;border-color:#d1e0ea}
 .banner{background:linear-gradient(135deg,#fff5e9,#fff);color:#713710;border-color:#efcfad}.banner.hasimg{background:#e9ecef}.bannerCaption{color:#fff}.loyaltyCard,.loyaltyBox{background:#fff;border-color:#dfe3e7}.loyaltyTrack{background:#e4e7ea}.trustline{color:#6c747d}.checkoutSteps span{background:#d8dce1}.checkoutSteps span.on{background:var(--brand)}
+.cartBreakdown{background:#fff;border-color:#d9dde2;box-shadow:0 4px 14px rgba(28,34,41,.06)}
+.cartBreakdown .sumrow{color:#505861}
+.cartBreakdown .sumrow b{color:#202328}
+.cartBreakdown .sumrow .mini{color:#68717b}
+.cartBreakdown .sumrow.total{margin-top:7px;padding-top:11px;border-top:1px solid #e1e4e8;color:#17191c;font-size:18px}
+.cartBreakdown .sumrow.total b{color:#c94d14;font-size:20px}
 @media(max-width:640px){.admbar{background:rgba(247,248,250,.96)}.sheet.full{background:#f7f8fa}}
 `;document.head.appendChild(lightThemeStyle);
 function customerCategoryRank(category){const c=String(category||'Outros').toLowerCase();if(c.includes('hamb'))return 0;if(c.includes('combo'))return 1;if(c.includes('batata'))return 2;if(c.includes('bebida'))return 3;return 4}
