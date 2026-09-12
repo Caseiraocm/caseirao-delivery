@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
-<meta name="caseirao-build" content="2026-09-10-premium-interface-v2">
-<meta name="description" content="Cardápio, pedidos e acompanhamento do O Caseirão Burger.">
+<meta name="caseirao-build" content="2026-09-12-driver-one-tap-v2">
+<meta name="description" content="Aplicativo interno da equipe e Central ADM do O Caseirão Burger.">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Caseirão">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b0d10'/%3E%3Ctext x='32' y='45' font-size='38' text-anchor='middle'%3E🍔%3C/text%3E%3C/svg%3E">
-<title>O Caseirão Burger</title>
+<title>Caseirão Equipe</title>
 <style>
 :root{--bg:#0b0d10;--panel:#12151a;--panel2:#181c22;--line:#2a2f38;--txt:#f7f7f8;--muted:#9da4ae;--brand:#c95116;--brand-text:#fff;--danger:#ff5a5f;--ok:#2ecc71;--blue:#4da3ff;--r:18px}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--txt);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}body{min-height:100vh;padding-bottom:92px}.hide{display:none!important}
@@ -66,15 +66,37 @@ button,.card,.tableitem,.metric,.financeCard,.quickbtn,.chip{transition:transfor
 .couponRow{display:grid;grid-template-columns:1fr auto;gap:8px}.couponRow button{width:auto}.etaCard{display:flex;flex-direction:column;gap:4px;border:1px solid #6a4823;background:linear-gradient(135deg,#2e1c0d,#18120d);padding:12px;border-radius:12px;margin-bottom:10px;color:#ffd18f}.etaCard span{font-size:12px;color:#e5c49a}.discountLine{color:#8df0b1}.soldOut{opacity:.58;filter:grayscale(.35)}.soldOut .pic{position:relative}.soldOut .pic:after{content:'ESGOTADO';position:absolute;inset:auto 8px 8px;background:#8f282d;color:#fff;border-radius:8px;padding:7px;text-align:center;font-weight:950}.opsOrder{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
 @media(max-width:520px){.couponRow{grid-template-columns:1fr}.couponRow button{width:100%}}
 </style>
-<style id="liveClockHeaderFix">
-.brandMetaRow{grid-column:2!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:6px!important;min-width:0!important;white-space:nowrap}
-.brandMetaRow .status{grid-column:auto!important;margin:2px 0 0!important;flex:0 1 auto!important}
-.liveClock{display:inline-flex!important;align-items:center!important;margin:2px 0 0 1px!important;color:#8b9097!important;font-size:9px!important;line-height:1!important;font-weight:700!important;letter-spacing:.02em!important;font-variant-numeric:tabular-nums;white-space:nowrap}
-.liveClock:before{content:'•';margin-right:6px;color:#b0b4b9;font-size:8px}
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#e76620">
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+<style>
+body.teamApp{min-height:100vh;background:radial-gradient(circle at 20% 0,rgba(231,102,32,.18),transparent 35%),#0e1013;color:#fff}
+body.teamApp>.top,body.teamApp>.wrap,body.teamApp>.cartbar,body.teamApp>#loadingBar{display:none!important}
+.teamLauncher{min-height:100vh;display:grid;place-items:center;padding:26px 18px calc(26px + env(safe-area-inset-bottom))}
+.teamLauncherCard{width:min(100%,480px);border:1px solid rgba(255,255,255,.1);background:linear-gradient(155deg,#1a1d22,#101216);border-radius:28px;padding:28px;box-shadow:0 28px 80px rgba(0,0,0,.38)}
+.teamLogo{width:72px;height:72px;display:grid;place-items:center;margin-bottom:23px;border-radius:22px;background:linear-gradient(145deg,#f47b32,#bd3f10);box-shadow:0 15px 35px rgba(231,102,32,.28);font-size:25px;font-weight:1000;letter-spacing:-.07em}
+.teamLauncher h1{margin:0;font-size:31px;letter-spacing:-.045em;line-height:1}.teamLauncher p{margin:10px 0 24px;color:#aeb4bc;line-height:1.5}
+.teamChoice{width:100%;display:flex;align-items:center;gap:14px;text-align:left;border:1px solid #30353c;border-radius:18px;padding:17px;background:#191c21;color:#fff;margin-top:10px}
+.teamChoice:hover,.teamChoice:focus-visible{border-color:#e76620;background:#211b18;outline:none}.teamChoice strong{display:block;font-size:16px}.teamChoice small{display:block;color:#9ba3ad;margin-top:4px;line-height:1.35}.teamChoiceIcon{width:46px;height:46px;display:grid;place-items:center;flex:0 0 46px;border-radius:14px;background:#292d34;font-size:21px}
+.teamInstall{width:100%;margin-top:18px;border:0;background:transparent;color:#f2a36f;padding:12px;font-weight:850}
+.teamVersion{text-align:center;color:#6f7781;font-size:11px;margin-top:16px}
+body.teamApp .overlay{position:fixed;inset:0;z-index:50}
+@media(max-width:520px){.teamLauncherCard{padding:23px 18px;border-radius:23px}.teamLauncher h1{font-size:28px}}
 </style>
 </head>
-<body>
-<header class="top"><div class="topin"><div class="brand"><div class="brandMark" aria-hidden="true">CB</div><h1 id="storeName">O Caseirão Burger</h1><div class="brandMetaRow"><div id="storeStatus" class="status">Carregando cardápio...</div><time id="liveClock" class="liveClock" aria-label="Horário atual">--:--:--</time></div></div><button class="headbtn" id="trackBtn">Acompanhar</button></div></header>
+<body class="teamApp">
+<section id="teamHome" class="teamLauncher" aria-label="Acesso interno do Caseirão">
+  <div class="teamLauncherCard">
+    <div class="teamLogo" aria-hidden="true">CB</div>
+    <h1>Caseirão Equipe</h1>
+    <p>Escolha sua área para iniciar o expediente.</p>
+    <button id="teamAdminBtn" class="teamChoice" type="button"><span class="teamChoiceIcon">⚙️</span><span><strong>Central ADM</strong><small>Gestão completa, relatórios, cardápio e configurações.</small></span></button>
+    <button id="teamEmployeeBtn" class="teamChoice" type="button"><span class="teamChoiceIcon">👥</span><span><strong>Acesso da equipe</strong><small>Produção, caixa, entregas e operação do dia.</small></span></button>
+    <button id="teamInstallBtn" class="teamInstall" type="button">↓ Instalar este aplicativo</button>
+    <div class="teamVersion">© 2026 O Caseirão Burger • Todos os direitos reservados.</div>
+  </div>
+</section>
+<header class="top"><div class="topin"><div class="brand"><div class="brandMark" aria-hidden="true">CB</div><h1 id="storeName">O Caseirão Burger</h1><div id="storeStatus" class="status">Carregando cardápio...</div></div><button class="headbtn" id="trackBtn">Acompanhar</button><button class="headbtn" id="adminBtn">ADM</button></div></header>
 <main class="wrap">
 <div id="banner" class="banner hide"></div>
 <input id="search" class="search" placeholder="Buscar no cardápio" autocomplete="off">
@@ -489,13 +511,7 @@ async function renderRemoteTables(box){try{box.innerHTML='<div class="notice">Ca
 async function openRemoteAdminTable(tableId){if(!employeeAdminCache)await loadEmployeeAdmin();const t=(employeeAdminCache.tables||[]).find(x=>String(x.id)===String(tableId)),s=remoteSessionForTable(tableId);if(!t)return;if(!s){const customer=(prompt(`Responsável da Mesa ${String(t.table_number).padStart(2,'0')}:`,'')||'').trim();if(!customer)return;await employeeApi('admin_open_table',{table_id:t.id,customer_name:customer},true);await loadEmployeeAdmin();return openRemoteAdminTable(tableId)}renderRemoteAdminAccount(t,s)}
 function remoteOrdersHtml(s){const orders=s.orders||[];return orders.length?orders.map(o=>`<details class="tableOrder"><summary><span><b>Pedido #${esc(o.order_number)}</b><small>${esc(statusLabel[o.status]||o.status)}${o.employee_id?' • funcionário':''}</small></span><b>${fmt(o.total)}</b></summary><div>${(o.order_items||[]).map(i=>`<div class="tableItemLine"><span>${Number(i.quantity||1)}x ${esc(i.product_name)}</span><b>${fmt(i.line_total)}</b></div>`).join('')}${o.notes?`<div class="mini">${esc(o.notes)}</div>`:''}</div></details>`).join(''):'<div class="empty cleanEmpty"><b>Comanda vazia</b><span>Aguardando lançamento.</span></div>'}
 function renderRemoteAdminAccount(t,s){modal(`<div class="sheeth"><div><h2>Mesa ${String(t.table_number).padStart(2,'0')}</h2><div class="adminSub">${esc(s.customer_name)}</div></div><button class="x" id="backRemoteTables">←</button></div><div class="tableAccountTotal"><span>Total da mesa</span><b>${fmt(remoteSessionTotal(s))}</b></div><button id="adminAddRemoteOrder" class="primary">+ LANÇAR ITENS</button><div class="sectionTitle">Comanda sincronizada</div>${remoteOrdersHtml(s)}<div class="tableAccountActions"><button id="adminPrintRemote" class="secondary">IMPRIMIR CONTA</button><button id="adminCloseRemote" class="primary">FECHAR E RECEBER</button></div><button id="adminCancelRemote" class="secondary danger">CANCELAR / LIBERAR MESA</button>`,true);$('#backRemoteTables').onclick=()=>{adminTab='mesas';renderAdmin()};$('#adminAddRemoteOrder').onclick=()=>openRemoteOrderForm(t,s,true);$('#adminPrintRemote').onclick=()=>printRemoteTable(t,s);$('#adminCloseRemote').onclick=()=>openRemoteClose(t,s);$('#adminCancelRemote').onclick=async()=>{if(!confirm('Cancelar pedidos em aberto e liberar esta mesa?'))return;await employeeApi('admin_cancel_table',{table_session_id:s.id},true);admin=await adminCall('snapshot');adminTab='mesas';renderAdmin()}}
-function printRemoteTable(t,s){const lines=(s.orders||[]).filter(o=>o.status!=='cancelado').flatMap(o=>(o.order_items||[]).map(i=>`<tr><td>${Number(i.quantity||1)}x ${esc(i.product_name)}</td><td>${fmt(i.line_total)}</td></tr>`)).join(''),w=window.open('','_blank','width=420,height=700');if(!w)return alert('Permita a janela de impressão.');w.document.write(`<!doctype html><html><head><meta charset="utf-8"><style>body{font:14px monospace;width:72mm;margin:auto;padding:8px}h2,p{text-align:center}table{width:100%;border-collapse:collapse}td{padding:6px 0;border-bottom:1px dashed #999}td:last-child{text-align:right}.total{text-align:right;font-size:20px;font-weight:bold;margin-top:14px}</style><style id="liveClockStyle">
-.brandMetaRow{grid-column:2;display:flex;align-items:center;gap:10px;min-width:0}
-.brandMetaRow .status{grid-column:auto;min-width:0}
-.liveClock{margin-left:auto;flex:0 0 auto;color:#5f6670;font-size:11px;font-weight:850;letter-spacing:.035em;font-variant-numeric:tabular-nums;white-space:nowrap}
-@media(max-width:400px){.brandMetaRow{gap:7px}.liveClock{font-size:10px}}
-</style>
-</head><body><h2>O CASEIRÃO BURGER</h2><p>Mesa ${String(t.table_number).padStart(2,'0')} • ${esc(s.customer_name)}</p><table>${lines}</table><div class="total">TOTAL ${fmt(remoteSessionTotal(s))}</div><script>onload=()=>{print();setTimeout(close,500)}<\/script></body></html>`);w.document.close()}
+function printRemoteTable(t,s){const lines=(s.orders||[]).filter(o=>o.status!=='cancelado').flatMap(o=>(o.order_items||[]).map(i=>`<tr><td>${Number(i.quantity||1)}x ${esc(i.product_name)}</td><td>${fmt(i.line_total)}</td></tr>`)).join(''),w=window.open('','_blank','width=420,height=700');if(!w)return alert('Permita a janela de impressão.');w.document.write(`<!doctype html><html><head><meta charset="utf-8"><style>body{font:14px monospace;width:72mm;margin:auto;padding:8px}h2,p{text-align:center}table{width:100%;border-collapse:collapse}td{padding:6px 0;border-bottom:1px dashed #999}td:last-child{text-align:right}.total{text-align:right;font-size:20px;font-weight:bold;margin-top:14px}</style></head><body><h2>O CASEIRÃO BURGER</h2><p>Mesa ${String(t.table_number).padStart(2,'0')} • ${esc(s.customer_name)}</p><table>${lines}</table><div class="total">TOTAL ${fmt(remoteSessionTotal(s))}</div><script>onload=()=>{print();setTimeout(close,500)}<\/script></body></html>`);w.document.close()}
 function openRemoteClose(t,s){const total=remoteSessionTotal(s);if(total<=0)return alert('A mesa ainda não possui consumo.');modal(`<div class="sheeth"><div><h2>Fechar Mesa ${String(t.table_number).padStart(2,'0')}</h2><div class="adminSub">Somente o administrador pode concluir</div></div><button class="x" id="backRemoteAccount">←</button></div><div class="tableAccountTotal"><span>Total a receber</span><b>${fmt(total)}</b></div><div class="field"><label>Forma de pagamento</label><select id="remotePayment" class="sel"><option>Pix</option><option>Dinheiro</option><option>Cartão</option><option>Pagamento dividido</option></select></div><div class="field"><label>Observação</label><input id="remoteCloseNote" class="in" placeholder="Opcional"></div><button id="confirmRemoteClose" class="primary">CONFIRMAR E LIBERAR MESA</button>`,true);$('#backRemoteAccount').onclick=()=>renderRemoteAdminAccount(t,s);$('#confirmRemoteClose').onclick=async()=>{const b=$('#confirmRemoteClose');try{b.disabled=true;await employeeApi('admin_close_table',{table_session_id:s.id,payment:$('#remotePayment').value,note:$('#remoteCloseNote').value},true);admin=await adminCall('snapshot');adminTab='mesas';renderAdmin();showAppToast(`Mesa ${t.table_number} fechada com sucesso.`,'ok')}catch(e){alert(e.message);b.disabled=false}}}
 async function renderEmployees(box){try{box.innerHTML='<div class="notice">Carregando funcionários...</div>';const c=await loadEmployeeAdmin();box.innerHTML=`<div class="operationHint">Cada funcionário recebe login e senha próprios. O acesso permite somente abrir mesas e lançar pedidos.</div><button id="newEmployee" class="primary" style="margin:12px 0">+ CADASTRAR FUNCIONÁRIO</button><div>${(c.employees||[]).map(e=>`<div class="tableitem"><div class="grow"><b>${esc(e.name)}</b><div class="mini">Login: ${esc(e.username)} • ${e.active?'Ativo':'Bloqueado'}${e.last_login_at?' • último acesso '+new Date(e.last_login_at).toLocaleString('pt-BR'):''}</div></div><button class="editbtn" data-edit-employee="${e.id}">EDITAR</button></div>`).join('')||'<div class="empty">Nenhum funcionário cadastrado.</div>'}</div>`;$('#newEmployee').onclick=()=>editEmployee();box.querySelectorAll('[data-edit-employee]').forEach(b=>b.onclick=()=>editEmployee((c.employees||[]).find(e=>String(e.id)===String(b.dataset.editEmployee))))}catch(e){box.innerHTML=`<div class="err">${esc(e.message)}</div>`}}
 function editEmployee(e={}){modal(`<div class="sheeth"><div><h2>${e.id?'Editar funcionário':'Novo funcionário'}</h2><div class="adminSub">Acesso restrito a mesas e pedidos</div></div><button class="x" id="backEmployees">←</button></div><div class="field"><label>Nome do funcionário</label><input id="employeeName" class="in" value="${esc(e.name||'')}"></div><div class="field"><label>Login</label><input id="employeeUsername" class="in" autocapitalize="none" value="${esc(e.username||'')}"></div><div class="field"><label>${e.id?'Nova senha (deixe vazia para manter)':'Senha (mínimo 6 caracteres)'}</label><input id="employeePassword" class="in" type="password" autocomplete="new-password"></div><label class="addon"><input id="employeeActive" type="checkbox" ${e.active!==false?'checked':''}><span><b>Acesso ativo</b><div class="mini">Desmarque para bloquear imediatamente.</div></span></label><button id="saveEmployee" class="primary">SALVAR FUNCIONÁRIO</button>${e.id?'<button id="blockEmployee" class="secondary danger" style="margin-top:9px">BLOQUEAR ACESSO</button>':''}`,true);$('#backEmployees').onclick=()=>{adminTab='funcionarios';renderAdmin()};$('#saveEmployee').onclick=async()=>{const b=$('#saveEmployee');try{b.disabled=true;await employeeApi('admin_save_employee',{id:e.id||'',name:$('#employeeName').value,username:$('#employeeUsername').value,password:$('#employeePassword').value,active:$('#employeeActive').checked},true);adminTab='funcionarios';renderAdmin();showAppToast('Funcionário salvo.','ok')}catch(x){alert(x.message);b.disabled=false}};if(e.id)$('#blockEmployee').onclick=async()=>{if(!confirm('Bloquear o acesso deste funcionário?'))return;await employeeApi('admin_delete_employee',{id:e.id},true);adminTab='funcionarios';renderAdmin()}}
@@ -511,7 +527,7 @@ function renderUnitNotes(productId,productName,quantity,notes){const box=documen
 function openRemoteOrderForm(t,s,adminMode){const products=(adminMode?(admin?.products||data.products||[]):(employeeSnapshot?.products||[])).filter(p=>p.active!==false&&!p.sold_out),q=new Map(),unitNotes=new Map(),total=()=>products.reduce((a,p)=>a+(q.get(String(p.id))||0)*priceOf(p),0);modal(`<div class="sheeth"><div><h2>Mesa ${String(t.table_number).padStart(2,'0')}</h2><div class="adminSub">Escolha os produtos por categoria</div></div><button class="x" id="backRemoteOrder">←</button></div><div class="employeeProductSearch"><span>⌕</span><input id="remoteProductSearch" class="in" placeholder="Buscar lanche, bebida, batata..."></div><div class="employeeCatalog">${operationalCatalogHtml(products)}</div><div class="field"><label>Observação geral da mesa</label><textarea id="remoteOrderNotes" class="ta" placeholder="Opcional: recado geral para toda a rodada"></textarea></div><div class="manualFooter"><div><span>Total</span><b id="remoteOrderTotal">${fmt(0)}</b></div><button id="saveRemoteOrder" class="primary">ENVIAR À PRODUÇÃO</button></div>`,true);$('#backRemoteOrder').onclick=()=>adminMode?renderRemoteAdminAccount(t,s):openEmployeeTable(t.id);$('#remoteProductSearch').oninput=e=>filterOperationalCatalog(e.target.value);document.querySelectorAll('[data-rproduct]').forEach(b=>b.onclick=()=>{const id=String(b.dataset.rproduct),n=Math.max(0,(q.get(id)||0)+Number(b.dataset.d)),product=products.find(p=>String(p.id)===id);q.set(id,n);const counter=$(`[data-rqty="${CSS.escape(id)}"]`);counter.textContent=n;counter.closest('.employeeProductCard')?.classList.toggle('selected',n>0);renderUnitNotes(id,product?.name||'Item',n,unitNotes);$('#remoteOrderTotal').textContent=fmt(total())});$('#saveRemoteOrder').onclick=async()=>{const b=$('#saveRemoteOrder'),items=products.flatMap(p=>{const qty=q.get(String(p.id))||0,notes=unitNotes.get(String(p.id))||[];return Array.from({length:qty},(_,i)=>({product_id:p.id,qty:1,addon_ids:[],note:String(notes[i]||'').trim()}))});if(!items.length)return alert('Adicione pelo menos um item.');try{b.disabled=true;b.textContent='ENVIANDO...';if(adminMode){alert('Para lançar como administrador, use temporariamente um acesso de funcionário. O fechamento continua exclusivo do ADM.');b.disabled=false;b.textContent='ENVIAR À PRODUÇÃO';return}await employeeApi('create_table_order',{table_session_id:s.id,items,notes:$('#remoteOrderNotes').value,phone:data.settings?.whatsapp||'86995653888'});employeeSnapshot=await employeeApi('employee_snapshot');showAppToast(`Pedido lançado na Mesa ${t.table_number}.`,'ok');openEmployeeTable(t.id)}catch(e){alert(e.message);b.disabled=false;b.textContent='ENVIAR À PRODUÇÃO'}}}
 openManualOrder=function(){let manualType='pickup';const products=(admin?.products||data.products||[]).filter(p=>p.active!==false&&!p.sold_out),quantities=new Map(),unitNotes=new Map(),total=()=>products.reduce((sum,p)=>sum+(quantities.get(String(p.id))||0)*priceOf(p),0);const drawAddress=()=>{const box=$('#manualAddress');if(!box)return;box.innerHTML=manualType==='delivery'?`<div class="manualSectionTitle">ENDEREÇO DA ENTREGA</div><div class="row"><div class="field"><label>Rua / Avenida</label><input id="mStreet" class="in"></div><div class="field"><label>Número</label><input id="mNumber" class="in"></div></div><div class="field"><label>Bairro</label><select id="mNeighborhood" class="sel"><option value="">Selecione</option>${(admin.neighborhoods||[]).filter(n=>n.active!==false).map(n=>`<option value="${n.id}">${esc(n.name)} • ${fmt(n.fee)}</option>`).join('')}</select></div><div class="row"><div class="field"><label>Complemento</label><input id="mComplement" class="in"></div><div class="field"><label>Referência</label><input id="mReference" class="in"></div></div>`:''};modal(`<div class="sheeth"><div><h2>Novo pedido manual</h2><div class="adminSub">Balcão, telefone ou consumo no local</div></div><button class="x" id="backToAdmin">←</button></div><div class="seg"><button data-mtype="delivery">Entrega</button><button data-mtype="pickup" class="on">Retirada</button><button data-mtype="local">No local</button></div><div class="manualSectionTitle">DADOS DO CLIENTE</div><div class="row"><div class="field"><label>Nome do cliente</label><input id="mName" class="in"></div><div class="field"><label>Telefone</label><input id="mPhone" class="in" inputmode="tel" placeholder="(86) 99999-9999"></div></div><div id="manualAddress"></div><div class="row"><div class="field"><label>Pagamento</label><select id="mPayment" class="sel"><option>Pix</option><option>Dinheiro</option><option>Cartão</option></select></div><div class="field"><label>Troco para</label><input id="mChange" class="in" inputmode="decimal"></div></div><div class="manualSectionTitle">ESCOLHA OS PRODUTOS</div><div class="employeeProductSearch manualProductSearch"><span>⌕</span><input id="manualProductSearch" class="in" placeholder="Buscar lanche, combo, bebida..."></div><div class="employeeCatalog">${operationalCatalogHtml(products)}</div><div class="field"><label>Observação geral do pedido</label><textarea id="mNotes" class="ta" placeholder="Opcional: recado que vale para o pedido inteiro"></textarea></div><div class="manualFooter"><div><span>Total estimado</span><b id="manualTotal">${fmt(0)}</b></div><button id="saveManual" class="primary">CRIAR PEDIDO</button></div>`,true);$('#backToAdmin').onclick=renderAdmin;drawAddress();document.querySelectorAll('[data-mtype]').forEach(button=>button.onclick=()=>{manualType=button.dataset.mtype;document.querySelectorAll('[data-mtype]').forEach(x=>x.classList.toggle('on',x===button));drawAddress()});$('#mPhone').oninput=e=>e.target.value=phoneMask(e.target.value);$('#manualProductSearch').oninput=e=>filterOperationalCatalog(e.target.value);document.querySelectorAll('[data-rproduct]').forEach(button=>button.onclick=()=>{const id=String(button.dataset.rproduct),quantity=Math.max(0,(quantities.get(id)||0)+Number(button.dataset.d)),product=products.find(p=>String(p.id)===id);quantities.set(id,quantity);const counter=$(`[data-rqty="${CSS.escape(id)}"]`);counter.textContent=quantity;counter.closest('.employeeProductCard')?.classList.toggle('selected',quantity>0);renderUnitNotes(id,product?.name||'Item',quantity,unitNotes);$('#manualTotal').textContent=fmt(total())});$('#saveManual').onclick=async()=>{const button=$('#saveManual');try{const name=$('#mName').value.trim(),phone=$('#mPhone').value.trim(),items=products.flatMap(p=>{const quantity=quantities.get(String(p.id))||0,notes=unitNotes.get(String(p.id))||[];return Array.from({length:quantity},(_,i)=>({product_id:p.id,qty:1,addon_ids:[],note:String(notes[i]||'').trim()}))});if(name.length<2)throw new Error('Informe o nome do cliente.');if(!validPhone(phone))throw new Error('Informe um telefone válido com DDD.');if(!items.length)throw new Error('Adicione pelo menos um item.');const payload={customer:{name,phone},type:manualType,payment:$('#mPayment').value,change_for:$('#mChange').value.trim(),coupon_code:'',notes:$('#mNotes').value.trim(),items,source:'manual'};if(manualType==='delivery'){const neighborhood=$('#mNeighborhood').value;if(!$('#mStreet').value.trim()||!$('#mNumber').value.trim()||!neighborhood)throw new Error('Preencha rua, número e bairro.');payload.address={street:$('#mStreet').value.trim(),number:$('#mNumber').value.trim(),neighborhood_id:neighborhood,complement:$('#mComplement').value.trim(),reference:$('#mReference').value.trim()}}button.disabled=true;button.textContent='CRIANDO...';const made=await adminCall('create_manual_order',payload);admin=await adminCall('snapshot');knownOrderIds=new Set((admin.orders||[]).map(o=>o.id));adminTab='pedidos';renderAdmin();showAppToast(`Pedido #${made.order_number} criado com sucesso.`,'ok')}catch(e){alert(e.message||String(e));button.disabled=false;button.textContent='CRIAR PEDIDO'}}};
 const employeeStyle=document.createElement('style');employeeStyle.textContent=`.employeeLoginCard{max-width:430px;margin:30px auto}.employeeLimit{border:1px solid #3c4654;background:#171d25;border-radius:13px;padding:11px 12px;color:#c7d0db;font-size:12px;line-height:1.45}.employeeAccessBtn{border-color:#5b3a20;background:#261a11;color:#ffd5a1}@media(max-width:480px){.employeeAccessBtn{grid-column:2}.topin{grid-template-columns:1fr auto auto auto}}`;document.head.appendChild(employeeStyle);
-const headerButtonsStyle=document.createElement('style');headerButtonsStyle.textContent=`@media(max-width:640px){.topin{display:grid!important;grid-template-columns:1fr!important;gap:8px!important;padding:12px 14px!important}.topin>.brand{width:100%;margin-bottom:3px}.topin>#trackBtn{width:100%;min-width:0;padding:10px 12px!important;text-align:center;font-size:12px!important;white-space:nowrap}}@media(min-width:641px){.topin>.brand{order:1}.topin>#trackBtn{order:2}}`;document.head.appendChild(headerButtonsStyle);
+const headerButtonsStyle=document.createElement('style');headerButtonsStyle.textContent=`@media(max-width:640px){.topin{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;padding:12px 14px!important}.topin>.brand{grid-column:1/-1!important;width:100%;margin-bottom:3px}.topin>.headbtn{grid-column:auto!important;width:100%;min-width:0;padding:10px 6px!important;text-align:center;font-size:11px!important;white-space:nowrap}.topin>#trackBtn{order:2}.topin>#employeeAccessBtn{order:3}.topin>#adminBtn{order:4}}@media(min-width:641px){.topin>.brand{order:1}.topin>#trackBtn{order:2}.topin>#employeeAccessBtn{order:3}.topin>#adminBtn{order:4}}`;document.head.appendChild(headerButtonsStyle);
 const employeeCatalogStyle=document.createElement('style');employeeCatalogStyle.textContent=`.employeeProductSearch{position:sticky;top:58px;z-index:4;background:#0f1216;padding:6px 0 10px}.employeeProductSearch>span{position:absolute;left:15px;top:17px;color:#89929d;font-size:22px}.employeeProductSearch .in{padding-left:43px}.employeeCatalog{display:grid;gap:18px;margin-top:5px}.employeeProductGroup{display:grid;gap:8px}.employeeGroupTitle{display:flex;align-items:center;gap:8px;padding:2px 3px}.employeeGroupTitle>b{font-size:16px;letter-spacing:-.02em}.employeeGroupTitle>small{margin-left:auto;color:var(--muted);font-size:10px;text-transform:uppercase;font-weight:850}.employeeProductGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.employeeProductCard{display:grid;grid-template-columns:58px minmax(0,1fr);grid-template-rows:auto auto;gap:7px 10px;align-items:center;border:1px solid var(--line);background:linear-gradient(145deg,#171b20,#111418);border-radius:14px;padding:8px;min-width:0;transition:.15s}.employeeProductCard.selected{border-color:#b9672c;background:linear-gradient(145deg,#2a1b11,#17130f);box-shadow:inset 0 0 0 1px rgba(255,136,56,.12)}.employeeProductPhoto{grid-row:1/3;width:58px;height:58px;border-radius:11px;overflow:hidden;background:#242931;display:grid;place-items:center}.employeeProductPhoto img{width:100%;height:100%;object-fit:cover}.employeeProductPhoto span{font-size:12px;font-weight:950;color:#8f98a4}.employeeProductInfo{min-width:0;align-self:end}.employeeProductInfo>b{display:block;font-size:13px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.employeeProductInfo>span{display:block;color:#f2a466;font-weight:900;font-size:12px;margin-top:3px}.employeeProductQty{align-self:start;gap:5px}.employeeProductQty button{width:31px;height:31px}.employeeProductQty>b{min-width:20px;text-align:center}.employeeCatalog+.field{margin-top:18px}@media(max-width:520px){.employeeProductGrid{grid-template-columns:1fr}.employeeProductCard{grid-template-columns:64px minmax(0,1fr) auto;grid-template-rows:1fr}.employeeProductPhoto{grid-row:auto;width:64px;height:64px}.employeeProductInfo{align-self:center}.employeeProductInfo>b{font-size:15px;white-space:normal}.employeeProductQty{align-self:center}.employeeProductQty button{width:38px;height:38px}.employeeProductSearch{top:57px}}`;document.head.appendChild(employeeCatalogStyle);
 const unitNotesStyle=document.createElement('style');unitNotesStyle.textContent=`.unitNotes{display:none;grid-column:1/-1;border-top:1px solid rgba(255,255,255,.09);padding-top:8px;margin-top:2px}.employeeProductCard.selected .unitNotes{display:grid;gap:7px}.unitNotesTitle{color:#f2a466;font-size:9px;font-weight:950;letter-spacing:.08em}.unitNoteRow{display:grid;grid-template-columns:110px minmax(0,1fr);gap:8px;align-items:center}.unitNoteRow>span{font-size:10px;color:#c7cdd4;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.unitNoteRow>.in{padding:9px 10px;border-radius:10px;font-size:12px;background:#0e1115}@media(max-width:520px){.unitNoteRow{grid-template-columns:92px minmax(0,1fr)}.unitNoteRow>.in{font-size:13px}}`;document.head.appendChild(unitNotesStyle);
 const manualOrderStyle=document.createElement('style');manualOrderStyle.textContent=`.manualSectionTitle{margin:18px 2px 4px;color:#6d747d;font-size:10px;font-weight:950;letter-spacing:.1em}.manualProductSearch{top:0;margin-bottom:4px}.manualProductSearch+.employeeCatalog{margin-bottom:18px}`;document.head.appendChild(manualOrderStyle);
@@ -555,7 +571,8 @@ const operationalNavigationStyle=document.createElement('style');operationalNavi
 const oldRenderTablesRemote=renderTables;renderTables=function(box){renderRemoteTables(box)};
 const renderAdminEmployeesBase=renderAdmin;renderAdmin=function(){renderAdminEmployeesBase();const bar=document.querySelector('.admbar');if(bar&&!bar.querySelector('[data-tab="funcionarios"]')){const b=document.createElement('button');b.dataset.tab='funcionarios';b.className=adminTab==='funcionarios'?'on':'';b.textContent='Funcionários';b.onclick=()=>{adminTab='funcionarios';renderAdmin()};const products=bar.querySelector('[data-tab="produtos"]');products?products.before(b):bar.appendChild(b)}if(adminTab==='funcionarios'){const box=$('#admContent');if(box)renderEmployees(box)}};
 const renderAdminTabEmployeesBase=renderAdminTab;renderAdminTab=function(){if(adminTab==='funcionarios'){const box=$('#admContent');if(box)renderEmployees(box);return}renderAdminTabEmployeesBase()};
-const renderAdminCleanChromeBase=renderAdmin;renderAdmin=function(){operationalMode='admin';const result=renderAdminCleanChromeBase();modalRoot.querySelector('.modalNav')?.remove();modalRoot.querySelector('.sheeth>.x')?.remove();const exit=$('#adminLogout');if(exit){exit.textContent='Sair';exit.onclick=()=>{sessionStorage.removeItem('caseirao_admin_pin');if(orderWatcher)clearInterval(orderWatcher);admin=null;leaveOperationalMode()}}return result};
+const employeeAccessButton=document.createElement('button');employeeAccessButton.id='employeeAccessBtn';employeeAccessButton.className='headbtn employeeAccessBtn';employeeAccessButton.textContent='EQUIPE';document.querySelector('.topin')?.insertBefore(employeeAccessButton,$('#adminBtn'));employeeAccessButton.onclick=()=>employeeToken()?openEmployeePanel():openEmployeeLogin();
+const renderAdminCleanChromeBase=renderAdmin;renderAdmin=function(){operationalMode='admin';const result=renderAdminCleanChromeBase();modalRoot.querySelector('.modalNav')?.remove();modalRoot.querySelector('.sheeth>.x')?.remove();const exit=$('#adminLogout');if(exit){exit.textContent='Sair';exit.onclick=()=>{sessionStorage.removeItem('caseirao_admin_pin');clearInternalResume();if(orderWatcher)clearInterval(orderWatcher);admin=null;leaveOperationalMode()}}return result};
 const renderEmployeeCleanChromeBase=renderEmployeePanel;renderEmployeePanel=function(){operationalMode='employee';const result=renderEmployeeCleanChromeBase();modalRoot.querySelector('.modalNav')?.remove();const exit=$('#employeeLogout');if(exit){exit.textContent='Sair';exit.onclick=async()=>{await employeeApi('logout').catch(()=>{});sessionStorage.removeItem('caseirao_employee_token');employeeSnapshot=null;leaveOperationalMode()}}return result};
 
 /* Carrossel de promoções: mantém compatibilidade com os campos atuais do banner. */
@@ -645,8 +662,319 @@ const renderCatalogPerformanceBase=renderCatalog;renderCatalog=function(){const 
 const rawFileToBase64=fileToBase64;fileToBase64=async function(file){if(!file?.type?.startsWith('image/')||file.type==='image/gif')return rawFileToBase64(file);try{const bitmap=await createImageBitmap(file),maxWidth=1600,maxHeight=1200,scale=Math.min(1,maxWidth/bitmap.width,maxHeight/bitmap.height),width=Math.max(1,Math.round(bitmap.width*scale)),height=Math.max(1,Math.round(bitmap.height*scale)),canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;const context=canvas.getContext('2d',{alpha:false});context.fillStyle='#ffffff';context.fillRect(0,0,width,height);context.drawImage(bitmap,0,0,width,height);bitmap.close?.();const type=file.type==='image/png'?'image/webp':'image/jpeg',quality=.8,result=canvas.toDataURL(type,quality);return result.length<file.size*1.37?result:rawFileToBase64(file)}catch{return rawFileToBase64(file)}};
 const performanceStyle=document.createElement('style');performanceStyle.textContent=`#products .card{content-visibility:auto;contain-intrinsic-size:auto 330px}#products .pic img{will-change:auto}.skeleton{content-visibility:visible}`;document.head.appendChild(performanceStyle);
 
-restoreCart();lastCartCount=cartCount();updateCartBar();installManifest();
-$('#search').addEventListener('input',e=>{search=e.target.value;renderCatalog()});$('#cartBtn').onclick=renderCart;$('#trackBtn').onclick=()=>openTracking();$('#homeBtn').onclick=goHome;$('#promotionsBtn').onclick=openDailyPromotions;$('#loyaltyBtn').onclick=openCustomerLoyalty;$('#installBtn').onclick=installApp;catalog();const driverToken=decodeURIComponent((location.hash.match(/^#entregador=([^&]+)/)||[])[1]||'');if(driverToken)setTimeout(()=>openDriverTracking(driverToken),100);
+/* Fotos do cardápio nas telas administrativas de Produtos e Promoções. */
+const adminCatalogImage=product=>{
+  const catalogProduct=(data.products||[]).find(item=>String(item.id)===String(product.id))||(data.products||[]).find(item=>String(item.name||'').trim().toLowerCase()===String(product.name||'').trim().toLowerCase());
+  return String(product.image_url||catalogProduct?.image_url||'').trim();
+};
+const adminProductPhotosStyle=document.createElement('style');adminProductPhotosStyle.textContent=`
+.adminProductList{display:grid;gap:11px;margin-top:12px}.adminProductCard{display:grid;grid-template-columns:82px minmax(0,1fr) auto;gap:13px;align-items:center;border:1px solid #dfe3e7;background:#fff;border-radius:18px;padding:11px;box-shadow:0 5px 18px rgba(28,34,41,.045)}.adminProductPhoto,.promotionAdminPhoto{overflow:hidden;background:#edf0f2;display:grid;place-items:center;color:#a54a1b;font-weight:950}.adminProductPhoto{width:82px;height:76px;border-radius:14px}.adminProductPhoto img,.promotionAdminPhoto img{width:100%;height:100%;object-fit:cover;display:block}.adminProductInfo{min-width:0}.adminProductInfo>b{display:block!important;color:#191c20!important;font-size:16px!important;line-height:1.2!important;white-space:normal!important}.adminProductInfo .mini{margin-top:6px;color:#717983!important;line-height:1.4}.adminProductActions{display:flex;gap:8px;align-items:center}.adminProductActions .editbtn{min-height:46px;padding:10px 15px}.promotionAdminRow.withPhoto{grid-template-columns:76px minmax(0,1fr) 125px auto;align-items:center}.promotionAdminPhoto{width:76px;height:72px;border-radius:13px}.promotionAdminName{min-width:0}.promotionAdminName b{font-size:16px;line-height:1.2}.promotionAdminName span{font-size:12px;line-height:1.4}.promotionAdminRow.withPhoto .field{align-self:center}.promotionAdminRow.withPhoto>.primary{align-self:center}.promotionAdminRow.withPhoto .deactivatePromotion{grid-column:2/-1}@media(max-width:620px){.adminProductCard{grid-template-columns:76px minmax(0,1fr)}.adminProductPhoto{width:76px;height:72px}.adminProductActions{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr}.adminProductActions .editbtn{width:100%}.promotionAdminRow.withPhoto{grid-template-columns:72px minmax(0,1fr) 112px}.promotionAdminPhoto{width:72px;height:68px}.promotionAdminRow.withPhoto>.primary{grid-column:1/-1;width:100%}.promotionAdminRow.withPhoto .deactivatePromotion{grid-column:1/-1}}@media(max-width:390px){.promotionAdminRow.withPhoto{grid-template-columns:66px minmax(0,1fr)}.promotionAdminPhoto{width:66px;height:64px}.promotionAdminRow.withPhoto .field{grid-column:1/-1}.promotionAdminRow.withPhoto>.primary{grid-column:1/-1}}
+`;document.head.appendChild(adminProductPhotosStyle);
+renderProductsAdmin=function(box){
+  box.innerHTML=`<button id="newProduct" class="primary" style="margin:10px 0">+ Novo produto</button><div class="adminProductList">${(admin.products||[]).map(p=>{const image=adminCatalogImage(p);return `<div class="adminProductCard"><div class="adminProductPhoto">${image?`<img src="${esc(image)}" alt="${esc(p.name)}" loading="lazy" onerror="this.parentNode.innerHTML='CB'">`:'CB'}</div><div class="adminProductInfo"><b>${esc(p.name)}</b><div class="mini">${esc(p.category||'Outros')} • ${fmt(p.price)} ${p.promo_price?`• Promo ${fmt(p.promo_price)}`:''} • ${p.active!==false?'Ativo':'Inativo'}</div></div><div class="adminProductActions"><button class="editbtn" data-stockp="${p.id}">${p.sold_out?'LIBERAR':'ESGOTAR'}</button><button class="editbtn" data-editp="${p.id}">Editar</button></div></div>`}).join('')}</div>`;
+  $('#newProduct').onclick=()=>editProduct(null);
+  box.querySelectorAll('[data-editp]').forEach(button=>button.onclick=()=>editProduct((admin.products||[]).find(p=>String(p.id)===String(button.dataset.editp))));
+  box.querySelectorAll('[data-stockp]').forEach(button=>button.onclick=async()=>{const p=(admin.products||[]).find(item=>String(item.id)===String(button.dataset.stockp));if(!p)return;button.disabled=true;try{await opsCall('set_availability',{kind:'product',id:p.id,sold_out:!p.sold_out});admin=await adminCall('snapshot');renderProductsAdmin(box)}catch(error){button.disabled=false;alert(error.message||String(error))}});
+};
+renderPromotionsAdmin=function(box){
+  const products=[...(admin.products||[])].filter(p=>p.active!==false).sort((a,b)=>customerCategoryRank(a.category)-customerCategoryRank(b.category)||Number(a.price||0)-Number(b.price||0)||String(a.name||'').localeCompare(String(b.name||''),'pt-BR')),count=products.filter(p=>Number(p.promo_price)>0).length;
+  box.innerHTML=`<div class="promotionsTop"><b>🔥 Promoções do dia</b><span>${count?`${count} produto${count===1?' está':'s estão'} em promoção.`:'Nenhuma promoção ativa.'} Digite o preço especial e salve.</span></div>${products.map(p=>{const image=adminCatalogImage(p),active=Number(p.promo_price)>0;return `<div class="promotionAdminRow withPhoto ${active?'isPromo':''}"><div class="promotionAdminPhoto">${image?`<img src="${esc(image)}" alt="${esc(p.name)}" loading="lazy" onerror="this.parentNode.innerHTML='CB'">`:'CB'}</div><div class="promotionAdminName"><b>${esc(p.name)}</b><span>${esc(p.category||'Outros')}<br>Preço normal: ${fmt(p.price)}</span></div><div class="field"><label>Preço promocional</label><input class="in" inputmode="decimal" data-promo-price="${p.id}" value="${active?esc(p.promo_price):''}" placeholder="R$ 0,00"></div><button class="primary" data-save-promo="${p.id}">${active?'ATUALIZAR':'ATIVAR'}</button>${active?`<button class="deactivatePromotion" data-disable-promo="${p.id}">DESATIVAR PROMOÇÃO</button>`:''}</div>`}).join('')||'<div class="empty">Nenhum produto ativo.</div>'}`;
+  box.querySelectorAll('[data-save-promo]').forEach(button=>button.onclick=async()=>{const p=(admin.products||[]).find(item=>String(item.id)===String(button.dataset.savePromo)),input=box.querySelector(`[data-promo-price="${CSS.escape(button.dataset.savePromo)}"]`);try{const value=input.value.trim()===''?null:num(input.value);if(value!==null&&(value<=0||value>=Number(p.price)))throw new Error('O preço promocional precisa ser maior que zero e menor que o preço normal.');button.disabled=true;button.textContent='SALVANDO...';await adminCall('upsert_product',promotionProductPayload(p,value));admin=await adminCall('snapshot');await catalog();adminTab='promocoes';renderAdmin();showAppToast(value===null?'Promoção removida.':'Promoção publicada para os clientes.','ok')}catch(error){button.disabled=false;button.textContent=Number(p?.promo_price)>0?'ATUALIZAR':'ATIVAR';alert(error.message||String(error))}});
+  box.querySelectorAll('[data-disable-promo]').forEach(button=>button.onclick=async()=>{const p=(admin.products||[]).find(item=>String(item.id)===String(button.dataset.disablePromo));if(!p||!confirm(`Desativar a promoção de ${p.name}?`))return;try{button.disabled=true;button.textContent='DESATIVANDO...';await adminCall('upsert_product',promotionProductPayload(p,null));admin=await adminCall('snapshot');await catalog();adminTab='promocoes';renderAdmin();showAppToast('Promoção desativada e retirada da página do cliente.','ok')}catch(error){button.disabled=false;button.textContent='DESATIVAR PROMOÇÃO';alert(error.message||String(error))}});
+};
+
+/* Histórico compacto, legível e com hierarquia visual limpa. */
+const historyReadabilityStyle=document.createElement('style');historyReadabilityStyle.textContent=`
+.sheet.full:has(.adminHead) .orderSummary .orderNumber{color:#1b1e22!important;font-size:18px!important;min-width:50px}.sheet.full:has(.adminHead) .orderSummary .summaryCustomer>b{color:#1b1e22!important;font-weight:900!important}.sheet.full:has(.adminHead) .orderSummary .summaryCustomer>span{color:#6f7780!important}.sheet.full:has(.adminHead) .orderSummary .summaryRight>b{color:#1b1e22!important;font-size:17px!important}.sheet.full:has(.adminHead) .orderSummary:after{color:#77808a!important}.sheet.full:has(.adminHead) .statusSentence{line-height:1.25}
+#reportBody .sectionTitle{margin:20px 2px 10px;color:#343a41;font-weight:900}#reportBody .orderDetailed{margin:9px 0;border:1px solid #dfe3e7!important;border-left-width:4px!important;background:#fff!important;box-shadow:0 4px 14px rgba(28,34,41,.04)!important}#reportBody .orderDetailed.statusCollapsed.delivered{border-left-color:#2a9b5d!important}#reportBody .orderDetailed.statusCollapsed.route{border-left-color:#3894ca!important}#reportBody .orderDetailed .orderSummary{min-height:88px;padding:13px 14px;background:#fff!important}#reportBody .orderDetailed .summaryMain{gap:9px}#reportBody .orderDetailed .summaryCustomer{gap:2px}#reportBody .orderDetailed .summaryRight{min-width:104px;gap:7px}#reportBody .orderDetailed .statusBadge{padding:6px 10px;font-size:11px}#reportBody .orderDetailed .statusSentence{font-size:10px!important;margin-top:2px!important}#reportBody .orderDetailed[open]{box-shadow:0 9px 25px rgba(28,34,41,.09)!important;border-color:#cfd5da!important}#reportBody .orderDetailed[open] .orderBody{background:#fafbfc}
+@media(max-width:430px){#reportBody .orderDetailed .orderSummary{min-height:84px;padding:12px 11px}#reportBody .orderDetailed .orderNumber{font-size:17px!important;min-width:43px}#reportBody .orderDetailed .summaryCustomer>b{font-size:14px}#reportBody .orderDetailed .summaryCustomer>span{font-size:11px}#reportBody .orderDetailed .summaryRight{min-width:98px}#reportBody .orderDetailed .summaryRight>b{font-size:15px!important}#reportBody .orderDetailed .statusBadge{font-size:10px;padding:5px 8px}}
+`;document.head.appendChild(historyReadabilityStyle);
+
+/* Identificação do proprietário e copyright nas áreas internas. */
+const internalIdentityStyle=document.createElement('style');internalIdentityStyle.textContent=`
+.adminIdentityField{position:relative}.adminIdentityField .in{padding-left:46px;background:#eef1f4!important;color:#30353b!important;font-weight:850}.adminIdentityField:before{content:'👤';position:absolute;left:15px;bottom:14px;z-index:1;font-size:18px}.internalCopyright{margin:26px 0 5px;padding:18px 10px 4px;border-top:1px solid #dde1e5;color:#757c84;text-align:center;font-size:11px;font-weight:700;line-height:1.5}.loginCopyright{margin-top:24px;padding-top:16px}.adminOwnerBadge{display:inline-flex;align-items:center;gap:7px;margin-top:7px;padding:6px 10px;border:1px solid #e7d3c5;border-radius:999px;background:#fff7f1;color:#9b4217;font-size:11px;font-weight:850}
+`;document.head.appendChild(internalIdentityStyle);
+const openAdminIdentityBase=openAdmin;openAdmin=function(){
+  openAdminIdentityBase();
+  const login=$('.loginbox'),pinField=$('#adminPin')?.closest('.field');
+  if(login&&pinField&&!$('#adminIdentity')){
+    pinField.insertAdjacentHTML('beforebegin',`<div class="field adminIdentityField"><label>Identificação do administrador</label><input id="adminIdentity" class="in" value="Romário Caseirão ADM" readonly aria-readonly="true"></div>`);
+    login.insertAdjacentHTML('beforeend','<div class="internalCopyright loginCopyright">© 2026 O Caseirão Burger<br>Todos os direitos reservados.</div>');
+    const title=modalRoot.querySelector('.sheeth h2');if(title)title.textContent='Login da Central ADM';
+  }
+};
+function addInternalCopyright(area){
+  const box=$('#admContent')||$('#employeeContent')||modalRoot.querySelector('.sheet.full');
+  if(!box||box.querySelector('.internalCopyright'))return;
+  box.insertAdjacentHTML('beforeend',`<div class="internalCopyright"><span class="adminOwnerBadge">👤 ${esc(area)}</span><br><br>© 2026 O Caseirão Burger • Todos os direitos reservados.</div>`);
+}
+const renderAdminCopyrightBase=renderAdmin;renderAdmin=function(){const result=renderAdminCopyrightBase();addInternalCopyright('Romário Caseirão ADM');return result};
+const renderEmployeeCopyrightBase=renderEmployeePanel;renderEmployeePanel=function(){const result=renderEmployeeCopyrightBase();addInternalCopyright('Equipe Caseirão');return result};
+
+/* Retorno visual global para ações administrativas assíncronas. */
+const adminActionFeedbackStyle=document.createElement('style');adminActionFeedbackStyle.textContent=`
+@keyframes caseiraoSpin{to{transform:rotate(360deg)}}
+button{position:relative;-webkit-tap-highlight-color:transparent}
+button:active{transform:translateY(1px) scale(.985)!important;filter:brightness(.96)}
+.adminActionLoading{pointer-events:none!important;cursor:wait!important;opacity:.82!important;color:transparent!important;text-shadow:none!important}
+.adminActionLoading:before{content:'';position:absolute;left:50%;top:50%;width:20px;height:20px;margin:-12px 0 0 -12px;border:3px solid rgba(255,255,255,.38);border-top-color:#fff;border-radius:50%;animation:caseiraoSpin .7s linear infinite;z-index:2}
+.adminActionLoading.secondary:before,.adminActionLoading.editbtn:before,.adminActionLoading.deactivatePromotion:before,.adminActionLoading.danger:before{border-color:rgba(43,48,54,.2);border-top-color:#30363d}
+.adminActionLoading:after{content:'PROCESSANDO';position:absolute;left:50%;top:calc(50% + 11px);transform:translateX(-50%);color:currentColor;font-size:0}
+`;document.head.appendChild(adminActionFeedbackStyle);
+const adminActionSelector=[
+  '#saveP','#delP','#saveN','#delN','#saveA','#delA','#saveC','#delC','#saveStore','#saveEta','#saveBanner','#toggleStoreNow',
+  '#confirmCloseTable','#saveTableOrder','#saveManualOrder','#confirmCloseShift','#startDeliveryTracking','#stopDeliveryTracking','#newDriverLink',
+  '#saveEmployee','#deleteEmployee','#confirmPayment','#finishCashOrder',
+  '[data-save-promo]','[data-disable-promo]','[data-stockp]','[data-st]','[data-kitchen]','[data-payment]','[data-action]'
+].join(',');
+function clearAdminActionFeedback(button){if(!button)return;button.classList.remove('adminActionLoading');button.removeAttribute('aria-busy');if(button.dataset.feedbackDisabled!=='1')button.disabled=false;delete button.dataset.feedbackDisabled}
+document.addEventListener('click',event=>{
+  const button=event.target.closest('button');
+  if(!button||button.disabled||!button.closest('.sheet')||!button.matches(adminActionSelector))return;
+  button.dataset.feedbackDisabled=button.disabled?'1':'0';
+  requestAnimationFrame(()=>{if(!button.isConnected)return;button.classList.add('adminActionLoading');button.setAttribute('aria-busy','true');button.disabled=true});
+  let checks=0;
+  const watcher=setInterval(()=>{
+    checks++;
+    if(!button.isConnected){clearInterval(watcher);return}
+    if(checks>=3&&!button.disabled){clearInterval(watcher);clearAdminActionFeedback(button);return}
+    if(checks>=80){clearInterval(watcher);clearAdminActionFeedback(button)}
+  },200);
+},true);
+const caseiraoNativeAlert=window.alert.bind(window);window.alert=function(...args){document.querySelectorAll('.adminActionLoading').forEach(clearAdminActionFeedback);return caseiraoNativeAlert(...args)};
+
+restoreCart();lastCartCount=cartCount();updateCartBar();
+$('#search').addEventListener('input',e=>{search=e.target.value;renderCatalog()});$('#cartBtn').onclick=renderCart;$('#trackBtn').onclick=()=>openTracking();$('#adminBtn').onclick=openAdmin;$('#homeBtn').onclick=goHome;$('#promotionsBtn').onclick=openDailyPromotions;$('#loyaltyBtn').onclick=openCustomerLoyalty;$('#installBtn').onclick=installApp;
+$('#teamEmployeeBtn').onclick=()=>employeeToken()?openEmployeePanel():openEmployeeLogin();
+$('#teamAdminBtn').onclick=openAdmin;
+$('#teamInstallBtn').onclick=installApp;
+catalog();
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+
+/* CASEIRÃO ENTREGAS — área autenticada, pagamentos, troco e acerto */
+const driverAppStyle=document.createElement('style');driverAppStyle.textContent=`
+.driverAccessChoice{border-color:#b8d9ee!important;background:#f1f9ff!important;color:#175f8f!important}.deliveryHubGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.deliveryPanel,.deliveryCard{border:1px solid #dfe3e7;background:#fff;border-radius:17px;padding:14px;color:#25292e}.deliveryPanel h3,.deliveryCard h3{margin:0 0 8px}.deliveryCard{margin:10px 0}.deliveryMeta{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:10px 0}.deliveryMeta>div{border:1px solid #e3e6e9;background:#f7f8f9;border-radius:11px;padding:9px}.deliveryMeta small{display:block;color:#717981}.deliveryActions{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.deliveryActions button{min-height:46px}.driverScreenNew{max-width:680px;margin:auto}.driverOrder{border:1px solid #dfe3e7;background:#fff;color:#24282d;border-radius:18px;padding:14px;margin:10px 0;box-shadow:0 5px 16px rgba(28,34,41,.05)}.driverOrder .addressBoxAdmin{background:#f6f8fa;color:#25292e;border-color:#dfe3e7}.driverMoney{border:1px solid #cce5d4;background:#effaf2;border-radius:13px;padding:12px;margin:10px 0;color:#176b3b}.driverPremiumHero{position:relative;overflow:hidden;border-radius:22px;padding:18px;margin:0 0 13px;background:linear-gradient(135deg,#20252a,#343a40);color:#fff;box-shadow:0 12px 30px rgba(20,24,28,.18);border:1px solid rgba(255,255,255,.06)}.driverPremiumHero:after{content:'🛵';position:absolute;right:12px;top:7px;font-size:58px;opacity:.12;transform:rotate(-7deg)}.driverPremiumHead{display:flex;align-items:center;gap:11px;position:relative;z-index:1}.driverPremiumIcon{width:45px;height:45px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.12);font-size:23px}.driverPremiumHead h2{margin:0;font-size:18px}.driverPremiumHead small{display:block;margin-top:2px;color:#cfd4d9}.driverPremiumStats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:15px;position:relative;z-index:1}.driverPremiumStat{background:rgba(255,255,255,.095);border:1px solid rgba(255,255,255,.11);border-radius:13px;padding:10px}.driverPremiumStat small{display:block;font-size:9px;text-transform:uppercase;font-weight:850;color:#cfd4d9}.driverPremiumStat b{display:block;margin-top:3px;font-size:15px}.driverPremiumStat.total b{color:#ffd2b9}.driverSectionHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:14px 2px 7px}.driverSectionHead h3{margin:0;font-size:15px;color:#2d3238}.driverSectionHead span{font-size:10px;font-weight:900;color:#8a4a27;background:#fff1e8;border:1px solid #f0cfbd;border-radius:999px;padding:5px 8px}.driverQuickTop{display:flex;align-items:flex-start;gap:10px}.driverQuickTop .grow{min-width:0}.driverQuickTop h3{margin:0;font-size:17px}.driverQuickTop .driverFee{font-size:18px;color:#b94716;white-space:nowrap}.driverQuickLine{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:8px 0 10px}.driverQuickChip{display:inline-flex;align-items:center;gap:5px;padding:6px 8px;border-radius:999px;background:#f4f6f8;border:1px solid #e3e6e9;font-size:11px;font-weight:800;color:#4a5159}.driverNextAction{margin-top:8px}.driverNextAction .primary,.driverNextAction .secondary{min-height:48px}.driverDetails{margin-top:9px;border-top:1px solid #eceff1;padding-top:8px}.driverDetails>summary{list-style:none;cursor:pointer;font-size:12px;font-weight:900;color:#6a7179;padding:8px 0}.driverDetails>summary::-webkit-details-marker{display:none}.driverDetails>summary:after{content:'＋';float:right;color:#a64a1c}.driverDetails[open]>summary:after{content:'−'}.driverDetailsContent{padding-top:4px}.driverMiniMapBtn{display:block;text-align:center;text-decoration:none;margin:8px 0;padding:11px 12px!important;min-height:auto!important;font-size:12px}.driverCompactMeta{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin:8px 0}.driverCompactMeta>div{background:#f6f7f8;border:1px solid #e5e8eb;border-radius:10px;padding:8px}.driverCompactMeta small{display:block;color:#7a8188;font-size:9px;text-transform:uppercase;font-weight:850}.driverCompactMeta b{display:block;margin-top:3px;font-size:12px}.driverStatus{font-size:12px;font-weight:900;color:#b24b18;text-transform:uppercase}.deliveryLogin{max-width:430px;margin:25px auto}.gpsActive{background:#157347!important;color:#fff!important}.settled{opacity:.7}.deliveryPanel .in,.deliveryPanel .sel,.deliveryCard .in,.deliveryCard .sel,.driverOrder .in{color:#20242a!important;background:#fff!important}
+.driverDaySummary{margin:0 0 14px;border:1px solid #d8dce1;background:#fff;color:#20242a;border-radius:18px;padding:15px;box-shadow:0 7px 22px rgba(28,34,41,.06)}.driverDaySummaryHead{display:flex;align-items:center;justify-content:space-between;gap:12px}.driverDaySummaryHead h3{margin:0;font-size:18px}.driverDaySummaryHead strong{font-size:20px;color:#bd4715}.driverDayStats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:11px}.driverDayStats>div{background:#f5f7f8;border-radius:12px;padding:10px}.driverDayStats small{display:block;color:#747c84;font-size:9px;font-weight:900;text-transform:uppercase}.driverDayStats b{display:block;margin-top:4px;font-size:16px}.driverHoodList{margin-top:11px;border:1px solid #e4e7ea;border-radius:13px;overflow:hidden}.driverHoodRow{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:10px 11px;border-bottom:1px solid #e8eaed}.driverHoodRow:last-child{border-bottom:0}.driverHoodRow small{color:#707780}.driverHoodRow>strong{min-width:72px;text-align:right}
+@media(max-width:620px){.deliveryHubGrid,.deliveryActions{grid-template-columns:1fr}.deliveryMeta{grid-template-columns:1fr 1fr}.driverDayStats{grid-template-columns:1fr 1fr}.driverHoodRow{grid-template-columns:1fr auto}.driverHoodRow small{grid-column:1/-1}}
+`;document.head.appendChild(driverAppStyle);
+
+let deliveryHub=null,driverSnapshot=null,driverLocationWatch=null,driverLocationTimer=null;
+const driverTokenKey='caseirao_driver_token';
+const internalResumeKey='caseirao_internal_resume';
+function setInternalResume(area){try{sessionStorage.setItem(internalResumeKey,area)}catch{}}
+function clearInternalResume(){try{sessionStorage.removeItem(internalResumeKey)}catch{}}
+async function driverAppApi(action,payload={},adminMode=false){const body={action,payload};if(adminMode)body.pin=sessionStorage.getItem('caseirao_admin_pin')||'';else body.token=localStorage.getItem(driverTokenKey)||'';return api('driver-api',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})}
+const deliveryStatusLabel=s=>({assigned:'Aguardando saída',route:'Em rota',arrived:'No cliente',delivered:'Entregue',problem:'Problema',returned:'Retornou',settled:'Acertado'}[s]||s);
+const safeMapsLink=o=>`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(orderAddress(o))}`;
+const deliveryClock=v=>{if(!v)return'';const d=new Date(v);return Number.isNaN(d.getTime())?'':d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})};
+function deliveryTimesHtml(a){
+  const sent=deliveryClock(a.assigned_at),route=deliveryClock(a.route_started_at),delivered=deliveryClock(a.delivered_at);
+  const parts=[];
+  if(sent)parts.push(`<span><small>Enviado</small><b>${sent}</b></span>`);
+  if(route)parts.push(`<span><small>Saiu</small><b>${route}</b></span>`);
+  if(delivered)parts.push(`<span><small>Entregue</small><b>${delivered}</b></span>`);
+  return parts.length?`<div class="deliveryTimes">${parts.join('')}</div>`:'';
+}
+
+async function loadDeliveryHub(){deliveryHub=await driverAppApi('admin_snapshot',{},true);return deliveryHub}
+async function renderDeliveryHub(box){
+  try{box.innerHTML='<div class="notice">Carregando controle de entregas...</div>';await loadDeliveryHub();
+    const active=(deliveryHub.assignments||[]).filter(a=>a.status!=='settled'),settled=(deliveryHub.assignments||[]).filter(a=>a.status==='settled').slice(0,10),assignedIds=new Set(active.map(a=>a.order_id));
+    const available=(deliveryHub.orders||[]).filter(o=>!assignedIds.has(o.id));
+    box.innerHTML=`<div class="operationHint">Acompanhe quem está com cada pedido, localização, pagamento, troco e acerto com o caixa.</div><div class="deliveryHubGrid"><section class="deliveryPanel"><h3>Entregadores</h3><button id="newDriverAccount" class="primary">+ CADASTRAR ENTREGADOR</button>${(deliveryHub.drivers||[]).map(d=>`<div class="tableitem"><div class="grow"><b>${esc(d.name)}</b><div class="mini">Login: ${esc(d.username||'não criado')} • ${d.active?'Ativo':'Bloqueado'}</div></div><button class="editbtn" data-edit-driver="${d.id}">EDITAR</button></div>`).join('')||'<div class="empty">Cadastre o primeiro entregador.</div>'}</section><section class="deliveryPanel"><h3>Pedidos disponíveis</h3>${available.map(o=>`<div class="deliveryCard"><b>#${o.order_number} • ${esc(o.customer_name)}</b><div class="mini">${esc(orderAddress(o))}<br>${esc(paymentLabel(o.payment))} • ${fmt(o.total)}</div><div class="field"><label>Entregador</label><select class="sel" data-driver-select="${o.id}"><option value="">Selecione</option>${(deliveryHub.drivers||[]).filter(d=>d.active).map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join('')}</select></div><div class="field"><label>Troco levado pelo entregador</label><input class="in" data-change-float="${o.id}" inputmode="decimal" placeholder="R$ 0,00"></div><button class="primary" data-assign-order="${o.id}">ENTREGAR PEDIDO AO MOTOBOY</button></div>`).join('')||'<div class="empty">Nenhum pedido aguardando entregador.</div>'}</section></div><div class="sectionTitle">Entregas em andamento</div>${active.map(deliveryAdminCard).join('')||'<div class="empty">Nenhuma entrega em andamento.</div>'}${settled.length?`<div class="sectionTitle">Acertos concluídos</div>${settled.map(deliveryAdminCard).join('')}`:''}`;
+    $('#newDriverAccount').onclick=()=>openDriverEditor();box.querySelectorAll('[data-edit-driver]').forEach(b=>b.onclick=()=>openDriverEditor((deliveryHub.drivers||[]).find(d=>d.id===b.dataset.editDriver)));
+    box.querySelectorAll('[data-assign-order]').forEach(b=>b.onclick=async()=>{const id=b.dataset.assignOrder,driverId=box.querySelector(`[data-driver-select="${CSS.escape(id)}"]`).value,change=num(box.querySelector(`[data-change-float="${CSS.escape(id)}"]`).value);if(!driverId)return alert('Selecione o entregador.');try{b.disabled=true;b.textContent='ATRIBUINDO...';await driverAppApi('admin_assign',{order_id:id,driver_id:driverId,change_float:change},true);await renderDeliveryHub(box);showAppToast('Pedido enviado para o entregador.','ok')}catch(e){alert(e.message);b.disabled=false}});
+    box.querySelectorAll('[data-settle-delivery]').forEach(b=>b.onclick=async()=>{if(!confirm('Confirmar que o entregador prestou contas deste pedido?'))return;try{b.disabled=true;b.textContent='CONFIRMANDO...';await driverAppApi('admin_settle',{assignment_id:b.dataset.settleDelivery},true);await renderDeliveryHub(box)}catch(e){alert(e.message);b.disabled=false;b.textContent='CONFIRMAR ACERTO'}});
+    box.querySelectorAll('[data-unassign-delivery]').forEach(b=>b.onclick=async()=>{if(!confirm('Retirar este pedido do entregador?'))return;try{b.disabled=true;b.textContent='RETIRANDO...';await driverAppApi('admin_unassign',{assignment_id:b.dataset.unassignDelivery},true);await renderDeliveryHub(box)}catch(e){alert(e.message);b.disabled=false;b.textContent='RETIRAR ENTREGADOR'}});
+  }catch(e){box.innerHTML=`<div class="err">${esc(e.message||String(e))}</div>`}
+}
+function deliveryAdminCard(a){const o=a.orders||{},d=a.drivers||{},cash=Number(a.cash_received||0),float=Number(a.change_float||0);return `<div class="deliveryCard ${a.status==='settled'?'settled':''}"><div class="ordertop"><div class="grow"><h3>#${o.order_number} • ${esc(o.customer_name||'Cliente')}</h3><div class="mini">Entregador: <b>${esc(d.name||'—')}</b></div></div><span class="statusBadge st-${a.status==='delivered'||a.status==='settled'?'entregue':a.status==='route'?'em_rota':'preparando'}">${esc(deliveryStatusLabel(a.status))}</span></div><div class="deliveryMeta"><div><small>Pagamento</small><b>${esc(paymentLabel(o.payment))}</b></div><div><small>Troco levado</small><b>${fmt(float)}</b></div><div><small>Dinheiro a acertar</small><b>${fmt(cash)}</b></div></div><div class="mini">${esc(orderAddress(o))}${a.problem_note?`<br><b style="color:#b52e34">Problema: ${esc(a.problem_note)}</b>`:''}</div>${deliveryTimesHtml(a)}<div class="deliveryActions" style="margin-top:10px">${['delivered','returned'].includes(a.status)?`<button class="primary" data-settle-delivery="${a.id}">CONFIRMAR ACERTO</button>`:''}${a.status==='assigned'?`<button class="secondary danger" data-unassign-delivery="${a.id}">RETIRAR ENTREGADOR</button>`:''}${o.id?`<button class="secondary" data-delivery-map="${o.id}" data-order-number="${o.order_number}">VER GPS</button>`:''}</div></div>`}
+function openDriverEditor(d={}){modal(`<div class="sheeth"><div><h2>${d.id?'Editar entregador':'Novo entregador'}</h2><div class="adminSub">Acesso exclusivo às entregas</div></div><button class="x" id="backDeliveryHub">←</button></div><div class="field"><label>Nome</label><input id="driverName" class="in" value="${esc(d.name||'')}"></div><div class="field"><label>Telefone</label><input id="driverPhone" class="in" inputmode="tel" value="${esc(d.phone||'')}"></div><div class="field"><label>Login</label><input id="driverUsername" class="in" autocapitalize="none" value="${esc(d.username||'')}"></div><div class="field"><label>${d.id?'Nova senha (deixe vazia para manter)':'Senha — mínimo 6 caracteres'}</label><input id="driverPassword" class="in" type="password"></div><label class="addon"><input id="driverActive" type="checkbox" ${d.active!==false?'checked':''}><span><b>Acesso ativo</b></span></label><button id="saveDriverAccount" class="primary">SALVAR ENTREGADOR</button>${d.id?'<button id="deleteDriverAccount" class="secondary deleteDriverBtn">🗑 EXCLUIR ENTREGADOR</button>':''}`,true);$('#backDeliveryHub').onclick=()=>{adminTab='entregas';renderAdmin()};$('#saveDriverAccount').onclick=async()=>{const b=$('#saveDriverAccount');try{b.disabled=true;b.textContent='SALVANDO...';await driverAppApi('admin_save_driver',{id:d.id||'',name:$('#driverName').value,phone:$('#driverPhone').value,username:$('#driverUsername').value,password:$('#driverPassword').value,active:$('#driverActive').checked},true);adminTab='entregas';renderAdmin();showAppToast('Entregador salvo.','ok')}catch(e){alert(e.message);b.disabled=false;b.textContent='SALVAR ENTREGADOR'}};const del=$('#deleteDriverAccount');if(del)del.onclick=async()=>{if(!confirm(`Excluir ${d.name||'este entregador'} do aplicativo?\n\nO histórico das entregas antigas será preservado e o acesso dele será encerrado.`))return;try{del.disabled=true;del.textContent='EXCLUINDO...';await driverAppApi('admin_delete_driver',{id:d.id},true);adminTab='entregas';renderAdmin();showAppToast('Entregador excluído do aplicativo.','ok')}catch(e){alert(e.message);del.disabled=false;del.textContent='🗑 EXCLUIR ENTREGADOR'}}}
+
+function openDriverLogin(){modal(`<div class="sheeth"><div><h2>Área do entregador</h2><div class="adminSub">Entregas, GPS e pagamentos</div></div><button class="x" data-close>×</button></div><div class="deliveryLogin"><div class="field"><label>Login</label><input id="driverLoginUser" class="in" autocapitalize="none"></div><div class="field"><label>Senha</label><input id="driverLoginPassword" class="in" type="password"></div><button id="driverLoginButton" class="primary">ENTRAR</button><div id="driverLoginError"></div></div>`,true);bindClose();$('#driverLoginButton').onclick=async()=>{const b=$('#driverLoginButton');try{b.disabled=true;b.textContent='ENTRANDO...';const r=await api('driver-api',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'login',payload:{username:$('#driverLoginUser').value,password:$('#driverLoginPassword').value}})});localStorage.setItem(driverTokenKey,r.token);renderDriverArea()}catch(e){$('#driverLoginError').innerHTML=`<div class="err" style="margin-top:10px">${esc(e.message)}</div>`;b.disabled=false;b.textContent='ENTRAR'}}}
+
+function driverPremiumHeroHtml(){
+  const all=driverSnapshot?.assignments||[];
+  const completed=all.filter(a=>['delivered','returned','settled'].includes(a.status));
+  const active=all.filter(a=>['assigned','route','arrived','problem'].includes(a.status)).length;
+  const fees=completed.reduce((sum,a)=>sum+Number(a.driver_fee||0),0);
+  const gas=completed.length?Number(driverSnapshot?.driver_gas_allowance??driverSnapshot?.gas_allowance??10):0;
+  const total=fees+gas;
+  const name=driverSnapshot?.driver?.name||driverSnapshot?.name||'Entregador';
+  return `<section class="driverPremiumHero">
+    <div class="driverPremiumHead"><div class="driverPremiumIcon">🛵</div><div><h2>${esc(name)}</h2><small>Painel do Entregador • Hoje</small></div></div>
+    <div class="driverPremiumStats">
+      <div class="driverPremiumStat"><small>Concluídas</small><b>${completed.length}</b></div>
+      <div class="driverPremiumStat"><small>Em andamento</small><b>${active}</b></div>
+      <div class="driverPremiumStat total"><small>A receber</small><b>${fmt(total)}</b></div>
+    </div>
+  </section>`;
+}
+
+function driverDailySummaryHtml(){
+  const all=driverSnapshot?.assignments||[];
+  const completed=all.filter(a=>['delivered','returned','settled'].includes(a.status));
+  const hoods=new Map();let fees=0;
+  for(const a of completed){
+    const hood=(a.neighborhood_name||a.orders?.neighborhood_name||'Bairro não informado').trim()||'Bairro não informado';
+    const fee=Number(a.driver_fee||0);fees+=fee;
+    if(!hoods.has(hood))hoods.set(hood,{count:0,fee,total:0});
+    const h=hoods.get(hood);h.count++;h.total+=fee;if(!h.fee&&fee)h.fee=fee;
+  }
+  const gas=completed.length?Number(driverSnapshot?.driver_gas_allowance??driverSnapshot?.gas_allowance??10):0;
+  const total=fees+gas;
+  return `<section class="driverDaySummary"><div class="driverDaySummaryHead"><div><h3>🛵 Resumo de hoje</h3><div class="mini">${completed.length} ${completed.length===1?'entrega concluída':'entregas concluídas'}</div></div><strong>${fmt(total)}</strong></div>${completed.length?`<div class="driverHoodList">${[...hoods.entries()].map(([name,h])=>`<div class="driverHoodRow"><span><b>${esc(name)}</b></span><small>${h.count} × ${fmt(h.fee)}</small><strong>${fmt(h.total)}</strong></div>`).join('')}</div><div class="driverClosingSummary"><span>Entregas ${fmt(fees)} + gasolina ${fmt(gas)}</span><strong>Total ${fmt(total)}</strong></div>`:'<div class="mini" style="margin-top:10px">Nenhuma entrega concluída ainda.</div>'}</section>`;
+}
+async function renderDriverArea(){try{driverSnapshot=await driverAppApi('snapshot');setInternalResume('driver');modal(`<div class="sheeth"><div><h2>Olá, ${esc(driverSnapshot.driver.name)}</h2><div class="adminSub">Suas entregas de hoje</div></div><button id="driverLogout" class="secondary adminLogout">Sair</button></div><div class="driverScreenNew">${driverPremiumHeroHtml()}${driverDailySummaryHtml()}<div class="driverSectionHead"><h3>Entregas</h3><span>${(driverSnapshot?.assignments||[]).filter(a=>['assigned','route','arrived','problem'].includes(a.status)).length} ATIVAS</span></div>${(driverSnapshot.assignments||[]).map(driverOrderCard).join('')||'<div class="empty"><b>Nenhuma entrega atribuída.</b><span>Os pedidos aparecerão aqui quando o ADM enviar.</span></div>'}</div>`,true);$('#driverLogout').onclick=async()=>{await driverAppApi('logout').catch(()=>{});localStorage.removeItem(driverTokenKey);clearInternalResume();stopDriverAreaGps();openDriverLogin()};document.querySelectorAll('[data-driver-status]').forEach(b=>b.onclick=()=>updateDriverDelivery(b.dataset.driverAssignment,b.dataset.driverStatus));document.querySelectorAll('[data-driver-gps]').forEach(b=>b.onclick=()=>startDriverAreaGps(b.dataset.driverGps,b));}catch(e){if(/expirado/i.test(e.message)){localStorage.removeItem(driverTokenKey);clearInternalResume();openDriverLogin()}else modal(`<div class="err">${esc(e.message)}</div>`,true)}}
+function driverOrderCard(a){
+  const o=a.orders||{},money=o.payment==='Dinheiro',
+        hood=a.neighborhood_name||o.neighborhood_name||'Bairro não informado',
+        fee=Number(a.driver_fee||0),
+        nextAction=
+          a.status==='assigned'?`<button class="primary" data-driver-status="route" data-driver-assignment="${a.id}">INICIAR ROTA</button>`:
+          a.status==='route'?`<button class="primary" data-driver-status="arrived" data-driver-assignment="${a.id}">CHEGUEI AO CLIENTE</button>`:
+          a.status==='arrived'?`<button class="primary" data-driver-status="delivered" data-driver-assignment="${a.id}">CONFIRMAR ENTREGA</button>`:
+          a.status==='delivered'?`<button class="primary" data-driver-status="returned" data-driver-assignment="${a.id}">VOLTEI AO CASEIRÃO</button>`:
+          '';
+  return `<div class="driverOrder">
+    <div class="driverQuickTop">
+      <div class="grow">
+        <h3>#${o.order_number} • ${esc(o.customer_name)}</h3>
+        <div class="driverStatus">${esc(deliveryStatusLabel(a.status))}</div>
+      </div>
+      <b class="driverFee">${fee?fmt(fee):'—'}</b>
+    </div>
+    <div class="driverQuickLine">
+      <span class="driverQuickChip">📍 ${esc(hood)}</span>
+      <span class="driverQuickChip">💳 ${esc(paymentLabel(o.payment))}</span>
+    </div>
+    <div class="driverNextAction">${nextAction}${!['delivered','returned'].includes(a.status)?`<button class="secondary danger" style="margin-top:7px" data-driver-status="problem" data-driver-assignment="${a.id}">PROBLEMA NA ENTREGA</button>`:''}</div>
+    <details class="driverDetails">
+      <summary>VER DETALHES DA ENTREGA</summary>
+      <div class="driverDetailsContent">
+        ${deliveryTimesHtml(a)}
+        <div class="addressBoxAdmin"><b>📍 Endereço</b>${esc(orderAddress(o))}</div>
+        <a class="secondary driverMiniMapBtn" href="${esc(safeMapsLink(o))}" target="_blank">ABRIR MAPA</a>
+        <div class="driverCompactMeta">
+          <div><small>Valor pedido</small><b>${fmt(o.total)}</b></div>
+          <div><small>Troco levado</small><b>${fmt(a.change_float)}</b></div>
+        </div>
+        <button class="secondary" data-driver-gps="${a.id}">📍 ATIVAR GPS</button>
+        ${money&&a.status==='arrived'?'<div class="driverMoney">Ao confirmar a entrega, informe o dinheiro recebido e o troco devolvido.</div>':''}
+      </div>
+    </details>
+  </div>`;
+}
+async function updateDriverDelivery(id,status){try{const payload={assignment_id:id,status};if(status==='problem'){const note=prompt('O que aconteceu na entrega?','Cliente não localizado');if(note===null)return;payload.problem_note=note}if(status==='delivered'){const a=(driverSnapshot.assignments||[]).find(x=>x.id===id),o=a?.orders||{};if(o.payment==='Dinheiro'){const cash=prompt('Quanto em dinheiro ficou com você após devolver o troco?',String(Number(o.total||0).toFixed(2)).replace('.',','));if(cash===null)return;const change=prompt('Quanto de troco você entregou ao cliente?','0,00');if(change===null)return;payload.cash_received=num(cash);payload.change_given=num(change)}payload.payment_confirmed=true}await driverAppApi('status',payload);if(status==='delivered')stopDriverAreaGps();renderDriverArea();showAppToast(deliveryStatusLabel(status),'ok')}catch(e){alert(e.message)}}
+function stopDriverAreaGps(){if(driverLocationWatch!=null)navigator.geolocation.clearWatch(driverLocationWatch);driverLocationWatch=null;if(driverLocationTimer)clearInterval(driverLocationTimer);driverLocationTimer=null}
+function startDriverAreaGps(assignmentId,button){if(!navigator.geolocation)return alert('GPS indisponível neste celular.');stopDriverAreaGps();button.disabled=true;button.textContent='SOLICITANDO LOCALIZAÇÃO...';let last=0;const send=async pos=>{if(Date.now()-last<5000)return;last=Date.now();try{await driverAppApi('location',{assignment_id:assignmentId,latitude:pos.coords.latitude,longitude:pos.coords.longitude,accuracy:pos.coords.accuracy});button.classList.add('gpsActive');button.textContent='● GPS ATIVO — MANTENHA A TELA ABERTA'}catch(e){button.textContent='FALHA NO GPS — TOQUE PARA TENTAR'}};driverLocationWatch=navigator.geolocation.watchPosition(send,()=>{button.disabled=false;button.textContent='PERMITA O GPS E TENTE NOVAMENTE'},{enableHighAccuracy:true,maximumAge:0,timeout:20000});button.disabled=false}
+
+const renderAdminDeliveryBase=renderAdmin;renderAdmin=function(){if(admin&&adminTab)setInternalResume('admin:'+adminTab);const result=renderAdminDeliveryBase();const bar=document.querySelector('.admbar');if(bar&&!bar.querySelector('[data-tab="entregas"]')){const b=document.createElement('button');b.dataset.tab='entregas';b.className=adminTab==='entregas'?'on':'';b.textContent='Entregas';b.onclick=()=>{adminTab='entregas';renderAdmin()};const caixa=bar.querySelector('[data-tab="caixa"]');caixa?caixa.after(b):bar.appendChild(b)}if(adminTab==='entregas'){const box=$('#admContent');if(box)renderDeliveryHub(box)}return result};
+const renderAdminTabDeliveryBase=renderAdminTab;renderAdminTab=function(){if(adminTab==='entregas'){const box=$('#admContent');if(box)renderDeliveryHub(box);return}return renderAdminTabDeliveryBase()};
+const driverChoice=document.createElement('button');driverChoice.id='teamDriverBtn';driverChoice.className='teamChoice driverAccessChoice';driverChoice.type='button';driverChoice.innerHTML='<span class="teamChoiceIcon">🛵</span><span><strong>Acesso do entregador</strong><small>Rotas, GPS, pagamentos, troco e retorno.</small></span>';$('#teamEmployeeBtn').after(driverChoice);driverChoice.onclick=()=>localStorage.getItem(driverTokenKey)?renderDriverArea():openDriverLogin();
+
+/* CASEIRÃO ENTREGAS PRO — tabela própria por bairro, gasolina e fechamento */
+const deliveryProStyle=document.createElement('style');deliveryProStyle.textContent=`
+.deliveryProHero{position:relative;overflow:hidden;margin:2px 0 15px;padding:20px;border-radius:22px;background:linear-gradient(135deg,#22272d,#111418 65%,#9e3d10);color:#fff;box-shadow:0 14px 30px rgba(28,33,39,.16)}.deliveryProHero:after{content:'🛵';position:absolute;right:16px;bottom:-15px;font-size:76px;opacity:.12;transform:rotate(-8deg)}.deliveryProHero h2{margin:0;font-size:25px}.deliveryProHero p{margin:7px 0 15px;color:#c9ced4;font-size:12px}.deliveryHeroMetrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.deliveryHeroMetric{padding:11px;border:1px solid rgba(255,255,255,.13);border-radius:13px;background:rgba(255,255,255,.07)}.deliveryHeroMetric small{display:block;color:#c5cbd1;font-size:9px;font-weight:900;text-transform:uppercase}.deliveryHeroMetric b{display:block;margin-top:5px;font-size:17px}.driverClosingCard{border:1px solid #dfe3e7;border-left:4px solid #dc5b19;border-radius:17px;background:#fff;padding:14px;margin:10px 0;color:#25292e;box-shadow:0 5px 16px rgba(30,36,42,.045)}.driverClosingHead{display:flex;gap:9px;align-items:center}.driverAvatar{width:38px;height:38px;border-radius:12px;background:#fff0e7;display:grid;place-items:center;font-size:18px}.driverClosingHead h3{margin:0;font-size:17px}.driverClosingHead>strong{margin-left:auto;font-size:19px;color:#bf4713}.neighborhoodBreakdown{margin-top:10px;border-top:1px solid #eceef0}.neighborhoodPayRow{display:grid;grid-template-columns:1fr auto;gap:8px;padding:8px 2px;border-bottom:1px solid #eceef0;align-items:center}.neighborhoodPayRow:last-child{border-bottom:0}.neighborhoodPayRow small{display:block;color:#7a8189;font-size:10px;margin-top:2px}.neighborhoodPayRow b{min-width:64px;text-align:right}.driverClosingSummary{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:10px;padding:10px 11px;border-radius:11px;background:#f5f7f8}.driverClosingSummary span{font-size:11px;color:#6d747c}.driverClosingSummary strong{font-size:16px;color:#25292e}.deliveryTimes{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0}.deliveryTimes span{display:flex;align-items:center;gap:5px;padding:6px 8px;border-radius:9px;background:#f4f6f8;border:1px solid #e4e7ea;color:#31363c}.deliveryTimes small{font-size:9px;color:#737b84;text-transform:uppercase;font-weight:850}.deliveryTimes b{font-size:11px}.ratesGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.rateRow{border:1px solid #dfe3e7;background:#fff;border-radius:14px;padding:11px}.rateRow label{display:block;color:#333;font-weight:850;margin-bottom:6px}.rateCompare{display:flex;justify-content:space-between;color:#737b84;font-size:10px;margin-bottom:7px}.rateRow .in{color:#222!important;background:#f8f9fa!important}.gasCard{border:1px solid #e7c9b4;background:#fff7f1;border-radius:15px;padding:14px;margin-bottom:12px}.driverNeighborhoodBadge{display:flex;justify-content:space-between;gap:10px;margin:10px 0;padding:11px 12px;border:1px solid #f0c6aa;border-radius:12px;background:#fff5ed;color:#9e3f13}.driverNeighborhoodBadge b:last-child{white-space:nowrap}.closingTitle{display:flex;align-items:center;justify-content:space-between;gap:10px}.closingActions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.closingTitle button{width:auto;padding:8px 10px;font-size:11px;min-height:38px}.resetDeliveriesBtn{background:#fff!important;color:#9d3d14!important;border-color:#e7bda8!important}.refreshDeliveriesBtn{background:#eef6ff!important;color:#245f91!important;border-color:#bad6ee!important}.newHoodCard{border:1px dashed #d7b39f;background:#fffaf7;border-radius:15px;padding:13px;margin:0 0 14px}.newHoodCard h3{margin:0 0 4px;color:#7e3516;font-size:15px}.newHoodFields{display:grid;grid-template-columns:1.4fr .8fr .8fr;gap:8px;align-items:end}.newHoodFields .field{margin:6px 0}.newHoodFields button{min-height:48px}.deleteDriverBtn{margin-top:9px;background:#fff0f0!important;color:#a52d35!important;border-color:#e6b5b8!important}.deliveryEmptyRate{color:#b73138;font-weight:850}
+@media(max-width:620px){.deliveryHeroMetrics{grid-template-columns:1fr 1fr}.driverClosingTotals{grid-template-columns:1fr 1fr}.ratesGrid{grid-template-columns:1fr}.neighborhoodPayRow{grid-template-columns:1fr auto}.neighborhoodPayRow small{grid-column:1/-1}.closingTitle{align-items:flex-start}.closingActions{max-width:205px}.closingTitle button{padding:7px 9px;font-size:10px;min-height:35px}.newHoodFields{grid-template-columns:1fr 1fr}.newHoodFields .field:first-child{grid-column:1/-1}.newHoodFields button{grid-column:1/-1}}
+`;document.head.appendChild(deliveryProStyle);
+function completedDriverAssignments(){return (deliveryHub?.assignments||[]).filter(a=>['delivered','returned','settled'].includes(a.status)&&(!a.delivered_at||localDay(a.delivered_at)===todayKey()))}
+function driverClosingData(){const gas=Number(deliveryHub?.driver_gas_allowance||10),completed=completedDriverAssignments(),drivers=new Map();for(const a of completed){const d=a.drivers||{},id=d.id||a.driver_id;if(!drivers.has(id))drivers.set(id,{id,name:d.name||'Entregador',count:0,fees:0,cash:0,gas,hoods:new Map()});const x=drivers.get(id),hood=a.neighborhood_name||a.orders?.neighborhood_name||'Bairro não informado',fee=Number(a.driver_fee||0);x.count++;x.fees+=fee;x.cash+=Number(a.cash_received||0);if(!x.hoods.has(hood))x.hoods.set(hood,{count:0,fee,total:0});const h=x.hoods.get(hood);h.count++;h.total+=fee;if(!h.fee&&fee)h.fee=fee}return[...drivers.values()]}
+function closingDriverCard(d){const total=d.fees+d.gas;return `<article class="driverClosingCard"><div class="driverClosingHead"><div class="driverAvatar">🛵</div><div><h3>${esc(d.name)}</h3><div class="mini">${d.count} ${d.count===1?'entrega':'entregas'} hoje</div></div><strong>${fmt(total)}</strong></div>${d.hoods.size?`<div class="neighborhoodBreakdown">${[...d.hoods.entries()].map(([name,h])=>`<div class="neighborhoodPayRow"><span><b>${esc(name)}</b><small>${h.count} × ${fmt(h.fee)}</small></span><b>${fmt(h.total)}</b></div>`).join('')}</div>`:''}<div class="driverClosingSummary"><span>Entregas ${fmt(d.fees)} + gasolina ${fmt(d.gas)}</span><strong>Total ${fmt(total)}</strong></div></article>`}
+function deliveryClosingHtml(){const rows=driverClosingData(),deliveries=rows.reduce((s,d)=>s+d.count,0),fees=rows.reduce((s,d)=>s+d.fees,0),gas=rows.reduce((s,d)=>s+d.gas,0),total=fees+gas;return `<section class="deliveryProHero"><h2>Controle de Entregas</h2><p>Resumo simples do expediente</p><div class="deliveryHeroMetrics"><div class="deliveryHeroMetric"><small>Entregas hoje</small><b>${deliveries}</b></div><div class="deliveryHeroMetric"><small>Entregas</small><b>${fmt(fees)}</b></div><div class="deliveryHeroMetric"><small>Total + gasolina</small><b>${fmt(total)}</b></div></div></section><div class="closingTitle"><div class="sectionTitle">Fechamento dos entregadores</div><div class="closingActions"><button id="refreshDriverDeliveries" class="secondary refreshDeliveriesBtn">⟳ ATUALIZAR</button><button id="resetDriverDeliveries" class="secondary resetDeliveriesBtn">↺ ZERAR</button><button id="configureDriverRates" class="secondary">⚙️ VALORES</button></div></div>${rows.length?rows.map(closingDriverCard).join(''):'<div class="empty"><b>Nenhuma entrega concluída hoje.</b><span>O resumo será montado automaticamente.</span></div>'}`}
+const renderDeliveryHubProBase=renderDeliveryHub;renderDeliveryHub=async function(box){await renderDeliveryHubProBase(box);if(!deliveryHub||!box)return;box.insertAdjacentHTML('afterbegin',deliveryClosingHtml());const cfg=$('#configureDriverRates');if(cfg)cfg.onclick=openDriverRateSettings;const reset=$('#resetDriverDeliveries');if(reset)reset.onclick=resetDriverDeliveries;const refresh=$('#refreshDriverDeliveries');if(refresh)refresh.onclick=()=>refreshDriverDeliveries(box,refresh)};
+async function refreshDriverDeliveries(box,button){try{button.disabled=true;button.textContent='ATUALIZANDO...';await loadDeliveryHub();await renderDeliveryHub(box);showAppToast('Entregas atualizadas.','ok')}catch(e){alert(e.message)}finally{const b=$('#refreshDriverDeliveries');if(b){b.disabled=false;b.textContent='⟳ ATUALIZAR'}}}
+async function resetDriverDeliveries(){if(!confirm('Zerar a contagem das entregas agora?\n\nO histórico antigo será preservado, mas o fechamento e a contagem começarão do zero a partir deste momento.'))return;const b=$('#resetDriverDeliveries');try{b.disabled=true;b.textContent='ZERANDO...';await driverAppApi('admin_reset_deliveries',{},true);await loadDeliveryHub();const box=$('#admContent');if(box)await renderDeliveryHub(box);showAppToast('Entregas zeradas. Novo fechamento iniciado.','ok')}catch(e){alert(e.message);if(b){b.disabled=false;b.textContent='↺ ZERAR'}}}
+function openDriverRateSettings(){
+  const hoods=(deliveryHub?.neighborhoods||[]).filter(n=>n.active!==false);
+  modal(`<div class="sheeth"><div><h2>Valores do entregador</h2><div class="adminSub">Tabela por bairro e ajuda de gasolina</div></div><button class="x" id="backRates">←</button></div>
+  <div class="newHoodCard">
+    <h3>+ Adicionar novo bairro</h3>
+    <div class="mini">Cadastre aqui um bairro que ainda não existe no sistema.</div>
+    <div class="newHoodFields">
+      <div class="field"><label>Nome do bairro</label><input id="newDriverHoodName" class="in" placeholder="Ex.: Novo Horizonte"></div>
+      <div class="field"><label>Cliente paga</label><input id="newDriverHoodFee" class="in" inputmode="decimal" placeholder="R$ 0,00"></div>
+      <div class="field"><label>Entregador recebe</label><input id="newDriverHoodDriverFee" class="in" inputmode="decimal" placeholder="R$ 0,00"></div>
+      <button id="addDriverHood" class="primary">ADICIONAR BAIRRO</button>
+    </div>
+  </div>
+  <div class="gasCard"><div class="field"><label>Ajuda de gasolina por entregador no expediente</label><input id="driverGasRate" class="in" inputmode="decimal" value="${String(Number(deliveryHub.driver_gas_allowance||10).toFixed(2)).replace('.',',')}"></div><div class="mini">A gasolina é adicionada uma única vez para cada entregador que realizou entrega no dia.</div></div>
+  <div class="ratesGrid">${hoods.map(n=>`<div class="rateRow"><label>${esc(n.name)}</label><div class="rateCompare"><span>Cliente paga ${fmt(n.fee)}</span><span>Entregador recebe</span></div><input class="in" data-driver-rate="${n.id}" inputmode="decimal" value="${Number(n.driver_fee||0)?String(Number(n.driver_fee).toFixed(2)).replace('.',','):''}" placeholder="R$ 0,00"></div>`).join('')}</div>
+  <button id="saveDriverRates" class="primary" style="margin-top:14px">SALVAR TABELA DOS ENTREGADORES</button>`,true);
+
+  $('#backRates').onclick=()=>{adminTab='entregas';renderAdmin()};
+
+  $('#addDriverHood').onclick=async()=>{
+    const b=$('#addDriverHood');
+    try{
+      const name=$('#newDriverHoodName').value.trim();
+      const fee=num($('#newDriverHoodFee').value);
+      const driverFee=num($('#newDriverHoodDriverFee').value);
+      if(name.length<2)throw new Error('Informe o nome do bairro.');
+      if(fee<0||driverFee<0)throw new Error('Informe valores válidos.');
+      if(hoods.some(n=>String(n.name||'').trim().toLowerCase()===name.toLowerCase()))throw new Error('Esse bairro já está cadastrado.');
+      b.disabled=true;b.textContent='ADICIONANDO...';
+      await adminCall('upsert_neighborhood',{name,fee,active:true});
+      admin=await adminCall('snapshot');
+      const created=(admin.neighborhoods||[]).find(n=>String(n.name||'').trim().toLowerCase()===name.toLowerCase());
+      if(created)await driverAppApi('admin_save_rates',{gas:num($('#driverGasRate').value),rates:[{id:created.id,driver_fee:driverFee}]},true);
+      await loadDeliveryHub();
+      openDriverRateSettings();
+      showAppToast('Novo bairro adicionado.','ok');
+    }catch(e){alert(e.message);b.disabled=false;b.textContent='ADICIONAR BAIRRO'}
+  };
+
+  $('#saveDriverRates').onclick=async()=>{
+    const b=$('#saveDriverRates');
+    try{
+      b.disabled=true;b.textContent='SALVANDO...';
+      const rates=[...document.querySelectorAll('[data-driver-rate]')].map(i=>({id:i.dataset.driverRate,driver_fee:num(i.value)}));
+      await driverAppApi('admin_save_rates',{gas:num($('#driverGasRate').value),rates},true);
+      adminTab='entregas';renderAdmin();
+      showAppToast('Tabela dos entregadores salva.','ok')
+    }catch(e){alert(e.message);b.disabled=false;b.textContent='SALVAR TABELA DOS ENTREGADORES'}
+  }
+}
+
+const caseiraoClosingAlertBase=window.alert;window.alert=function(message,...rest){const result=caseiraoClosingAlertBase(message,...rest);if(/^Caixa fechado/i.test(String(message||'')))setTimeout(async()=>{try{admin=await adminCall('snapshot');adminTab='entregas';renderAdmin()}catch{}},100);return result};
+
+async function restoreInternalAreaAfterReload(){
+  // Não sobrescreve links públicos de rastreamento abertos pelo usuário.
+  if(/^#entregador=/.test(location.hash||''))return;
+
+  let area='';
+  try{area=sessionStorage.getItem(internalResumeKey)||''}catch{}
+
+  if(area==='driver'){
+    if(localStorage.getItem(driverTokenKey)){
+      try{await renderDriverArea();return}catch{}
+    }
+    clearInternalResume();
+    return;
+  }
+
+  if(area.startsWith('admin:') || area==='admin-entregas'){
+    const pin=sessionStorage.getItem('caseirao_admin_pin')||'';
+    if(!pin){clearInternalResume();return}
+
+    const requestedTab=area==='admin-entregas'?'entregas':area.slice(6);
+    const validTabs=new Set(['pedidos','produtos','adicionais','bairros','promocoes','cupons','banner','loja','mesas','funcionarios','entregas']);
+
+    try{
+      admin=await adminCall('snapshot',{},false);
+      adminTab=validTabs.has(requestedTab)?requestedTab:'pedidos';
+      startOrderWatcher();
+      renderAdmin();
+      return;
+    }catch{
+      sessionStorage.removeItem('caseirao_admin_pin');
+      clearInternalResume();
+    }
+  }
+}
+setTimeout(restoreInternalAreaAfterReload,180);
+
+const driverToken=decodeURIComponent((location.hash.match(/^#entregador=([^&]+)/)||[])[1]||'');if(driverToken)setTimeout(()=>openDriverTracking(driverToken),100);
 })();
 </script>
 <style id="caseirao-admin-polish-v3">
@@ -818,77 +1146,270 @@ $('#search').addEventListener('input',e=>{search=e.target.value;renderCatalog()}
   polishAdminLabels();
 })();
 </script>
-<style>
-.customerRestore{margin:-2px 0 12px;padding:11px 13px;border:1px dashed #e0b18e;border-radius:12px;background:#fff8f2;color:#934018;font-weight:850;width:100%}
-.customerRestoreStatus{margin:-5px 0 12px;font-size:12px;color:#68717a;text-align:center}
+<style id="smart-order-workflow-style">
+/* Fluxo operacional guiado: uma ação principal por vez. */
+.smartOrderFlow{margin-top:14px;padding:13px;border:1px solid #dfe3e7;border-radius:16px;background:#f8f9fa}
+.smartFlowTop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.smartFlowTop b{color:#2b3036;font-size:12px;font-weight:950}
+.smartFlowTop span{color:#727a84;font-size:10px;font-weight:800}
+.smartFlowSteps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-bottom:11px}
+.smartFlowStep{height:5px;border-radius:99px;background:#dfe3e7}
+.smartFlowStep.done{background:#e15a18}
+.smartNextAction{width:100%;min-height:54px;border:0;border-radius:13px;background:linear-gradient(135deg,#ec6a25,#ca4710);color:#fff;font-size:14px;font-weight:950;letter-spacing:.01em;box-shadow:0 7px 18px rgba(207,76,18,.22)}
+.smartNextAction[data-next="pronto"]{background:linear-gradient(135deg,#746bc7,#51489e);box-shadow:0 7px 18px rgba(81,72,158,.2)}
+.smartNextAction[data-next="em_rota"]{background:linear-gradient(135deg,#2781bd,#155d90);box-shadow:0 7px 18px rgba(21,93,144,.2)}
+.smartNextAction[data-next="entregue"]{background:linear-gradient(135deg,#2b9b5d,#197542);box-shadow:0 7px 18px rgba(25,117,66,.2)}
+.smartNextAction:disabled{opacity:.65}
+.statusAdvancedOptions{margin-top:8px;border:0}
+.statusAdvancedOptions>summary{list-style:none;text-align:center;padding:8px;color:#6d747d;font-size:10px;font-weight:900;cursor:pointer}
+.statusAdvancedOptions>summary::-webkit-details-marker{display:none}
+.statusAdvancedOptions>summary:after{content:'  ▾'}
+.statusAdvancedOptions[open]>summary:after{content:'  ▴'}
+.statusAdvancedOptions .statusWorkflow{margin-top:4px!important}
+@media(max-width:480px){.smartOrderFlow{padding:11px}.smartNextAction{min-height:52px;font-size:13px}}
 </style>
 <script>
-/* Recuperação segura do cadastro do cliente salvo no banco. */
+/* Mantém todas as ações existentes, mas apresenta somente a próxima etapa como destaque. */
 (()=>{
-  const originalOpenCheckout=openCheckout;
-  const lastOrder=()=>{try{return JSON.parse(localStorage.getItem('caseirao_last_tracking')||'{}')}catch{return{}}};
-  const fillProfile=profile=>{
-    if(!profile?.customer)return false;
-    const address=(profile.addresses||[])[0]||{};
-    if($('#custName'))$('#custName').value=profile.customer.name||'';
-    if($('#custPhone'))$('#custPhone').value=phoneMask(profile.customer.phone||'');
-    if(orderType==='delivery'){
-      if($('#street'))$('#street').value=address.street||'';
-      if($('#number'))$('#number').value=address.number||'';
-      if($('#complement'))$('#complement').value=address.complement||'';
-      if($('#reference'))$('#reference').value=address.reference||'';
-      if($('#neighborhood')&&address.neighborhood_id){$('#neighborhood').value=address.neighborhood_id;$('#neighborhood').dispatchEvent(new Event('change'))}
-    }
-    saveCustomerMemory({name:profile.customer.name,phone:phoneMask(profile.customer.phone||''),...address});
-    return true;
+  const flow=['confirmado','preparando','pronto','em_rota','entregue'];
+  const nextFor=order=>{
+    if(!order)return null;
+    if(order.status==='novo'||order.status==='confirmado')return'preparando';
+    if(order.status==='preparando')return'pronto';
+    if(order.status==='pronto')return order.type==='delivery'?'em_rota':'entregue';
+    if(order.status==='em_rota')return'entregue';
+    return null;
   };
-  const recover=async(phone,tracking,quiet=false)=>{
-    const status=$('#customerRestoreStatus');
-    try{
-      if(status)status.textContent='Buscando seu cadastro...';
-      const profile=await api('customer-profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone,tracking_code:tracking})});
-      fillProfile(profile);
-      if(status)status.textContent='✓ Dados preenchidos. Confira antes de enviar.';
-      return true;
-    }catch(error){
-      if(status)status.textContent=quiet?'':(error.message||'Não foi possível recuperar seus dados.');
-      return false;
-    }
+  const actionLabel=(order,next)=>({
+    preparando:'🔥 INICIAR PREPARO',
+    pronto:'✓ MARCAR COMO PRONTO',
+    em_rota:'🛵 ENVIAR PARA ROTA',
+    entregue:order?.type==='pickup'?'✓ FINALIZAR RETIRADA':order?.type==='local'?'✓ FINALIZAR CONSUMO':'✓ CONFIRMAR ENTREGA'
+  }[next]||'AVANÇAR PEDIDO');
+  const ageLabel=order=>{
+    const minutes=Math.max(0,Math.floor((Date.now()-new Date(order.created_at).getTime())/60000));
+    return minutes<1?'chegou agora':`há ${minutes} min`;
   };
-  openCheckout=function(){
-    originalOpenCheckout();
-    const name=$('#custName');if(!name)return;
-    const row=name.closest('.row');
-    const button=document.createElement('button');button.type='button';button.id='restoreCustomer';button.className='customerRestore';button.textContent='JÁ PEDIU ANTES? RECUPERAR MEUS DADOS';
-    const status=document.createElement('div');status.id='customerRestoreStatus';status.className='customerRestoreStatus';
-    row.insertAdjacentElement('afterend',button);button.insertAdjacentElement('afterend',status);
-    button.onclick=async()=>{
-      const previous=lastOrder(),phone=prompt('Digite o WhatsApp usado no pedido:',phoneMask($('#custPhone')?.value||previous.phone||''));if(phone===null)return;
-      const code=prompt('Digite o código de um pedido anterior:',previous.tracking_code||'');if(code===null)return;
-      button.disabled=true;button.textContent='RECUPERANDO...';await recover(phone,code);button.disabled=false;button.textContent='JÁ PEDIU ANTES? RECUPERAR MEUS DADOS';
-    };
-    const previous=lastOrder();if(previous.phone&&previous.tracking_code)recover(previous.phone,previous.tracking_code,true);
+  const enhance=box=>{
+    box.querySelectorAll('.orderactions.statusWorkflow').forEach(actions=>{
+      if(actions.closest('.finishedOrder')||actions.closest('.smartOrderFlow'))return;
+      const id=actions.querySelector('[data-oid]')?.dataset.oid;
+      const order=(admin?.orders||[]).find(item=>String(item.id)===String(id));
+      const next=nextFor(order);
+      if(!order||!next)return;
+      const target=actions.querySelector(`[data-st="${next}"]`);
+      if(!target)return;
+      actions.previousElementSibling?.classList.contains('statusSectionTitle')&&actions.previousElementSibling.remove();
+      const currentIndex=Math.max(0,flow.indexOf(order.status));
+      const guide=document.createElement('div');
+      guide.className='smartOrderFlow';
+      guide.innerHTML=`<div class="smartFlowTop"><b>PRÓXIMA AÇÃO</b><span>Pedido ${ageLabel(order)}</span></div><div class="smartFlowSteps" aria-label="Progresso do pedido">${[0,1,2,3].map((_,i)=>`<span class="smartFlowStep ${i<currentIndex?'done':''}"></span>`).join('')}</div><button type="button" class="smartNextAction" data-next="${next}">${actionLabel(order,next)}</button><details class="statusAdvancedOptions"><summary>Corrigir status ou cancelar</summary></details>`;
+      const advanced=guide.querySelector('.statusAdvancedOptions');
+      actions.parentNode.insertBefore(guide,actions);
+      advanced.appendChild(actions);
+      guide.querySelector('.smartNextAction').onclick=event=>{
+        const button=event.currentTarget;
+        button.disabled=true;
+        button.textContent='ATUALIZANDO...';
+        target.click();
+      };
+    });
   };
+  const base=renderOrders;
+  renderOrders=function(box){const result=base(box);enhance(box);return result};
 })();
 </script>
-<script id="liveClockScript">
+<style id="driver-login-navigation-polish">
+/* Navegação exclusiva da tela de acesso do entregador. */
+.sheet:has(#driverLoginButton) > .modalNav{
+  width:100%;display:flex;align-items:center;gap:10px;
+  margin:0 0 20px;padding:0;
+}
+.sheet:has(#driverLoginButton) > .modalNav button[data-smart-back]{
+  min-height:42px;padding:8px 2px;border:0;border-radius:9px;
+  background:transparent;color:#424a54;box-shadow:none;
+  font-size:13px;font-weight:850;
+}
+.sheet:has(#driverLoginButton) > .modalNav button[data-modal-home]{
+  width:42px;height:42px;min-width:42px;margin-left:auto;padding:0;
+  display:grid;place-items:center;overflow:hidden;
+  border:1px solid #dfe3e8;border-radius:12px;background:#fff;color:#303741;
+  box-shadow:0 3px 10px rgba(24,31,40,.06);font-size:0;
+}
+.sheet:has(#driverLoginButton) > .modalNav button[data-modal-home]::before{
+  content:'⌂';font-size:20px;line-height:1;
+}
+.sheet:has(#driverLoginButton) > .modalNav button:active{transform:translateY(1px)}
+.sheet:has(#driverLoginButton) > .sheeth{padding-top:0}
+.sheet:has(#driverLoginButton) > .sheeth .x{display:none!important}
+</style>
+<style id="driver-one-tap-delivery">
+/* Operação rápida do entregador: uma única ação para concluir a entrega. */
+.driverOneTapHint{margin:8px 0 0;color:#69717a;font-size:11px;line-height:1.4}
+.driverDeliverButton{background:linear-gradient(135deg,#2b9b5d,#197542)!important;color:#fff!important;border-color:#23834d!important;box-shadow:0 8px 20px rgba(25,117,66,.2)!important}
+.driverDeliverButton:disabled{opacity:.72!important;cursor:wait!important}
+.driverOrder{padding:18px!important;border-radius:20px!important}
+.driverQuickTop h3{font-size:22px!important;line-height:1.15}.driverQuickTop .driverFee{font-size:21px!important}.driverStatus{font-size:13px!important;margin-top:5px}
+.driverQuickChip{font-size:13px!important;padding:8px 10px!important}.driverNextAction .primary{min-height:58px!important;font-size:16px!important}.driverNextAction .secondary{min-height:50px!important;font-size:13px!important}
+.driverOneTapHint{font-size:12px;line-height:1.5;text-align:center}.driverDetails>summary{font-size:14px!important;padding:12px 2px!important}
+.driverDeliveryInfo{display:grid;gap:10px}.driverInfoBlock{border:1px solid #dfe3e7;background:#f7f8f9;border-radius:14px;padding:13px;color:#24282d}.driverInfoBlock>small{display:block;margin-bottom:5px;color:#68717b;font-size:11px;font-weight:950;text-transform:uppercase;letter-spacing:.04em}.driverInfoBlock>strong{display:block;font-size:17px;line-height:1.4;word-break:break-word}.driverAddressBlock{background:#eef7ff;border-color:#c9dfef}.driverAddressBlock>strong{font-size:18px}.driverReference{display:block;margin-top:7px;color:#4f5963;font-size:14px;font-weight:750}.driverPhoneLink{display:flex;align-items:center;justify-content:center;min-height:50px;margin-top:9px;border-radius:12px;background:#168c4c;color:#fff;text-decoration:none;font-size:15px;font-weight:950}.driverPayGrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.driverPayGrid .driverInfoBlock:last-child{background:#fff4e9;border-color:#f1d1b5}.driverItemsTitle{margin:13px 0 7px;font-size:14px;font-weight:950;color:#2b3036}.driverOrder .orderItemsBox{margin-top:0;border-color:#dfe3e7}.driverOrder .orderItemRow{padding:12px;background:#fff;border-color:#e5e8eb;color:#24282d}.driverOrder .orderItemHead b{font-size:15px}.driverOrder .orderAddonLine,.driverOrder .orderItemNote{font-size:13px;line-height:1.45}.driverOrder .notesBoxAdmin{font-size:14px!important;background:#fff8dd!important;color:#4e4017!important;border-color:#ead99b!important}.driverOrder .driverMiniMapBtn{min-height:50px!important;font-size:14px!important;background:#17689d!important;color:#fff!important;border-color:#17689d!important}.driverOrder [data-driver-gps]{min-height:48px;font-size:14px}.driverFinishedCard{opacity:.82}
+@media(max-width:420px){.driverOrder{padding:15px!important}.driverPayGrid{grid-template-columns:1fr}.driverQuickTop h3{font-size:20px!important}.driverAddressBlock>strong{font-size:17px}}
+</style>
+<script>
+/*
+ * Entrega em um toque. O sistema percorre internamente as etapas exigidas pela
+ * API, registra o horário final e evita que dois toques contabilizem o pedido.
+ */
 (()=>{
-  const clock=document.getElementById('liveClock');
-  if(!clock)return;
-  const formatter=new Intl.DateTimeFormat('pt-BR',{
-    timeZone:'America/Fortaleza',
-    hour:'2-digit',
-    minute:'2-digit',
-    hour12:false
-  });
-  const updateClock=()=>{
-    const now=new Date();
-    clock.textContent=formatter.format(now);
-    clock.dateTime=now.toISOString();
+  const deliveryLocks=new Set();
+
+  driverOrderCard=function(a){
+    const o=a.orders||{},hood=a.neighborhood_name||o.neighborhood_name||'Bairro não informado',fee=Number(a.driver_fee||0);
+    const finished=['delivered','returned','settled'].includes(a.status);
+    const rawPhone=String(o.customer_phone||'').replace(/\D/g,'');
+    const phoneHref=rawPhone?`tel:${rawPhone}`:'';
+    const change=o.change_for?String(o.change_for):'';
+    const street=[o.address_street,o.address_number].filter(Boolean).join(', ')||'Endereço não informado';
+    const complement=o.address_complement?`Complemento: ${o.address_complement}`:'';
+    const reference=o.address_reference?`Referência: ${o.address_reference}`:'';
+    const action=finished
+      ? `<button class="primary" disabled>✓ ENTREGA CONCLUÍDA</button>`
+      : `<button class="primary driverDeliverButton" data-driver-deliver="${a.id}">✓ MARCAR COMO ENTREGUE</button><div class="driverOneTapHint">Um toque confirma a entrega, registra o horário e atualiza o fechamento.</div>`;
+    return `<div class="driverOrder ${finished?'driverFinishedCard':''}">
+      <div class="driverQuickTop">
+        <div class="grow"><h3>Pedido #${esc(o.order_number||'—')}</h3><div class="driverStatus">${esc(deliveryStatusLabel(a.status))}</div></div>
+        <b class="driverFee">${fee?fmt(fee):'—'}</b>
+      </div>
+      <div class="driverQuickLine"><span class="driverQuickChip">📍 ${esc(hood)}</span><span class="driverQuickChip">💳 ${esc(paymentLabel(o.payment))}</span></div>
+      <div class="driverNextAction">${action}${!finished?`<button class="secondary danger" style="margin-top:7px" data-driver-status="problem" data-driver-assignment="${a.id}">PROBLEMA NA ENTREGA</button>`:''}</div>
+      <details class="driverDetails" open><summary>Endereço e detalhes do pedido</summary><div class="driverDetailsContent">${deliveryTimesHtml(a)}
+        <div class="driverDeliveryInfo">
+          <div class="driverInfoBlock driverAddressBlock"><small>📍 Endereço da entrega</small><strong>${esc(street)}</strong><span class="driverReference">${esc(hood)}${complement?` • ${esc(complement)}`:''}${reference?`<br>${esc(reference)}`:''}</span></div>
+          <a class="secondary driverMiniMapBtn" href="${esc(safeMapsLink(o))}" target="_blank" rel="noopener">🗺️ ABRIR ROTA NO MAPA</a>
+          <div class="driverInfoBlock"><small>👤 Cliente</small><strong>${esc(o.customer_name||'Não informado')}</strong>${phoneHref?`<a class="driverPhoneLink" href="${esc(phoneHref)}">📞 LIGAR PARA ${esc(o.customer_phone)}</a>`:`<span class="driverReference">Telefone não informado</span>`}</div>
+          <div class="driverPayGrid"><div class="driverInfoBlock"><small>💳 Pagamento</small><strong>${esc(paymentLabel(o.payment))}</strong><span class="driverReference">${change?`Troco para ${esc(change)}`:'Sem troco informado'}</span></div><div class="driverInfoBlock"><small>💰 Total a receber</small><strong>${fmt(o.total)}</strong><span class="driverReference">Taxa do entregador: ${fee?fmt(fee):'não informada'}</span></div></div>
+        </div>
+        <div class="driverItemsTitle">🍔 ITENS DO PEDIDO</div><div class="orderItemsBox">${orderItemsHtml(o)}</div>
+        ${o.notes?`<div class="notesBoxAdmin"><b>📝 Observações gerais</b>${esc(o.notes)}</div>`:''}
+        <button class="secondary" data-driver-gps="${a.id}">📍 ATIVAR COMPARTILHAMENTO DE GPS</button>
+      </div></details>
+    </div>`;
   };
-  updateClock();
-  setInterval(updateClock,1000);
+
+  async function deliverInOneTap(id,button){
+    if(deliveryLocks.has(id))return;
+    const assignment=(driverSnapshot?.assignments||[]).find(x=>String(x.id)===String(id));
+    if(!assignment||['delivered','returned','settled'].includes(assignment.status))return;
+    deliveryLocks.add(id);button.disabled=true;button.textContent='CONFIRMANDO ENTREGA...';
+    try{
+      let current=assignment.status;
+      if(current==='assigned'||current==='problem'){
+        await driverAppApi('status',{assignment_id:id,status:'route'});
+        current='route';
+      }
+      if(current==='route'){
+        await driverAppApi('status',{assignment_id:id,status:'arrived'});
+        current='arrived';
+      }
+      if(current==='arrived'){
+        const order=assignment.orders||{};
+        const payload={assignment_id:id,status:'delivered',payment_confirmed:true};
+        if(order.payment==='Dinheiro'){
+          payload.cash_received=Number(order.total||0);
+          payload.change_given=0;
+        }
+        await driverAppApi('status',payload);
+      }
+      stopDriverAreaGps();
+      showAppToast('Entrega confirmada e contabilizada.','ok');
+      await renderDriverArea();
+    }catch(e){
+      button.disabled=false;button.textContent='✓ MARCAR COMO ENTREGUE';
+      alert(e.message||'Não foi possível confirmar a entrega.');
+    }finally{deliveryLocks.delete(id)}
+  }
+
+  const baseRenderDriverArea=renderDriverArea;
+  renderDriverArea=async function(){
+    const result=await baseRenderDriverArea();
+    document.querySelectorAll('[data-driver-deliver]').forEach(button=>{
+      button.onclick=()=>deliverInOneTap(button.dataset.driverDeliver,button);
+    });
+    return result;
+  };
+
+  /* O painel pode ter sido restaurado antes deste aprimoramento carregar. */
+  if(document.querySelector('.driverScreenNew')&&localStorage.getItem(driverTokenKey)){
+    setTimeout(()=>renderDriverArea(),0);
+  }
+})();
+</script>
+<script>
+/* Alerta do ADM quando o entregador conclui uma entrega em outro aparelho. */
+(()=>{
+  let deliveryAlertTimer=null,deliveryAlertBusy=false,deliveryAlertReady=false;
+  const knownDelivered=new Set();
+  const deliveredKey=a=>`${a.id}:${a.delivered_at||'delivered'}`;
+  const isDelivered=a=>['delivered','returned','settled'].includes(a.status)&&Boolean(a.delivered_at||a.status==='delivered');
+
+  function nativeDeliveryNotification(assignment){
+    if(!('Notification' in window)||Notification.permission!=='granted')return;
+    const order=assignment.orders||{},driver=assignment.drivers||{};
+    try{
+      const notification=new Notification(`Entrega concluída • Pedido #${order.order_number||'—'}`,{
+        body:`${driver.name||'Entregador'} confirmou a entrega.`,
+        tag:`caseirao-delivery-${assignment.id}`,
+        renotify:true,
+        requireInteraction:true,
+        vibrate:[250,120,250]
+      });
+      notification.onclick=()=>{window.focus();notification.close();adminTab='entregas';renderAdmin()};
+    }catch{}
+  }
+
+  async function checkDeliveredOrders(){
+    if(deliveryAlertBusy||!sessionStorage.getItem('caseirao_admin_pin'))return;
+    deliveryAlertBusy=true;
+    try{
+      const snapshot=await driverAppApi('admin_snapshot',{},true);
+      const completed=(snapshot.assignments||[]).filter(isDelivered);
+      if(!deliveryAlertReady){
+        completed.forEach(a=>knownDelivered.add(deliveredKey(a)));
+        deliveryAlertReady=true;
+        return;
+      }
+      const fresh=completed.filter(a=>!knownDelivered.has(deliveredKey(a)));
+      completed.forEach(a=>knownDelivered.add(deliveredKey(a)));
+      if(!fresh.length)return;
+      deliveryHub=snapshot;
+      for(const assignment of fresh){
+        const order=assignment.orders||{},driver=assignment.drivers||{};
+        const message=`Pedido #${order.order_number||'—'} entregue por ${driver.name||'entregador'}.`;
+        playOrderSound();
+        showAppToast(message,'ok');
+        nativeDeliveryNotification(assignment);
+      }
+      if(adminTab==='entregas'){
+        const box=$('#admContent');
+        if(box)await renderDeliveryHub(box);
+      }
+    }catch{}finally{deliveryAlertBusy=false}
+  }
+
+  function startDeliveryAlerts(){
+    if(deliveryAlertTimer)return;
+    checkDeliveredOrders();
+    deliveryAlertTimer=setInterval(checkDeliveredOrders,5000);
+  }
+
+  const baseRenderAdminForDeliveryAlerts=renderAdmin;
+  renderAdmin=function(){
+    const result=baseRenderAdminForDeliveryAlerts();
+    startDeliveryAlerts();
+    return result;
+  };
 })();
 </script>
 </body>
 </html>
+
