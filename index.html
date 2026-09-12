@@ -66,6 +66,12 @@ button,.card,.tableitem,.metric,.financeCard,.quickbtn,.chip{transition:transfor
 .couponRow{display:grid;grid-template-columns:1fr auto;gap:8px}.couponRow button{width:auto}.etaCard{display:flex;flex-direction:column;gap:4px;border:1px solid #6a4823;background:linear-gradient(135deg,#2e1c0d,#18120d);padding:12px;border-radius:12px;margin-bottom:10px;color:#ffd18f}.etaCard span{font-size:12px;color:#e5c49a}.discountLine{color:#8df0b1}.soldOut{opacity:.58;filter:grayscale(.35)}.soldOut .pic{position:relative}.soldOut .pic:after{content:'ESGOTADO';position:absolute;inset:auto 8px 8px;background:#8f282d;color:#fff;border-radius:8px;padding:7px;text-align:center;font-weight:950}.opsOrder{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
 @media(max-width:520px){.couponRow{grid-template-columns:1fr}.couponRow button{width:100%}}
 </style>
+<style id="liveClockHeaderFix">
+.brandMetaRow{grid-column:2!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:6px!important;min-width:0!important;white-space:nowrap}
+.brandMetaRow .status{grid-column:auto!important;margin:2px 0 0!important;flex:0 1 auto!important}
+.liveClock{display:inline-flex!important;align-items:center!important;margin:2px 0 0 1px!important;color:#8b9097!important;font-size:9px!important;line-height:1!important;font-weight:700!important;letter-spacing:.02em!important;font-variant-numeric:tabular-nums;white-space:nowrap}
+.liveClock:before{content:'•';margin-right:6px;color:#b0b4b9;font-size:8px}
+</style>
 </head>
 <body>
 <header class="top"><div class="topin"><div class="brand"><div class="brandMark" aria-hidden="true">CB</div><h1 id="storeName">O Caseirão Burger</h1><div class="brandMetaRow"><div id="storeStatus" class="status">Carregando cardápio...</div><time id="liveClock" class="liveClock" aria-label="Horário atual">--:--:--</time></div></div><button class="headbtn" id="trackBtn">Acompanhar</button></div></header>
@@ -873,7 +879,6 @@ $('#search').addEventListener('input',e=>{search=e.target.value;renderCatalog()}
     timeZone:'America/Fortaleza',
     hour:'2-digit',
     minute:'2-digit',
-    second:'2-digit',
     hour12:false
   });
   const updateClock=()=>{
@@ -887,4 +892,3 @@ $('#search').addEventListener('input',e=>{search=e.target.value;renderCatalog()}
 </script>
 </body>
 </html>
-
