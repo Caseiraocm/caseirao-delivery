@@ -773,6 +773,22 @@ $('#search').addEventListener('input',e=>{search=e.target.value;renderCatalog()}
   .sheet.full:has(.adminHead) .paymentMetric span{font-size:10px;white-space:normal}
   .sheet.full:has(.adminHead) .paymentMetric b{font-size:15px;margin-top:5px}
 }
+
+/* Contraste reforçado nas informações de Cliente e Pagamento dos pedidos. */
+.sheet.full:has(.adminHead) .orderInfo{
+  background:#ffffff;
+  border-color:#d7dce1;
+}
+.sheet.full:has(.adminHead) .orderInfo span{
+  color:#5f6872;
+}
+.sheet.full:has(.adminHead) .orderInfo b{
+  color:#171a1f;
+}
+.sheet.full:has(.adminHead) .orderInfo small{
+  color:#48515b;
+  font-weight:650;
+}
 </style>
 <script>
 /* Troca apenas os rótulos decorativos do resumo financeiro. */
