@@ -871,6 +871,45 @@ $('#search').addEventListener('input',e=>{search=e.target.value;renderCatalog()}
   };
 })();
 </script>
+<style>
+/* Incentivo ao pedido direto pelo cardápio. */
+.systemBenefits{position:relative;overflow:hidden;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;margin:0 0 14px;padding:13px 14px;border:1px solid rgba(244,180,95,.32);border-radius:16px;background:linear-gradient(135deg,#21170f,#151310);box-shadow:0 8px 28px rgba(0,0,0,.16)}
+.systemBenefits:before{content:'';position:absolute;inset:0 auto 0 0;width:4px;background:#e56c26}.systemBenefitsIcon{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#c95116;color:#fff;font-size:19px}.systemBenefitsCopy{min-width:0}.systemBenefitsCopy b{display:block;color:#fff;font-size:14px;line-height:1.2}.systemBenefitsCopy span{display:block;margin-top:3px;color:#c8b8aa;font-size:11px;line-height:1.35}.systemBenefitsAction{border:1px solid #d96b31;background:transparent;color:#ffb17d;border-radius:10px;padding:9px 10px;font-size:11px;font-weight:950;white-space:nowrap}
+.card.hasSystemOffer{position:relative;border-color:rgba(226,103,38,.72);box-shadow:0 9px 28px rgba(201,81,22,.12)}.systemOfferBadge{position:absolute;z-index:2;top:9px;left:9px;padding:6px 8px;border-radius:8px;background:#c95116;color:#fff;font-size:9px;font-weight:950;letter-spacing:.035em;box-shadow:0 4px 12px rgba(0,0,0,.34)}.card.hasSystemOffer .price{color:#ff9b62}.card.hasSystemOffer .add{background:linear-gradient(135deg,#df641f,#b83d0c)}
+.systemCheckoutNote{display:flex;gap:9px;align-items:flex-start;margin:2px 0 12px;padding:11px 12px;border:1px solid #285b3c;border-radius:12px;background:#12281b;color:#a5e9bd;font-size:12px;line-height:1.4}.systemCheckoutNote b{color:#d7ffe5}.promoModalIntro.systemExclusiveIntro{padding:10px 11px;border:1px solid #efc6a7;border-radius:11px;background:#fff8f2;color:#713b1c;font-weight:750}.promoCustomerCard{position:relative}.promoExclusiveTag{display:block;width:max-content;margin-top:5px;padding:4px 6px;border-radius:6px;background:#fff0e6;color:#b84913;font-size:8px;font-weight:950;letter-spacing:.04em}
+@media(max-width:480px){.systemBenefits{grid-template-columns:auto minmax(0,1fr);gap:10px}.systemBenefitsAction{grid-column:1/-1;width:100%;padding:10px}.systemBenefitsCopy b{font-size:13px}}
+</style>
+<script>
+/* Mostra por que vale a pena pedir aqui, sem bloquear o atendimento manual. */
+(()=>{
+  const insertBenefits=()=>{
+    const banner=$('#banner'),searchBox=$('#search');
+    if(!banner||!searchBox||$('#systemBenefits'))return;
+    const count=activePromotions().length;
+    const box=document.createElement('section');
+    box.id='systemBenefits';box.className='systemBenefits';box.setAttribute('aria-label','Vantagens de pedir pelo sistema');
+    box.innerHTML=`<div class="systemBenefitsIcon">★</div><div class="systemBenefitsCopy"><b>${count?`${count} ${count===1?'oferta exclusiva':'ofertas exclusivas'} no sistema`:'Peça direto pelo sistema'}</b><span>${count?'Preço especial, pedido direto na fila e acompanhamento em tempo real.':'Mais rapidez, pedido direto na fila e acompanhamento em tempo real.'}</span></div><button class="systemBenefitsAction" type="button">${count?'VER OFERTAS':'ESCOLHER LANCHE'}</button>`;
+    banner.insertAdjacentElement('afterend',box);
+    box.querySelector('button').onclick=()=>{if(count)openDailyPromotions();else searchBox.scrollIntoView({behavior:'smooth',block:'center'})};
+  };
+  const decorateOffers=()=>{
+    const promos=new Set(activePromotions().map(p=>String(p.id)));
+    document.querySelectorAll('#products [data-add]').forEach(button=>{
+      if(!promos.has(String(button.dataset.add)))return;
+      const card=button.closest('.card');if(!card)return;
+      card.classList.add('hasSystemOffer');
+      if(!card.querySelector('.systemOfferBadge'))card.insertAdjacentHTML('afterbegin','<span class="systemOfferBadge">EXCLUSIVO NO SISTEMA</span>');
+    });
+  };
+  const originalRenderCatalog=renderCatalog;
+  renderCatalog=function(){const result=originalRenderCatalog();$('#systemBenefits')?.remove();insertBenefits();decorateOffers();return result};
+  const originalPromotions=openDailyPromotions;
+  openDailyPromotions=function(){originalPromotions();const intro=document.querySelector('.promoModalIntro');if(intro){intro.classList.add('systemExclusiveIntro');intro.textContent='Preços exclusivos para pedidos finalizados por este sistema.'}document.querySelectorAll('[data-promo-add]').forEach(button=>{const info=button.closest('.promoCustomerCard')?.querySelector('.promoCustomerInfo');if(info&&!info.querySelector('.promoExclusiveTag'))info.insertAdjacentHTML('beforeend','<span class="promoExclusiveTag">SÓ PELO SISTEMA</span>')})};
+  const originalCheckout=openCheckout;
+  openCheckout=function(){originalCheckout();const segment=document.querySelector('.seg');if(segment&&!$('#systemCheckoutNote'))segment.insertAdjacentHTML('afterend','<div id="systemCheckoutNote" class="systemCheckoutNote"><span>✓</span><div><b>Seu pedido entra direto na fila do Caseirão.</b><br>Depois de enviar, você acompanha cada etapa pelo próprio sistema.</div></div>')};
+  if($('#products')){insertBenefits();decorateOffers()}
+})();
+</script>
 <script id="liveClockScript">
 (()=>{
   const clock=document.getElementById('liveClock');
@@ -892,4 +931,3 @@ $('#search').addEventListener('input',e=>{search=e.target.value;renderCatalog()}
 </script>
 </body>
 </html>
-
