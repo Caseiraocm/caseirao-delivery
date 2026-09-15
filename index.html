@@ -72,6 +72,34 @@ button,.card,.tableitem,.metric,.financeCard,.quickbtn,.chip{transition:transfor
 .liveClock{display:inline-flex!important;align-items:center!important;margin:2px 0 0 1px!important;color:#8b9097!important;font-size:9px!important;line-height:1!important;font-weight:700!important;letter-spacing:.02em!important;font-variant-numeric:tabular-nums;white-space:nowrap}
 .liveClock:before{content:'•';margin-right:6px;color:#b0b4b9;font-size:8px}
 </style>
+<style id="caseirao-sticky-banner">
+/* Mantém o banner promocional visível abaixo do cabeçalho durante a rolagem. */
+#banner:not(.hide){
+  position:sticky;
+  top:calc(var(--caseirao-header-height,76px) + 8px);
+  z-index:24;
+  box-shadow:0 12px 28px rgba(0,0,0,.34);
+  transform:translateZ(0);
+}
+#banner:not(.hide) + .systemBenefits{position:relative;z-index:1}
+@media(max-width:640px){
+  #banner:not(.hide){
+    top:calc(var(--caseirao-header-height,70px) + 6px);
+    box-shadow:0 9px 22px rgba(0,0,0,.38);
+  }
+}
+</style>
+<script>
+/* Calcula a altura real do cabeçalho para o banner não ficar escondido atrás dele. */
+document.addEventListener('DOMContentLoaded',()=>{
+  const header=document.querySelector('.top');
+  if(!header)return;
+  const syncHeaderHeight=()=>document.documentElement.style.setProperty('--caseirao-header-height',header.getBoundingClientRect().height+'px');
+  syncHeaderHeight();
+  if('ResizeObserver' in window)new ResizeObserver(syncHeaderHeight).observe(header);
+  window.addEventListener('resize',syncHeaderHeight,{passive:true});
+});
+</script>
 </head>
 <body>
 <header class="top"><div class="topin"><div class="brand"><div class="brandMark" aria-hidden="true">CB</div><h1 id="storeName">O Caseirão Burger</h1><div class="brandMetaRow"><div id="storeStatus" class="status">Carregando cardápio...</div><time id="liveClock" class="liveClock" aria-label="Horário atual">--:--:--</time></div></div><button class="headbtn" id="trackBtn">Acompanhar</button></div></header>
