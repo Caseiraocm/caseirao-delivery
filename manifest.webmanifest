@@ -8,7 +8,7 @@
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#090a0c",
-  "theme_color": "#e76620",
+  "theme_color": "#111318",
   "categories": ["food", "shopping"],
   "icons": [
     {"src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}

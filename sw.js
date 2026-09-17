@@ -1,4 +1,4 @@
-const CACHE='caseirao-delivery-v1';
+const CACHE='caseirao-delivery-v2';
 const SHELL=['./','./index.html','./manifest.webmanifest','./icon.svg'];
 
 self.addEventListener('install',event=>{
