@@ -10,6 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Caseirão">
+<link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b0d10'/%3E%3Ctext x='32' y='45' font-size='38' text-anchor='middle'%3E🍔%3C/text%3E%3C/svg%3E">
 <title>O Caseirão Burger</title>
 <style>
@@ -437,7 +438,7 @@ renderCart=function(){modal(`<div class="sheeth"><div><h2>Seu pedido</h2><div cl
 
 function openCustomerLoyalty(){const saved=(()=>{try{return JSON.parse(localStorage.getItem('caseirao_last_tracking')||'{}')}catch{return{}}})(),memory=customerMemory(),target=loyaltyTarget(data.settings);modal(`<div class="sheeth"><div><h2>Minha fidelidade</h2><div class="adminSub">A cada ${target} pedidos, você ganha um brinde</div></div><button class="x" data-close>×</button></div><div class="notice">Digite somente o mesmo WhatsApp usado nos seus pedidos.</div><div class="field"><label>Seu WhatsApp cadastrado</label><input id="loyaltyPhone" class="in" inputmode="tel" autocomplete="tel" value="${esc(phoneMask(saved.phone||memory.phone||''))}" placeholder="(86) 99999-9999"></div><button id="checkLoyalty" class="primary">VER MINHA FIDELIDADE</button><div id="customerLoyaltyResult"></div>`);bindClose();$('#loyaltyPhone').oninput=e=>e.target.value=phoneMask(e.target.value);$('#checkLoyalty').onclick=async()=>{const btn=$('#checkLoyalty'),phone=$('#loyaltyPhone').value.trim();try{if(!validPhone(phone))throw new Error('Informe um WhatsApp válido com DDD.');btn.disabled=true;btn.textContent='CONSULTANDO...';const result=await loyaltyStatus(phone);saveCustomerMemory({...memory,phone:phoneMask(phone)});$('#customerLoyaltyResult').innerHTML=loyaltyHtml(result.loyalty)}catch(e){$('#customerLoyaltyResult').innerHTML=`<div class="err" style="margin-top:12px">${esc(e.message||String(e))}</div>`}finally{btn.disabled=false;btn.textContent='VER MINHA FIDELIDADE'}}}
 
-function installManifest(){try{const manifest={name:'O Caseirão Burger',short_name:'Caseirão',description:'Cardápio e pedidos do O Caseirão Burger',start_url:location.pathname,scope:location.pathname.replace(/[^/]*$/,''),display:'standalone',background_color:'#f3f4f6',theme_color:'#ffffff',icons:[]};const link=document.createElement('link');link.rel='manifest';link.href=URL.createObjectURL(new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'}));document.head.appendChild(link)}catch{}}
+function installManifest(){if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js?v=20260917-v1',{updateViaCache:'none'}).then(registration=>registration.update()).catch(()=>{})}
 async function installApp(){if(window.matchMedia('(display-mode: standalone)').matches||navigator.standalone){showAppToast('O Caseirão já está instalado neste celular.','ok');return}if(installPrompt){installPrompt.prompt();const choice=await installPrompt.userChoice;installPrompt=null;if(choice.outcome==='accepted')showAppToast('Aplicativo instalado com sucesso.','ok');return}modal(`<div class="sheeth"><div><h2>Instalar o Caseirão</h2><div class="adminSub">Crie um atalho na tela inicial</div></div><button class="x" data-close>×</button></div><div class="installSteps"><div class="installStep"><b>1</b><div>Abra o menu do navegador, nos <strong>três pontinhos</strong>.</div></div><div class="installStep"><b>2</b><div>Toque em <strong>Adicionar à tela inicial</strong> ou <strong>Instalar aplicativo</strong>.</div></div><div class="installStep"><b>3</b><div>Confirme em <strong>Instalar</strong>.</div></div></div><div class="notice">Depois disso, o Caseirão abrirá pelo ícone na tela do celular.</div>`);bindClose()}
 window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();installPrompt=event;$('#installBtn')?.classList.add('ready')});
 window.addEventListener('appinstalled',()=>showAppToast('Caseirão instalado na tela inicial.','ok'));
@@ -673,6 +674,21 @@ const renderCatalogPerformanceBase=renderCatalog;renderCatalog=function(){const 
 const rawFileToBase64=fileToBase64;fileToBase64=async function(file){if(!file?.type?.startsWith('image/')||file.type==='image/gif')return rawFileToBase64(file);try{const bitmap=await createImageBitmap(file),maxWidth=1600,maxHeight=1200,scale=Math.min(1,maxWidth/bitmap.width,maxHeight/bitmap.height),width=Math.max(1,Math.round(bitmap.width*scale)),height=Math.max(1,Math.round(bitmap.height*scale)),canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;const context=canvas.getContext('2d',{alpha:false});context.fillStyle='#ffffff';context.fillRect(0,0,width,height);context.drawImage(bitmap,0,0,width,height);bitmap.close?.();const type=file.type==='image/png'?'image/webp':'image/jpeg',quality=.8,result=canvas.toDataURL(type,quality);return result.length<file.size*1.37?result:rawFileToBase64(file)}catch{return rawFileToBase64(file)}};
 const performanceStyle=document.createElement('style');performanceStyle.textContent=`#products .card{content-visibility:auto;contain-intrinsic-size:auto 330px}#products .pic img{will-change:auto}.skeleton{content-visibility:visible}`;document.head.appendChild(performanceStyle);
 
+/* Permite que as melhorias carregadas depois deste bloco componham as funções
+   principais sem perder o mesmo estado interno do carrinho e do checkout. */
+Object.defineProperties(window,{
+  caseirao$:{value:$,configurable:false},
+  caseiraoApi:{value:api,configurable:false},
+  openCheckout:{configurable:true,get:()=>openCheckout,set:value=>{openCheckout=value}},
+  openDailyPromotions:{configurable:true,get:()=>openDailyPromotions,set:value=>{openDailyPromotions=value}},
+  renderCatalog:{configurable:true,get:()=>renderCatalog,set:value=>{renderCatalog=value}},
+  activePromotions:{configurable:true,get:()=>activePromotions},
+  phoneMask:{configurable:true,get:()=>phoneMask},
+  saveCustomerMemory:{configurable:true,get:()=>saveCustomerMemory},
+  orderType:{configurable:true,get:()=>orderType,set:value=>{orderType=value}},
+  api:{configurable:true,get:()=>api,set:value=>{api=value}},
+  $:{configurable:true,get:()=>$}
+});
 restoreCart();lastCartCount=cartCount();updateCartBar();installManifest();
 $('#search').addEventListener('input',e=>{search=e.target.value;renderCatalog()});$('#cartBtn').onclick=renderCart;$('#trackBtn').onclick=()=>openTracking();$('#homeBtn').onclick=goHome;$('#promotionsBtn').onclick=openDailyPromotions;$('#loyaltyBtn').onclick=openCustomerLoyalty;$('#installBtn').onclick=installApp;catalog();const driverToken=decodeURIComponent((location.hash.match(/^#entregador=([^&]+)/)||[])[1]||'');if(driverToken)setTimeout(()=>openDriverTracking(driverToken),100);
 })();
@@ -922,6 +938,21 @@ $('#search').addEventListener('input',e=>{search=e.target.value;renderCatalog()}
   };
   updateClock();
   setInterval(updateClock,1000);
+})();
+</script>
+<style>
+.networkStatus{position:fixed;z-index:500;top:max(10px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:max-content;max-width:92vw;padding:9px 13px;border:1px solid #f0b9b9;border-radius:999px;background:#fff1f1;color:#8f2429;font-size:12px;font-weight:900;box-shadow:0 8px 25px rgba(0,0,0,.2)}
+</style>
+<script>
+(()=>{
+  const sync=()=>{
+    let notice=document.getElementById('networkStatus');
+    if(navigator.onLine){notice?.remove();return}
+    if(!notice){notice=document.createElement('div');notice.id='networkStatus';notice.className='networkStatus';notice.setAttribute('role','status');notice.textContent='Sem internet — confira a conexão antes de enviar o pedido';document.body.appendChild(notice)}
+  };
+  window.addEventListener('online',sync);
+  window.addEventListener('offline',sync);
+  sync();
 })();
 </script>
 </body>

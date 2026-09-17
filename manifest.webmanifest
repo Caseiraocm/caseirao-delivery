@@ -1,0 +1,16 @@
+{
+  "name": "O Caseirão Burger",
+  "short_name": "Caseirão",
+  "description": "Cardápio, pedidos e acompanhamento do O Caseirão Burger",
+  "id": "./",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#090a0c",
+  "theme_color": "#e76620",
+  "categories": ["food", "shopping"],
+  "icons": [
+    {"src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}
+  ]
+}
