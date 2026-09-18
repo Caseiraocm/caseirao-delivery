@@ -1008,5 +1008,44 @@ body{background:linear-gradient(180deg,#ece9e4 0,#f7f6f3 270px,#f4f3f0 100%);col
   sync();
 })();
 </script>
+<style id="nightly-prize-client-style">
+.nightPrizeWin{position:relative;overflow:hidden;margin:14px 0;padding:20px 16px;border:2px solid #e85e18;border-radius:20px;background:linear-gradient(145deg,#fff7eb,#fff);color:#1c1d20;text-align:center;box-shadow:0 16px 38px rgba(204,77,17,.2)}.nightPrizeWin:before{content:'🎁';display:grid;place-items:center;width:62px;height:62px;margin:0 auto 10px;border-radius:20px;background:linear-gradient(145deg,#f4772e,#c6400d);color:#fff;font-size:31px;box-shadow:0 10px 24px rgba(214,67,11,.28)}.nightPrizeWin h3{margin:0;color:#b83a0b;font-size:23px;line-height:1.1}.nightPrizeWin p{margin:9px 0;color:#45484e;line-height:1.45}.nightPrizeName{display:block;margin:12px 0 5px;color:#17181c;font-size:19px}.nightPrizeCode{display:inline-block;margin-top:7px;padding:9px 13px;border:1px dashed #d86b31;border-radius:11px;background:#fff1e7;color:#9f3108;font-weight:950;letter-spacing:.04em}.nightPrizeHint{margin-top:11px;color:#6b6e73;font-size:12px;font-weight:750}.trackPrizeWin{margin:12px 0 0}
+</style>
+<script id="nightly-prize-client-script">
+(()=>{
+  const prizeRequest=async(action,trackingCode,phone)=>api('nightly-prize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,payload:{tracking_code:trackingCode,phone}})});
+  const winnerHtml=prize=>prize?.is_winner?`<div class="nightPrizeWin"><h3>VOCÊ GANHOU!</h3><strong class="nightPrizeName">${esc(prize.prize_name||'Brinde do Caseirão')}</strong><p>${esc(prize.winner_message||'Você ganhou um brinde do Caseirão Burger!')}</p><span class="nightPrizeCode">${esc(prize.winner_code||'')}</span><div class="nightPrizeHint">Tire um print desta tela e envie para o Caseirão. Guarde também o código acima.</div></div>`:'';
+  sendOrder=async function(){
+    const btn=$('#sendOrder');
+    try{
+      const customer={name:$('#custName').value.trim(),phone:$('#custPhone').value.trim()};
+      if(customer.name.length<2)throw new Error('Informe seu nome.');
+      if(!validPhone(customer.phone))throw new Error('Informe um WhatsApp válido.');
+      if(!cart.length)throw new Error('Seu carrinho está vazio.');
+      if($('#coupon').value.trim()&&!appliedCoupon)await applyCheckoutCoupon();
+      if($('#coupon').value.trim()&&!appliedCoupon)throw new Error('Confira o cupom antes de enviar.');
+      const requestId=crypto.randomUUID(),payload={client_request_id:requestId,customer,type:orderType,payment:$('#payment').value,change_for:$('#changeFor').value.trim(),coupon_code:appliedCoupon?.code||'',notes:$('#orderNotes').value.trim(),scheduled_for:$('#scheduleMode')?.value==='schedule'?$('#scheduledFor').value:null,items:cart.map(x=>({product_id:x.product.id,qty:x.qty,addon_ids:x.addons.map(a=>a.id),note:x.note}))};
+      if(payload.payment!=='Dinheiro')payload.change_for='';
+      if(orderType==='delivery'){payload.address={street:$('#street').value.trim(),number:$('#number').value.trim(),neighborhood_id:$('#neighborhood').value,complement:$('#complement').value.trim(),reference:$('#reference').value.trim()};if(!payload.address.street||!payload.address.number||!payload.address.neighborhood_id)throw new Error('Preencha o endereço completo.');}
+      btn.disabled=true;btn.textContent='ENVIANDO...';sessionStorage.setItem('caseirao_pending_request',JSON.stringify(payload));
+      const j=await api('create-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+      sessionStorage.removeItem('caseirao_pending_request');
+      let prize=null;try{const result=await prizeRequest('claim',j.tracking_code,customer.phone);prize=result.prize||null}catch{}
+      saveCustomerMemory({name:customer.name,phone:phoneMask(customer.phone),...(payload.address||{})});
+      localStorage.setItem('caseirao_last_tracking',JSON.stringify({tracking_code:j.tracking_code,phone:customer.phone}));
+      cart=[];updateCartBar();
+      modal(`<div class="sheeth"><h2>${prize?.is_winner?'Pedido premiado! 🎁':'Pedido recebido ✅'}</h2><button class="x" data-close>×</button></div>${winnerHtml(prize)}<div class="success"><b>Pedido #${j.order_number}</b><br>Total: <b>${fmt(j.total)}</b>${j.discount?`<br>Desconto: <b>${fmt(j.discount+Number(j.delivery_discount||0))}</b>`:''}<br>Previsão: <b>${esc(j.eta_text||'a confirmar')}</b></div>${j.payment_status==='pending'?'<div class="pixWarning">Pagamento Pix aguardando confirmação. Envie o comprovante pelo WhatsApp.</div>':''}<button id="trackNow" class="primary">ACOMPANHAR PEDIDO</button>`);
+      bindClose();$('#trackNow').onclick=()=>openTracking(j.tracking_code,customer.phone);
+    }catch(e){alert(e.message||String(e));if(btn){btn.disabled=false;btn.textContent='CONFIRMAR E ENVIAR'}}
+  };
+  const baseTrackOrder=trackOrder;
+  trackOrder=async function(){
+    await baseTrackOrder();
+    const result=$('#trackResult');if(!result)return;
+    const code=$('#trackCode')?.value.trim(),phone=$('#trackPhone')?.value.trim();if(!code||!phone)return;
+    try{const response=await prizeRequest('status',code,phone),prize=response.prize;if(prize?.is_winner&&!result.querySelector('.trackPrizeWin'))result.insertAdjacentHTML('afterbegin',`<div class="trackPrizeWin">${winnerHtml(prize)}</div>`)}catch{}
+  };
+})();
+</script>
 </body>
 </html>
