@@ -1030,7 +1030,11 @@ body{background:linear-gradient(180deg,#ece9e4 0,#f7f6f3 270px,#f4f3f0 100%);col
       btn.disabled=true;btn.textContent='ENVIANDO...';sessionStorage.setItem('caseirao_pending_request',JSON.stringify(payload));
       const j=await api('create-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
       sessionStorage.removeItem('caseirao_pending_request');
-      let prize=null;try{const result=await prizeRequest('claim',j.tracking_code,customer.phone);prize=result.prize||null}catch{}
+      let prize=j.prize||null;
+      if(!prize){
+        try{const result=await prizeRequest('claim',j.tracking_code,customer.phone);prize=result.prize||null}
+        catch(error){console.error('Falha ao confirmar participação no Pedido Premiado:',error)}
+      }
       saveCustomerMemory({name:customer.name,phone:phoneMask(customer.phone),...(payload.address||{})});
       localStorage.setItem('caseirao_last_tracking',JSON.stringify({tracking_code:j.tracking_code,phone:customer.phone}));
       cart=[];updateCartBar();
