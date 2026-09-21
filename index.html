@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#111318">
-<meta name="caseirao-build" content="2026-09-21-cashback-checkout-v15">
+<meta name="caseirao-build" content="2026-09-21-checkout-signature-v16">
 <meta name="description" content="Cardápio, pedidos e acompanhamento do O Caseirão Burger.">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1150,6 +1150,35 @@ body{background:#f4f0e9!important;background-image:radial-gradient(circle at 88%
 })();
 </script>
 
+
+<style id="caseirao-checkout-signature-v16">
+/* Checkout Signature — upgrade visual sem alterar a lógica do pedido. */
+.sheet:has(#custName){--co-ink:#17191e;--co-muted:#6e747d;--co-line:#e2e4e8;--co-orange:#e85e18;--co-green:#168452;--co-blue:#2563b9;--co-purple:#7047a8;width:min(100%,760px);padding:0 22px calc(28px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#f8f9fb 0,#f3f4f6 100%)!important;color:var(--co-ink)!important;border:0!important;box-shadow:0 -26px 70px rgba(13,18,27,.3)!important}
+.sheet:has(#custName) .sheeth{top:0;margin:0 -22px 18px;padding:20px 22px 17px;background:rgba(248,249,251,.96)!important;border-bottom:1px solid #e5e7eb!important;backdrop-filter:blur(18px);box-shadow:0 8px 22px rgba(22,27,34,.045)}
+.sheet:has(#custName) .sheeth h2{color:#17191e!important;font-size:26px!important;font-weight:1000!important;letter-spacing:-.045em!important}
+.sheet:has(#custName) .sheeth h2:before{content:'FINALIZAR';display:block;margin-bottom:4px;color:var(--co-orange);font-size:9px;font-weight:1000;letter-spacing:.16em}
+.sheet:has(#custName) .sheeth .x{width:46px;height:46px;border:1px solid #dfe2e6!important;border-radius:15px!important;background:#fff!important;color:#25282e!important;box-shadow:0 5px 15px rgba(25,29,35,.07)}
+.sheet:has(#custName) .seg{position:relative;gap:9px;margin:3px 0 15px;padding:7px;border:1px solid #e0e2e6;border-radius:20px;background:#fff!important;box-shadow:0 10px 28px rgba(26,30,37,.07)}
+.sheet:has(#custName) .seg button{position:relative;min-height:58px;padding:24px 8px 8px!important;border:1px solid transparent!important;border-radius:14px!important;background:#f3f4f6!important;color:#555b64!important;font-size:12px!important;font-weight:950!important;box-shadow:none!important}
+.sheet:has(#custName) .seg button:before{position:absolute;left:50%;top:8px;transform:translateX(-50%);font-size:15px;line-height:1}
+.sheet:has(#custName) .seg [data-type="delivery"]:before{content:'●';color:#238e5c}.sheet:has(#custName) .seg [data-type="pickup"]:before{content:'●';color:#e56b24}.sheet:has(#custName) .seg [data-type="local"]:before{content:'●';color:#7355b5}
+.sheet:has(#custName) .seg [data-type="delivery"].on{background:linear-gradient(145deg,#168452,#0f6d42)!important;color:#fff!important;box-shadow:0 8px 18px rgba(22,132,82,.22)!important}.sheet:has(#custName) .seg [data-type="delivery"].on:before,.sheet:has(#custName) .seg [data-type="pickup"].on:before,.sheet:has(#custName) .seg [data-type="local"].on:before{color:#fff}
+.sheet:has(#custName) .seg [data-type="pickup"].on{background:linear-gradient(145deg,#f0782f,#d95714)!important;color:#fff!important;box-shadow:0 8px 18px rgba(217,87,20,.22)!important}
+.sheet:has(#custName) .seg [data-type="local"].on{background:linear-gradient(145deg,#7355b5,#593b91)!important;color:#fff!important;box-shadow:0 8px 18px rgba(89,59,145,.22)!important}
+.sheet:has(#custName) .systemCheckoutNote{margin:0 0 20px;padding:14px 15px;border:0!important;border-radius:16px!important;background:linear-gradient(135deg,#103e2a,#155739)!important;color:#c9f5da!important;box-shadow:0 9px 22px rgba(18,82,53,.13)}
+.sheet:has(#custName) .systemCheckoutNote>span{display:grid;place-items:center;flex:0 0 30px;height:30px;border-radius:10px;background:rgba(255,255,255,.12);font-size:16px}.sheet:has(#custName) .systemCheckoutNote b{color:#fff!important;font-size:13px}
+.sheet:has(#custName) .row{gap:12px}.sheet:has(#custName) .field{gap:7px;margin:9px 0}.sheet:has(#custName) .field label{color:#646b75!important;font-size:10px!important;font-weight:1000!important;letter-spacing:.085em!important}
+.sheet:has(#custName) .in,.sheet:has(#custName) .sel,.sheet:has(#custName) .ta{min-height:56px;border:1px solid #d9dde2!important;border-radius:16px!important;background:#fff!important;color:#202329!important;padding:15px 16px!important;box-shadow:0 5px 14px rgba(28,33,40,.035)!important;font-size:15px!important}
+.sheet:has(#custName) .in:focus,.sheet:has(#custName) .sel:focus,.sheet:has(#custName) .ta:focus{border-color:#ef8b54!important;box-shadow:0 0 0 4px rgba(232,94,24,.10)!important}.sheet:has(#custName) .ta{min-height:96px}
+.sheet:has(#custName) .customerRestore{min-height:54px;margin:5px 0 4px;border:1px dashed #df9f78!important;border-radius:16px!important;background:linear-gradient(135deg,#fff8f2,#fff)!important;color:#a84314!important;font-size:11px!important;font-weight:1000!important;letter-spacing:.02em;box-shadow:0 5px 15px rgba(191,82,27,.04)}
+.sheet:has(#custName) .customerRestoreStatus{margin:7px 0 12px;color:#68707a!important;font-size:11px!important;text-align:center}
+.sheet:has(#custName) .couponRow{gap:9px;padding:8px;border:1px solid #e1e3e7;border-radius:17px;background:#fff;box-shadow:0 7px 18px rgba(25,30,36,.045)}.sheet:has(#custName) .couponRow .in{border:0!important;box-shadow:none!important;background:#f6f7f8!important}.sheet:has(#custName) #applyCoupon{min-width:110px;border:0!important;border-radius:12px!important;background:linear-gradient(145deg,#24272d,#111317)!important;color:#fff!important;font-size:11px!important;font-weight:1000!important}
+.sheet:has(#custName) .cashbackCheckout{position:relative;overflow:hidden;margin:15px 0!important;padding:16px!important;border:1px solid #ead6ad!important;border-radius:18px!important;background:linear-gradient(135deg,#fff8e8,#fffdf8)!important;box-shadow:0 9px 24px rgba(104,72,19,.07)!important}.sheet:has(#custName) .cashbackCheckout:before{content:'$';position:absolute;right:-8px;top:-25px;color:rgba(192,127,26,.07);font-size:100px;font-weight:1000;line-height:1}.sheet:has(#custName) .cashbackCheckoutTop{position:relative}.sheet:has(#custName) .cashbackCheckoutTop b{color:#33291b;font-size:14px}.sheet:has(#custName) .cashbackCheckout button{position:relative;background:#2b2925!important;color:#fff!important;border-radius:11px!important;padding:10px 13px!important}.sheet:has(#custName) .cashbackCheckoutState{position:relative;color:#746956!important;line-height:1.45}.sheet:has(#custName) .cashbackOk{color:#157148!important;font-weight:900}
+.sheet:has(#custName) #checkoutSum{margin:18px 0 12px;padding:16px;border:1px solid #dfe2e6;border-radius:18px;background:#fff;box-shadow:0 10px 26px rgba(23,28,35,.055)}.sheet:has(#custName) #checkoutSum .sumrow{padding:7px 1px;color:#626872!important;font-size:13px}.sheet:has(#custName) #checkoutSum .sumrow.total{margin-top:7px;padding-top:13px;border-top:1px dashed #d9dde2;color:#181b20!important;font-size:20px!important}.sheet:has(#custName) #checkoutSum .discountLine{color:#168452!important}
+.sheet:has(#custName) #sendOrder{min-height:60px;border-radius:17px!important;background:linear-gradient(135deg,#f06f27,#ce470e)!important;color:#fff!important;font-size:14px!important;letter-spacing:.02em;box-shadow:0 12px 28px rgba(206,71,14,.23)!important}.sheet:has(#custName) #sendOrder:before{content:'✓';display:inline-grid;place-items:center;width:24px;height:24px;margin-right:9px;border-radius:8px;background:rgba(255,255,255,.15)}
+.sheet:has(#custName) .notice,.sheet:has(#custName) .pixPaymentPanel{border-radius:16px!important}
+@media(max-width:640px){.sheet:has(#custName){padding:0 14px calc(24px + env(safe-area-inset-bottom));border-radius:26px 26px 0 0!important}.sheet:has(#custName) .sheeth{margin:0 -14px 15px;padding:17px 18px 14px}.sheet:has(#custName) .sheeth h2{font-size:23px!important}.sheet:has(#custName) .seg{gap:6px;padding:6px}.sheet:has(#custName) .seg button{min-height:56px;padding-left:5px!important;padding-right:5px!important;font-size:11px!important}.sheet:has(#custName) .row{grid-template-columns:1fr}.sheet:has(#custName) .field{margin:8px 0}.sheet:has(#custName) .in,.sheet:has(#custName) .sel{min-height:58px;font-size:16px!important}.sheet:has(#custName) .couponRow{grid-template-columns:1fr}.sheet:has(#custName) #applyCoupon{min-height:48px;width:100%}}
+</style>
 
 </body>
 </html>
