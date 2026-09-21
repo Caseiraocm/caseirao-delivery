@@ -1123,6 +1123,27 @@ body{background:#f4f0e9!important;background-image:radial-gradient(circle at 88%
  const renderCatalogBase=renderCatalog;renderCatalog=function(){const out=renderCatalogBase();premiumBlocks();return out};
  let cashbackAvailable=0,cashbackSettings=null,cashbackUse=0;
  const openCheckoutBase=openCheckout;openCheckout=function(){const out=openCheckoutBase();const sum=$('#checkoutSum');if(!sum||$('#cashbackCheckout'))return out;const box=document.createElement('div');box.id='cashbackCheckout';box.className='cashbackCheckout';box.innerHTML='<div class="cashbackCheckoutTop"><b>Cashback Caseirão</b><button type="button" id="checkCheckoutCashback">CONSULTAR</button></div><div id="cashbackCheckoutState" class="cashbackCheckoutState">Consulte seu saldo para usar nesta compra.</div><div id="cashbackUseRow" class="cashbackUseRow hide"><input id="cashbackAmount" inputmode="decimal" placeholder="Valor a usar"><label><input id="cashbackUseToggle" type="checkbox"> USAR</label></div>';sum.before(box);$('#checkCheckoutCashback').onclick=async()=>{const state=$('#cashbackCheckoutState'),phone=$('#custPhone').value;if(digits(phone).length<10){state.textContent='Informe um WhatsApp válido com DDD para consultar o cashback.';return}try{const r=await cashbackApi('status',{phone});cashbackAvailable=Number(r.customer.balance||0);cashbackSettings=r.settings;const baseTotal=Math.max(0,cartSubtotal()+checkoutFee()-Number(appliedCoupon?.discount||0)-Number(appliedCoupon?.delivery_discount||0));const max=Math.min(cashbackAvailable,baseTotal*Number(r.settings.cashback_max_redeem_percent||30)/100,baseTotal);state.textContent=cashbackAvailable>=Number(r.settings.cashback_min_redeem||0)?`Saldo ${premiumMoney(cashbackAvailable)} • você pode usar até ${premiumMoney(max)} neste pedido.`:`Saldo ${premiumMoney(cashbackAvailable)} • mínimo para usar: ${premiumMoney(r.settings.cashback_min_redeem)}.`;$('#cashbackUseRow').classList.toggle('hide',cashbackAvailable<Number(r.settings.cashback_min_redeem||0));$('#cashbackAmount').value=max.toFixed(2).replace('.',',')}catch(e){state.textContent=e.message||String(e)}};const syncCashback=()=>{const baseTotal=Math.max(0,cartSubtotal()+checkoutFee()-Number(appliedCoupon?.discount||0)-Number(appliedCoupon?.delivery_discount||0)),pct=Math.max(0,Number(cashbackSettings?.cashback_max_redeem_percent||0)),max=Math.min(cashbackAvailable,baseTotal*pct/100,baseTotal),requested=Math.max(0,Number(String($('#cashbackAmount')?.value||'0').replace(',','.'))||0);cashbackUse=$('#cashbackUseToggle')?.checked?Math.min(requested,max):0;renderCheckoutSum();if(cashbackUse>0){const sum=$('#checkoutSum'),totalRow=sum?.querySelector('.sumrow.total');if(totalRow){totalRow.insertAdjacentHTML('beforebegin',`<div class="sumrow discountLine cashbackAppliedLine"><span>Cashback utilizado</span><b>- ${premiumMoney(cashbackUse)}</b></div>`);totalRow.innerHTML=`<span>Total com cashback</span><b>${premiumMoney(Math.max(0,baseTotal-cashbackUse))}</b>`}}};$('#cashbackUseToggle').onchange=syncCashback;$('#cashbackAmount').oninput=syncCashback;return out};
+ 
+// Cashback checkout: listener delegado para o botão funcionar mesmo após o checkout ser recriado.
+document.addEventListener('click',async(e)=>{
+ const btn=e.target.closest?.('#checkCheckoutCashback');
+ if(!btn)return;
+ e.preventDefault();e.stopPropagation();
+ const state=$('#cashbackCheckoutState'),phone=$('#custPhone')?.value||'';
+ if(!state)return;
+ if(digits(phone).length<10){state.textContent='Informe um WhatsApp válido com DDD para consultar o cashback.';$('#custPhone')?.focus();return}
+ const old=btn.textContent;btn.disabled=true;btn.textContent='CONSULTANDO...';state.textContent='Consultando seu saldo...';
+ try{
+  const r=await cashbackApi('status',{phone});
+  cashbackAvailable=Number(r?.customer?.balance||0);cashbackSettings=r?.settings||{};
+  const subtotal=Number(cartSubtotal()||0),fee=Number(checkoutFee()||0),discount=Number(appliedCoupon?.discount||0),deliveryDiscount=Number(appliedCoupon?.delivery_discount||0);
+  const baseTotal=Math.max(0,subtotal+fee-discount-deliveryDiscount),minRedeem=Number(cashbackSettings.cashback_min_redeem||0),pct=Math.max(0,Number(cashbackSettings.cashback_max_redeem_percent||30));
+  const max=Math.max(0,Math.min(cashbackAvailable,baseTotal*pct/100,baseTotal));
+  if(cashbackAvailable>=minRedeem&&max>0){state.textContent=`Saldo ${premiumMoney(cashbackAvailable)} • você pode usar até ${premiumMoney(max)} neste pedido.`;$('#cashbackUseRow')?.classList.remove('hide');if($('#cashbackAmount'))$('#cashbackAmount').value=max.toFixed(2).replace('.',',')}
+  else{state.textContent=`Saldo ${premiumMoney(cashbackAvailable)}${minRedeem>0?` • mínimo para usar: ${premiumMoney(minRedeem)}.`:'.'}`;$('#cashbackUseRow')?.classList.add('hide')}
+ }catch(err){state.textContent='Não foi possível consultar agora. Tente novamente.';console.error('cashback checkout',err)}finally{btn.disabled=false;btn.textContent=old||'CONSULTAR'}
+},true);
+
  const apiBase=api;api=async function(slug,opts={}){if(slug==='create-order'&&opts.body&&cashbackUse>0){try{const body=JSON.parse(opts.body);body.cashback_to_use=cashbackUse;opts={...opts,body:JSON.stringify(body)}}catch{}}const response=await apiBase(slug,opts);if(slug==='create-order')cashbackUse=0;return response};
  setTimeout(premiumBlocks,0);
 })();
