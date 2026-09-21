@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#111318">
-<meta name="caseirao-build" content="2026-09-21-checkout-signature-v16">
+<meta name="caseirao-build" content="2026-09-21-cashback-toda-compra-v34">
 <meta name="description" content="Cardápio, pedidos e acompanhamento do O Caseirão Burger.">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -523,6 +523,10 @@ function printRemoteTable(t,s){const lines=(s.orders||[]).filter(o=>o.status!=='
 .brandMetaRow .status{grid-column:auto;min-width:0}
 .liveClock{margin-left:auto;flex:0 0 auto;color:#5f6670;font-size:11px;font-weight:850;letter-spacing:.035em;font-variant-numeric:tabular-nums;white-space:nowrap}
 @media(max-width:400px){.brandMetaRow{gap:7px}.liveClock{font-size:10px}}
+</style>
+
+<style id="caseirao-cashback-every-purchase-v34">
+.grid .pic{position:relative!important}.productCashbackBadge{position:absolute;z-index:4;left:10px;bottom:10px;display:inline-flex;align-items:center;gap:5px;max-width:calc(100% - 20px);padding:6px 9px;border-radius:10px;background:rgba(16,17,20,.92);color:#fff;font-size:10px;font-weight:950;line-height:1.15;box-shadow:0 5px 16px rgba(0,0,0,.22);backdrop-filter:blur(5px)}.productCashbackBadge b{color:#ff9b62;font-weight:1000}.productCashbackBadge:before{content:'↩';font-size:12px;color:#ff9b62}@media(max-width:560px){.productCashbackBadge{left:7px;bottom:7px;padding:5px 7px;font-size:9px;border-radius:8px}}
 </style>
 </head><body><h2>O CASEIRÃO BURGER</h2><p>Mesa ${String(t.table_number).padStart(2,'0')} • ${esc(s.customer_name)}</p><table>${lines}</table><div class="total">TOTAL ${fmt(remoteSessionTotal(s))}</div><script>onload=()=>{print();setTimeout(close,500)}<\/script></body></html>`);w.document.close()}
 function openRemoteClose(t,s){const total=remoteSessionTotal(s);if(total<=0)return alert('A mesa ainda não possui consumo.');modal(`<div class="sheeth"><div><h2>Fechar Mesa ${String(t.table_number).padStart(2,'0')}</h2><div class="adminSub">Somente o administrador pode concluir</div></div><button class="x" id="backRemoteAccount">←</button></div><div class="tableAccountTotal"><span>Total a receber</span><b>${fmt(total)}</b></div><div class="field"><label>Forma de pagamento</label><select id="remotePayment" class="sel"><option>Pix</option><option>Dinheiro</option><option>Cartão</option><option>Pagamento dividido</option></select></div><div class="field"><label>Observação</label><input id="remoteCloseNote" class="in" placeholder="Opcional"></div><button id="confirmRemoteClose" class="primary">CONFIRMAR E LIBERAR MESA</button>`,true);$('#backRemoteAccount').onclick=()=>renderRemoteAdminAccount(t,s);$('#confirmRemoteClose').onclick=async()=>{const b=$('#confirmRemoteClose');try{b.disabled=true;await employeeApi('admin_close_table',{table_session_id:s.id,payment:$('#remotePayment').value,note:$('#remoteCloseNote').value},true);admin=await adminCall('snapshot');adminTab='mesas';renderAdmin();showAppToast(`Mesa ${t.table_number} fechada com sucesso.`,'ok')}catch(e){alert(e.message);b.disabled=false}}}
@@ -1198,5 +1202,21 @@ body{background:#f4f0e9!important;background-image:radial-gradient(circle at 88%
 @media(max-width:380px){#cashbackClub.cashbackClub{grid-template-columns:48px minmax(0,1fr)!important}#cashbackClub #openCashback{grid-column:1/-1!important;width:100%!important;font-size:10px!important}#cashbackClub #openCashback:before{content:''}#cashbackClub #openCashback:after{content:'  →'!important}}
 </style>
 
+
+<script id="caseirao-cashback-products-v34">
+(()=>{
+ const cashbackDecorateProducts=()=>{
+  const settings=data?.settings||{},percent=settings.cashback_enabled===false?0:Math.max(0,Number(settings.cashback_percent||0));
+  document.querySelectorAll('#products [data-add]').forEach(button=>{
+   const card=button.closest('.card'),pic=card?.querySelector('.pic'); if(!pic)return; pic.querySelector('.productCashbackBadge')?.remove();
+   if(percent<=0)return; const product=(data.products||[]).find(item=>String(item.id)===String(button.dataset.add)); if(!product)return;
+   const amount=Math.round((Number(priceOf(product)||0)*percent/100)*100)/100; if(amount<=0)return;
+   pic.insertAdjacentHTML('beforeend',`<span class="productCashbackBadge">Ganhe <b>${fmt(amount)}</b> cashback</span>`);
+  });
+ };
+ const cashbackCatalogBase=renderCatalog; renderCatalog=function(){const result=cashbackCatalogBase();cashbackDecorateProducts();return result};
+ if(document.querySelector('#products'))cashbackDecorateProducts();
+})();
+</script>
 </body>
 </html>
