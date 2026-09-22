@@ -155,40 +155,31 @@ main{max-width:760px;margin:auto}
 @media(max-width:430px){.productQtyTop{margin-top:9px}.productQtyControl button{width:32px;height:32px}.productQtyControl b{min-width:28px}}
 
 
-/* v2.3.6 — Pagamento Pix premium */
-.pixPayment{padding-bottom:4px}
-.pixHead{align-items:flex-start;margin-bottom:14px}
-.pixHead small{display:block;color:#777;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;margin:2px 0 3px}
-.pixHead h2{margin:0;font-size:24px;letter-spacing:-.4px}
-.pixOrderCard{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 16px;border:1px solid #0000000b;border-radius:16px;background:#fafafa;margin-bottom:12px}
-.pixOrderCard span{font-size:13px;color:#666;font-weight:750}
-.pixOrderCard strong{font-size:22px;letter-spacing:-.4px;color:#111}
-.pixStatusCard{display:flex;align-items:center;gap:14px;padding:18px;border-radius:19px;margin:12px 0 16px;border:1px solid transparent;transition:.3s ease}
-.pixStatusCard.waiting{background:#fff8e8;border-color:#f2d98c}
-.pixStatusCard.confirmed{background:#eaf8ee;border-color:#a9dfb7;box-shadow:0 10px 28px #1c7b3920;animation:pixConfirmIn .42s ease both}
-.pixStatusIcon{width:54px;height:54px;flex:0 0 54px;border-radius:17px;display:grid;place-items:center;background:#fff;box-shadow:0 5px 16px #00000012}
-.pixStatusText{min-width:0;display:flex;flex-direction:column;gap:4px}
-.pixStatusText strong{font-size:19px;line-height:1.08;letter-spacing:-.25px}
-.pixStatusText span{font-size:13px;line-height:1.35;color:#666}
-.pixSpinner{width:25px;height:25px;border:3px solid #e6c65f;border-top-color:#171717;border-radius:50%;animation:pixSpin .85s linear infinite}
-.pixCheck{background:#187a38;color:#fff;font-size:31px;font-weight:900}
-.pixQrWrap{text-align:center;margin:8px 0 18px;transition:.25s ease}
-.pixQrCard{width:min(280px,78vw);margin:auto;padding:13px;border:1px solid #0000000d;border-radius:22px;background:#fff;box-shadow:0 12px 30px #00000012}
-.pixQrCard img{display:block;width:100%;max-width:100%;border-radius:12px}
-.pixQrWrap small{display:block;color:#777;margin-top:10px;font-size:12px}
-.pixCopyField label{font-size:13px}
-.pixCopyField textarea{min-height:82px;font-size:12px;line-height:1.35;background:#fafafa}
-.pixCopyBtn{min-height:52px;margin-top:8px;font-size:15px}
-.pixOpenBtn,.pixTrackBtn{display:block;text-align:center;text-decoration:none;margin-top:10px;min-height:48px}
-.pixPaidFade{opacity:.34;filter:grayscale(.2)}
-@keyframes pixSpin{to{transform:rotate(360deg)}}
-@keyframes pixConfirmIn{0%{transform:scale(.97);opacity:.5}70%{transform:scale(1.015)}100%{transform:scale(1);opacity:1}}
-@media(max-width:430px){
- .pixHead h2{font-size:22px}
- .pixOrderCard{padding:13px 14px}
- .pixOrderCard strong{font-size:20px}
- .pixStatusCard{padding:15px;gap:12px;border-radius:17px}
- .pixStatusIcon{width:50px;height:50px;flex-basis:50px;border-radius:15px}
- .pixStatusText strong{font-size:18px}
- .pixQrCard{width:min(250px,76vw);padding:11px;border-radius:19px}
-}
+/* v2.3.7 — Checkout premium Caseirão */
+.sheet:has(#send){padding:20px 18px 24px;background:#f7f7f5}
+.sheet:has(#send)>.head{margin:-2px 0 16px;align-items:center}
+.sheet:has(#send)>.head h2{margin:0;font-size:25px;line-height:1.05;letter-spacing:-.55px}
+.sheet:has(#send)>.head .x{width:44px;height:44px;background:#fff;border:1px solid #0000000b;box-shadow:0 5px 16px #0000000c}
+.sheet:has(#send)>.seg{padding:5px;gap:5px;background:#ececea;border-radius:16px;margin-bottom:16px}
+.sheet:has(#send)>.seg button{min-height:48px;border:0;border-radius:12px;background:transparent;font-weight:800;transition:.18s ease}
+.sheet:has(#send)>.seg button.on{background:#101115;color:#fff;box-shadow:0 7px 18px #00000025}
+.sheet:has(#send)>.field{margin:11px 0}
+.sheet:has(#send)>.field>label,.sheet:has(#send) #address .field>label{margin:0 0 7px;font-size:13px;font-weight:850;color:#252525}
+.sheet:has(#send) .input,.sheet:has(#send) .select,.sheet:has(#send) .textarea{border:1px solid #00000012;border-radius:16px;background:#fff;padding:14px 15px;min-height:52px;box-shadow:0 3px 12px #00000008;outline:none;transition:.18s ease}
+.sheet:has(#send) .textarea{min-height:92px}
+.sheet:has(#send) .input:focus,.sheet:has(#send) .select:focus,.sheet:has(#send) .textarea:focus{border-color:#10111555;box-shadow:0 0 0 4px #1011150a,0 7px 18px #0000000b}
+.sheet:has(#send) #pixEmailField small{display:block;margin:6px 3px 0;color:#777;font-size:11px}
+.sheet:has(#send) #couponMsg:empty,.sheet:has(#send) #cashMsg:empty{display:none}
+.sheet:has(#send) #applyCoupon,.sheet:has(#send) #checkCash{border:1px solid #0000000b;background:#ececeb;min-height:50px;border-radius:14px;font-weight:850}
+.sheet:has(#send) .field:has(#coupon),.sheet:has(#send) .field:has(#cashbackUse),.sheet:has(#send) .field:has(#payment){padding:14px;border:1px solid #0000000b;border-radius:19px;background:#fff;box-shadow:0 8px 24px #0000000a}
+.sheet:has(#send) .field:has(#coupon) .line{border:0;padding:0;gap:9px}
+.sheet:has(#send) .field:has(#coupon) .input{min-width:0}
+.sheet:has(#send) .field:has(#coupon) #applyCoupon{width:auto;min-width:118px;padding:0 18px}
+.sheet:has(#send) .field:has(#cashbackUse) #checkCash{margin-top:8px}
+.sheet:has(#send) #sum{margin:18px 0 12px;padding:17px;border:1px solid #0000000b;border-radius:20px;background:#fff;box-shadow:0 10px 28px #0000000d}
+.sheet:has(#send) #sum .sumrow{padding:6px 0;color:#555;font-size:14px}
+.sheet:has(#send) #sum .sumrow b{color:#202020}
+.sheet:has(#send) #sum .total{margin-top:9px;padding-top:14px;border-top:1px solid #0000000d;color:#111;font-size:20px}
+.sheet:has(#send) #sum .total b{font-size:23px;letter-spacing:-.4px}
+.sheet:has(#send) #send{position:sticky;bottom:0;z-index:5;min-height:58px;border-radius:17px;font-size:16px;box-shadow:0 13px 30px #0000002e;margin-top:8px}
+@media(max-width:430px){.sheet:has(#send){padding:18px 14px 22px}.sheet:has(#send)>.head h2{font-size:24px}.sheet:has(#send)>.seg button{min-height:46px;font-size:14px}.sheet:has(#send) .input,.sheet:has(#send) .select{min-height:50px;padding:12px 14px}.sheet:has(#send) .field:has(#coupon),.sheet:has(#send) .field:has(#cashbackUse),.sheet:has(#send) .field:has(#payment){padding:12px;border-radius:17px}.sheet:has(#send) #sum{padding:15px;border-radius:18px}}
