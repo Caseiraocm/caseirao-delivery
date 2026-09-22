@@ -8,19 +8,8 @@
   const d=window.caseiraoData||{},esc=window.caseiraoEsc,fmt=window.caseiraoFmt,priceOf=window.caseiraoPriceOf,openProduct=window.caseiraoOpenProduct;
   if(!esc||!fmt||!priceOf||!openProduct)return;
 
-  let welcome=document.querySelector('#premiumWelcome');
-  if(!welcome){
-   welcome=document.createElement('section');welcome.id='premiumWelcome';welcome.className='premiumWelcome';
-   welcome.innerHTML='<div><small>EXPERIÊNCIA CASEIRÃO</small><h2>Seu hambúrguer, do seu jeito.</h2><p>Pedido direto para a cozinha, acompanhamento em tempo real e vantagens exclusivas.</p></div><div class="premiumWelcomeBadge">PEDIDO SEGURO<br>PELO SISTEMA</div>';
-   banner.after(welcome);
-  }
-
-  let club=document.querySelector('#cashbackClub');
-  if(!club){
-   club=document.createElement('section');club.id='cashbackClub';club.className='cashbackClub';
-   club.innerHTML='<div class="cashbackIcon">$</div><div><b>Clube Cashback Caseirão</b><span>Ganhe saldo nos pedidos entregues e use nas próximas compras.</span></div><button type="button" id="openCashback">VER MEU SALDO</button>';
-   welcome.after(club);club.querySelector('button').onclick=openCashback;
-  }
+  /* Remove o bloco decorativo antigo que ocupava muito espaço. */
+  document.querySelector('#premiumWelcome')?.remove();
 
   const cashbackPercent=(d.settings?.cashback_enabled===false)?0:Math.max(0,Number(d.settings?.cashback_percent||0));
   const picks=(d.products||[])
@@ -29,26 +18,41 @@
    .slice(0,8);
 
   let section=document.querySelector('#featuredSection');
-  if(!picks.length){if(carouselTimer)clearInterval(carouselTimer);carouselTimer=null;section?.remove();return}
-  if(!section){section=document.createElement('section');section.id='featuredSection';section.className='featuredSection';club.after(section)}
+  if(!picks.length){
+   if(carouselTimer)clearInterval(carouselTimer);carouselTimer=null;section?.remove();
+  }else{
+   if(!section){section=document.createElement('section');section.id='featuredSection';section.className='featuredSection'}
+   /* Mais pedidos imediatamente abaixo do banner. */
+   if(banner.nextElementSibling!==section)banner.insertAdjacentElement('afterend',section);
+   section.innerHTML='<div class="featuredHead"><h3>🔥 Mais pedidos</h3><span>Os favoritos de quem pede no Caseirão</span></div><div class="featuredRail">'+
+    picks.map((p,i)=>{
+     const value=priceOf(p),cashback=value*cashbackPercent/100,sold=Number(p.sold_qty||0);
+     return `<article class="featuredItem" data-premium-product="${esc(p.id)}">
+       <span class="featuredTag">#${i+1} MAIS PEDIDO</span>
+       <img src="${esc(p.image_url)}" alt="${esc(p.name)}">
+       <div class="featuredItemInfo">
+        <b>${esc(p.name)}</b>
+        <span>${Number(p.promo_price)>0?`<small class="featuredOld">${fmt(p.price)}</small>`:''}${fmt(value)}</span>
+        <small class="featuredSales">${sold} ${sold===1?'pedido':'pedidos'} registrados</small>
+        ${cashbackPercent>0?`<small class="featuredCashback">↩ ${cashbackPercent}% cashback • ganhe ${fmt(cashback)}</small>`:''}
+       </div>
+      </article>`;
+    }).join('')+'</div>';
+   section.querySelectorAll('[data-premium-product]').forEach(el=>el.onclick=()=>openProduct(el.dataset.premiumProduct));
+   startFeaturedCarousel();
+  }
 
-  section.innerHTML='<div class="featuredHead"><h3>🔥 Mais pedidos</h3><span>Os favoritos de quem pede no Caseirão</span></div><div class="featuredRail">'+
-   picks.map((p,i)=>{
-    const value=priceOf(p),cashback=value*cashbackPercent/100,sold=Number(p.sold_qty||0);
-    return `<article class="featuredItem" data-premium-product="${esc(p.id)}">
-      <span class="featuredTag">#${i+1} MAIS PEDIDO</span>
-      <img src="${esc(p.image_url)}" alt="${esc(p.name)}">
-      <div class="featuredItemInfo">
-       <b>${esc(p.name)}</b>
-       <span>${Number(p.promo_price)>0?`<small class="featuredOld">${fmt(p.price)}</small>`:''}${fmt(value)}</span>
-       <small class="featuredSales">${sold} ${sold===1?'pedido':'pedidos'} registrados</small>
-       ${cashbackPercent>0?`<small class="featuredCashback">↩ ${cashbackPercent}% de cashback • ganhe ${fmt(cashback)}</small>`:''}
-      </div>
-     </article>`;
-   }).join('')+'</div>';
-
-  section.querySelectorAll('[data-premium-product]').forEach(el=>el.onclick=()=>openProduct(el.dataset.premiumProduct));
-  startFeaturedCarousel();
+  /* Cashback compacto, depois do bloco de ofertas quando ele existir. */
+  let club=document.querySelector('#cashbackClub');
+  if(!club){
+   club=document.createElement('section');club.id='cashbackClub';club.className='cashbackClub';
+   club.innerHTML='<div class="cashbackIcon">$</div><div class="cashbackClubCopy"><b>Clube Cashback Caseirão</b><span>Consulte seu saldo e use nas próximas compras.</span></div><button type="button" id="openCashback">Consultar saldo</button>';
+  }
+  const benefits=document.querySelector('#systemBenefits');
+  if(benefits) benefits.insertAdjacentElement('afterend',club);
+  else if(section) section.insertAdjacentElement('afterend',club);
+  else banner.insertAdjacentElement('afterend',club);
+  club.querySelector('#openCashback').onclick=openCashback;
  }
 
  function decorateProductCashback(){
@@ -81,9 +85,10 @@
 
  function openCashback(){
   const $=window.caseirao$,esc=window.caseiraoEsc;
+  if(!$||!esc||!window.caseiraoModal||!window.caseiraoBindClose)return;
   window.caseiraoModal('<div class="sheeth"><div><h2>Meu cashback</h2><div class="adminSub">Consulte pelo WhatsApp usado nos pedidos</div></div><button class="x" data-close>×</button></div><div class="field"><label>Seu WhatsApp</label><input id="cashbackPhone" class="in" inputmode="tel" placeholder="(86) 99999-9999"></div><button id="cashbackLookup" class="primary">CONSULTAR SALDO</button><div id="cashbackLookupResult"></div>');
   window.caseiraoBindClose();
-  const remembered=JSON.parse(localStorage.getItem('caseirao_customer')||'{}');
+  let remembered={};try{remembered=JSON.parse(localStorage.getItem('caseirao_customer')||'{}')}catch{}
   if(remembered.phone)$('#cashbackPhone').value=remembered.phone;
   $('#cashbackLookup').onclick=async()=>{
    const button=$('#cashbackLookup'),box=$('#cashbackLookupResult');
