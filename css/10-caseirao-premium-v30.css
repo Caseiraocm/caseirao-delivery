@@ -2,21 +2,18 @@
 body{background:radial-gradient(circle at 50% -80px,#fff 0,#f4f1ec 360px,#efede9 100%)!important;color:var(--premium-ink)}
 .top{background:rgba(18,19,22,.94)!important;border-bottom:1px solid rgba(255,255,255,.09)!important}.topin{max-width:1180px!important}
 .brand h1{font-weight:1000!important;letter-spacing:-.045em!important}.brandMetaRow{align-items:center}.liveClock{color:#f4a16e!important}
-.wrap{max-width:1180px!important}.banner{box-shadow:0 20px 50px rgba(24,20,17,.16)!important}
+.wrap{max-width:1180px!important;padding-bottom:110px!important}.banner{box-shadow:0 20px 50px rgba(24,20,17,.16)!important}
+.premiumWelcome{display:none!important}
 
-.premiumWelcome{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center;margin:4px 0 15px;padding:18px 19px;border:1px solid rgba(255,255,255,.08);border-radius:22px;background:linear-gradient(135deg,#1d2025,#101114);color:#fff;box-shadow:0 16px 38px rgba(20,21,24,.2)}
-.premiumWelcome small{display:block;color:#ef9a68;font-size:10px;font-weight:950;letter-spacing:.12em;text-transform:uppercase}.premiumWelcome h2{margin:5px 0 3px;font-size:23px;letter-spacing:-.045em}.premiumWelcome p{margin:0;color:#bfc3c8;font-size:12px}.premiumWelcomeBadge{padding:10px 12px;border:1px solid #70442d;border-radius:14px;background:#291b14;color:#ffc18f;font-size:11px;font-weight:950;text-align:center}
-
-.cashbackClub{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:12px;align-items:center;margin:0 0 15px;padding:14px 15px;border:1px solid #ead6b4;border-radius:18px;background:linear-gradient(135deg,#fff9eb,#fff);box-shadow:0 8px 22px rgba(90,61,19,.07)}
-.cashbackIcon{display:grid;place-items:center;width:48px;height:48px;border-radius:15px;background:linear-gradient(145deg,#2a2b2f,#111);color:#ffc46c;font-size:23px}.cashbackClub b{display:block;font-size:15px}.cashbackClub span{display:block;margin-top:3px;color:#74716c;font-size:11px}.cashbackClub button{border:0;border-radius:12px;background:#1b1c20;color:#fff;padding:11px 12px;font-size:11px;font-weight:950}
-
-.featuredSection{margin:4px 0 18px}.featuredHead{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:9px}.featuredHead h3{margin:0;font-size:19px;letter-spacing:-.035em}.featuredHead span{color:#74777c;font-size:11px;text-align:right}
-.featuredRail{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(235px,31%);gap:11px;overflow-x:auto;padding:2px 2px 10px;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none}.featuredRail::-webkit-scrollbar{display:none}
+.featuredSection{margin:2px 0 14px}.featuredHead{display:flex;justify-content:space-between;align-items:end;gap:10px;margin-bottom:8px}.featuredHead h3{margin:0;font-size:19px;letter-spacing:-.035em}.featuredHead span{color:#74777c;font-size:11px;text-align:right}
+.featuredRail{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(235px,31%);gap:11px;overflow-x:auto;padding:2px 2px 8px;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none}.featuredRail::-webkit-scrollbar{display:none}
 .featuredItem{position:relative;min-height:190px;overflow:hidden;border-radius:19px;background:#1a1b1e;scroll-snap-align:start;box-shadow:0 9px 25px rgba(20,21,24,.15);cursor:pointer}.featuredItem img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.featuredItem:after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,rgba(7,7,8,.96),rgba(7,7,8,.04) 72%)}
 .featuredItemInfo{position:absolute;z-index:1;left:13px;right:13px;bottom:12px;color:#fff}.featuredItemInfo b{display:block;font-size:16px}.featuredItemInfo>span{display:block;margin-top:3px;color:#ffb487;font-size:15px;font-weight:950}.featuredOld{color:#ddd!important;text-decoration:line-through;margin-right:6px;font-size:11px}.featuredSales,.featuredCashback{display:block;margin-top:4px;font-size:10px;font-weight:850}.featuredSales{color:#f1f1f1}.featuredCashback{color:#ffc46c}
 .featuredTag{position:absolute;z-index:2;top:10px;left:10px;padding:6px 8px;border-radius:999px;background:#f2eee7;color:#242529;font-size:9px;font-weight:1000}
 
-/* Cardápio correto no celular: um item por linha, foto sempre à esquerda. */
+.cashbackClub{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:10px;align-items:center;margin:0 0 14px;padding:10px 11px;border:1px solid #ead6b4;border-radius:15px;background:#fffaf0;box-shadow:0 6px 16px rgba(90,61,19,.06)}
+.cashbackIcon{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;background:#1b1c20;color:#ffc46c;font-size:19px}.cashbackClubCopy{min-width:0}.cashbackClub b{display:block;font-size:13px;line-height:1.15}.cashbackClub span{display:block;margin-top:2px;color:#77716a;font-size:10px;line-height:1.2}.cashbackClub button{border:0;border-radius:10px;background:#1b1c20;color:#fff;padding:9px 10px;font-size:10px;font-weight:950;white-space:nowrap}
+
 @media(max-width:759px){
  #products.grid{display:grid!important;grid-template-columns:1fr!important;gap:10px!important;margin-top:12px!important}
  #products .card{display:grid!important;grid-template-columns:118px minmax(0,1fr)!important;min-height:118px!important;border-radius:16px!important;overflow:hidden!important;background:#fff!important}
@@ -29,16 +26,14 @@ body{background:radial-gradient(circle at 50% -80px,#fff 0,#f4f1ec 360px,#efede9
  #products .card .add{margin-top:auto!important;padding:9px 10px!important;min-height:36px!important}
  #products .productCashbackBadge{position:absolute!important;left:7px!important;bottom:7px!important;z-index:25!important;display:inline-flex!important;align-items:center!important;gap:3px!important;width:auto!important;max-width:calc(100% - 14px)!important;padding:5px 6px!important;border:0!important;border-radius:8px!important;background:rgba(17,17,19,.9)!important;color:#fff!important;font-size:8px!important;font-weight:850!important;line-height:1!important;white-space:nowrap!important;box-shadow:0 3px 10px rgba(0,0,0,.25)!important}
  #products .productCashbackBadge b{color:#ff9a62!important;font-size:9px!important}
- .featuredRail{grid-auto-columns:82%!important}
- .featuredItem{min-height:200px!important}
- .cashbackClub{grid-template-columns:42px minmax(0,1fr)!important}.cashbackIcon{width:42px;height:42px}.cashbackClub button{grid-column:1/-1;width:100%}
- .premiumWelcome{grid-template-columns:1fr;padding:16px}.premiumWelcomeBadge{width:max-content}
+ .featuredRail{grid-auto-columns:82%!important}.featuredItem{min-height:195px!important}
+ .cashbackClub{grid-template-columns:36px minmax(0,1fr) auto!important;gap:8px!important;padding:9px 10px!important}.cashbackIcon{width:36px!important;height:36px!important;font-size:17px!important}.cashbackClub button{grid-column:auto!important;width:auto!important;padding:8px 9px!important}
 }
-@media(max-width:380px){
+@media(max-width:390px){
  #products .card{grid-template-columns:104px minmax(0,1fr)!important}
  #products .card .pic{width:104px!important;min-height:112px!important}
+ .cashbackClub span{display:none!important}.cashbackClub b{font-size:12px!important}
 }
-
 .cashbackResult{padding:15px;border:1px solid #ead7b4;border-radius:17px;background:#fff9ed}.cashbackBalance{margin:7px 0;color:#b94b14;font-size:32px;font-weight:1000;letter-spacing:-.05em}.cashbackStats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.cashbackStat{padding:10px;border-radius:12px;background:#fff}.cashbackStat span{display:block;color:#77716a;font-size:10px}.cashbackStat b{display:block;margin-top:4px}
 .cashbackCheckout{margin:11px 0;padding:13px;border:1px solid #ead6b4;border-radius:15px;background:#fffaf0}.cashbackCheckoutTop{display:flex;align-items:center;justify-content:space-between;gap:10px}.cashbackCheckout button{border:0;border-radius:10px;background:#202126;color:#fff;padding:9px 11px;font-size:10px;font-weight:950}.cashbackCheckoutState{margin-top:7px;color:#706b63;font-size:11px}.cashbackUseRow{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:9px}.cashbackUseRow input{min-width:0;padding:11px;border:1px solid #d9d2c6;border-radius:11px;background:#fff;font-size:16px}.cashbackUseRow label{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:900}
 .grid .card{transition:transform .18s ease,box-shadow .18s ease}.grid .card:active{transform:scale(.985)}
