@@ -128,12 +128,18 @@
  function watchCashbackSummary(){
   if(cashbackObserver){cashbackObserver.disconnect();cashbackObserver=null}
   const sum=document.querySelector('#checkoutSum');if(!sum)return;
-  let busy=false;
+  let scheduled=false;
+  const observe=()=>cashbackObserver&&cashbackObserver.observe(sum,{childList:true,subtree:true,characterData:true});
   cashbackObserver=new MutationObserver(()=>{
-   if(busy||cashbackUse<=0)return;
-   busy=true;refreshCashbackTotal();busy=false;
+   if(cashbackUse<=0||scheduled)return;
+   scheduled=true;
+   cashbackObserver.disconnect();
+   requestAnimationFrame(()=>{
+    try{refreshCashbackTotal()}
+    finally{scheduled=false;if(document.body.contains(sum))observe()}
+   });
   });
-  cashbackObserver.observe(sum,{childList:true,subtree:true,characterData:true});
+  observe();
  }
 
  const openCheckoutBase=window.openCheckout;
