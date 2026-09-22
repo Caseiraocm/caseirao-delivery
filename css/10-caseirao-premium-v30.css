@@ -144,3 +144,12 @@ body{background:radial-gradient(circle at 50% -80px,#fff 0,#f4f1ec 360px,#efede9
   }
   #products .productCashbackBadge{max-width:104px!important}
 }
+
+/* v37 — aplicação de cashback no checkout */
+.cashbackCheckoutTop>div{min-width:0}.cashbackCheckoutTop>div small{display:block;margin-top:3px;color:#7b756d;font-size:10px;font-weight:600}
+.cashbackCheckoutState b{color:#16171a}.cashbackCheckoutState.cashbackOk{color:#5d625f}.cashbackCheckoutState.cashbackApplied{padding:9px 10px;border-radius:10px;background:#eaf8ef;color:#22613a;font-weight:800}.cashbackCheckoutState.cashbackError{color:#a33b2b}
+.cashbackUseRow{grid-template-columns:minmax(0,130px) 1fr!important;align-items:stretch}
+.cashbackAmountWrap{display:flex;align-items:center;border:1px solid #d9d2c6;border-radius:11px;background:#fff;overflow:hidden}.cashbackAmountWrap span{padding-left:10px;font-size:12px;font-weight:900}.cashbackAmountWrap input{border:0!important;border-radius:0!important;box-shadow:none!important;padding-left:5px!important}
+.cashbackApply{background:#d94f0d!important;color:#fff!important;font-size:11px!important}.cashbackRemove{width:100%;margin-top:8px!important;background:transparent!important;color:#8a4c2c!important;border:1px solid #e6cbb9!important}
+.cashbackDiscountLine{color:#247044!important}.cashbackDiscountLine b{color:#247044!important}
+@media(max-width:390px){.cashbackUseRow{grid-template-columns:1fr!important}.cashbackApply{min-height:42px}}
