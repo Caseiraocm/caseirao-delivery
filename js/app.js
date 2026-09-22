@@ -25,6 +25,14 @@ function renderBestSellers(){
  track.innerHTML=list.map(p=>`<article class="bestCard"><div class="bestPic">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy">`:'SEM FOTO'}</div><div class="bestBody"><div class="bestName">${esc(p.name)}</div><div class="bestMeta">${Number(p.sold_qty||0)} pedidos registrados</div><div class="bestPrice">${money(price(p))}</div>${s.cashback_enabled&&pct>0?`<span class="cashTag">Ganhe cashback nesta compra</span>`:''}<button class="bestAdd" data-best="${p.id}">Adicionar</button></div></article>`).join('');
  $$('[data-best]').forEach(b=>b.onclick=()=>openProduct(b.dataset.best));
  section.classList.remove('hidden');
+ if(section._autoSlide)clearInterval(section._autoSlide);
+ let index=0;
+ section._autoSlide=setInterval(()=>{
+   const cards=[...track.querySelectorAll('.bestCard')];
+   if(cards.length<2)return;
+   index=(index+1)%cards.length;
+   cards[index].scrollIntoView({behavior:'smooth',inline:'start',block:'nearest'});
+ },3500);
 }
 
 function render(){const s=data.settings||{},open=!!s.store_open;$('#storeName').textContent=s.store_name||'O Caseirão Burger';$('#storeStatus').textContent=open?(s.status_text||'Aberto'):'Fechado no momento';$('#storeStatus').className=open?'open':'closed';renderBanner();renderBestSellers();const cats=['Todos',...new Set(data.products.filter(p=>p.active!==false).map(p=>p.category||'Outros'))];$('#cats').innerHTML=cats.map(c=>`<button class="chip ${c===cat?'on':''}" data-cat="${esc(c)}">${esc(c)}</button>`).join('');$$('[data-cat]').forEach(b=>b.onclick=()=>{cat=b.dataset.cat;render()});const q=search.trim().toLowerCase(),list=data.products.filter(p=>p.active!==false&&(cat==='Todos'||(p.category||'Outros')===cat)&&(!q||(p.name+' '+(p.description||'')).toLowerCase().includes(q)));$('#products').innerHTML=list.length?list.map(p=>`<article class="card"><div class="pic">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy">`:'SEM FOTO'}</div><div class="body"><div class="name">${esc(p.name)}</div>${Number(p.promo_price)>0?'<span class="promo">PROMO</span>':''}<div class="desc">${esc(p.description||'')}</div><div class="price">${Number(p.promo_price)>0?`<span class="old">${money(p.price)}</span>`:''}${money(price(p))}</div><button class="primary" data-add="${p.id}" ${p.sold_out?'disabled':''}>${p.sold_out?'Esgotado':'Adicionar'}</button></div></article>`).join(''):'<div class="empty">Nenhum produto encontrado.</div>';$$('[data-add]').forEach(b=>b.onclick=()=>openProduct(b.dataset.add));updateCart()}
