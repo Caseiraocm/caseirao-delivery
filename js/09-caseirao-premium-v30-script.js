@@ -11,10 +11,37 @@
   section.innerHTML='<div class="featuredHead"><h3>Mais pedidos</h3><span>Arraste para escolher</span></div><div class="featuredRail">'+picks.map(p=>`<article class="featuredItem" data-premium-product="${window.caseiraoEsc(p.id)}"><span class="featuredTag">${Number(p.promo_price)>0?'OFERTA':'DESTAQUE'}</span><img src="${window.caseiraoEsc(p.image_url)}" alt="${window.caseiraoEsc(p.name)}"><div class="featuredItemInfo"><b>${window.caseiraoEsc(p.name)}</b><span>${window.caseiraoFmt(window.caseiraoPriceOf(p))}</span></div></article>`).join('')+'</div>';
   section.querySelectorAll('[data-premium-product]').forEach(el=>el.onclick=()=>window.caseiraoOpenProduct(el.dataset.premiumProduct));
  }
+
+ function decorateProductCashback(){
+  const settings=window.caseiraoData?.settings||{};
+  const percent=Number(settings.cashback_percent||0);
+  if(settings.cashback_enabled===false||percent<=0)return;
+  document.querySelectorAll('#products [data-add]').forEach(button=>{
+   const card=button.closest('.card');if(!card||card.querySelector('.productCashbackBadge'))return;
+   const product=(window.caseiraoData?.products||[]).find(p=>String(p.id)===String(button.dataset.add));if(!product)return;
+   const min=Number(settings.cashback_min_order||0),price=Number(window.caseiraoPriceOf(product)||0);
+   if(price<min)return;
+   const value=price*percent/100;
+   const badge=document.createElement('div');badge.className='productCashbackBadge';
+   badge.innerHTML=`<span>↗</span><b>Ganhe ${window.caseiraoFmt(value)} de cashback</b>`;
+   card.querySelector('.pc')?.insertBefore(badge,button);
+  });
+ }
+ let carouselTimer=null;
+ function startFeaturedCarousel(){
+  if(carouselTimer){clearInterval(carouselTimer);carouselTimer=null}
+  const rail=document.querySelector('#featuredSection .featuredRail');if(!rail)return;
+  const cards=[...rail.querySelectorAll('.featuredItem')];if(cards.length<2)return;
+  let index=0,paused=false;
+  const go=()=>{if(paused||!document.body.contains(rail))return;index=(index+1)%cards.length;rail.scrollTo({left:cards[index].offsetLeft-rail.offsetLeft,behavior:'smooth'})};
+  carouselTimer=setInterval(go,3200);
+  ['touchstart','pointerdown'].forEach(ev=>rail.addEventListener(ev,()=>paused=true,{passive:true}));
+  ['touchend','pointerup','pointercancel'].forEach(ev=>rail.addEventListener(ev,()=>{paused=false;const nearest=cards.reduce((best,c,i)=>Math.abs(c.offsetLeft-rail.scrollLeft)<Math.abs(cards[best].offsetLeft-rail.scrollLeft)?i:best,0);index=nearest},{passive:true}));
+ }
  function openCashback(){window.caseiraoModal('<div class="sheeth"><div><h2>Meu cashback</h2><div class="adminSub">Consulte pelo WhatsApp usado nos pedidos</div></div><button class="x" data-close>×</button></div><div class="field"><label>Seu WhatsApp</label><input id="cashbackPhone" class="in" inputmode="tel" placeholder="(86) 99999-9999"></div><button id="cashbackLookup" class="primary">CONSULTAR SALDO</button><div id="cashbackLookupResult"></div>');window.caseiraoBindClose();const remembered=JSON.parse(localStorage.getItem('caseirao_customer')||'{}');if(remembered.phone)$('#cashbackPhone').value=remembered.phone;$('#cashbackLookup').onclick=async()=>{const button=$('#cashbackLookup'),box=$('#cashbackLookupResult');try{button.disabled=true;button.textContent='CONSULTANDO...';const r=await cashbackApi('status',{phone:$('#cashbackPhone').value});box.innerHTML=`<div class="cashbackResult"><span>Saldo disponível de ${esc(r.customer.name||'cliente')}</span><div class="cashbackBalance">${premiumMoney(r.customer.balance)}</div><div class="mini">Cashback de ${Number(r.settings.cashback_percent||0)}% liberado após a entrega.</div><div class="cashbackStats"><div class="cashbackStat"><span>Total ganho</span><b>${premiumMoney(r.customer.earned)}</b></div><div class="cashbackStat"><span>Total utilizado</span><b>${premiumMoney(r.customer.used)}</b></div></div></div>`}catch(e){box.innerHTML=`<div class="err">${esc(e.message||String(e))}</div>`}finally{button.disabled=false;button.textContent='CONSULTAR SALDO'}}}
- const renderCatalogBase=renderCatalog;renderCatalog=function(){const out=renderCatalogBase();premiumBlocks();return out};
+ const renderCatalogBase=renderCatalog;renderCatalog=function(){const out=renderCatalogBase();premiumBlocks();decorateProductCashback();startFeaturedCarousel();return out};
  let cashbackAvailable=0,cashbackSettings=null,cashbackUse=0;
  const openCheckoutBase=openCheckout;openCheckout=function(){const out=openCheckoutBase();const sum=$('#checkoutSum');if(!sum||$('#cashbackCheckout'))return out;const box=document.createElement('div');box.id='cashbackCheckout';box.className='cashbackCheckout';box.innerHTML='<div class="cashbackCheckoutTop"><b>Cashback Caseirão</b><button type="button" id="checkCheckoutCashback">CONSULTAR</button></div><div id="cashbackCheckoutState" class="cashbackCheckoutState">Consulte seu saldo para usar nesta compra.</div><div id="cashbackUseRow" class="cashbackUseRow hide"><input id="cashbackAmount" inputmode="decimal" placeholder="Valor a usar"><label><input id="cashbackUseToggle" type="checkbox"> USAR</label></div>';sum.before(box);$('#checkCheckoutCashback').onclick=async()=>{const state=$('#cashbackCheckoutState');try{const r=await cashbackApi('status',{phone:$('#custPhone').value});cashbackAvailable=Number(r.customer.balance||0);cashbackSettings=r.settings;const max=Math.min(cashbackAvailable,window.caseiraoCartSubtotal()*Number(r.settings.cashback_max_redeem_percent||30)/100);state.textContent=cashbackAvailable>=Number(r.settings.cashback_min_redeem||0)?`Saldo ${premiumMoney(cashbackAvailable)} • você pode usar até ${premiumMoney(max)} neste pedido.`:`Saldo ${premiumMoney(cashbackAvailable)} • mínimo para usar: ${premiumMoney(r.settings.cashback_min_redeem)}.`;$('#cashbackUseRow').classList.toggle('hide',cashbackAvailable<Number(r.settings.cashback_min_redeem||0));$('#cashbackAmount').value=max.toFixed(2).replace('.',',')}catch(e){state.textContent=e.message||String(e)}};$('#cashbackUseToggle').onchange=e=>{cashbackUse=e.target.checked?Math.max(0,Number(String($('#cashbackAmount').value).replace(',','.'))||0):0};$('#cashbackAmount').oninput=()=>{if($('#cashbackUseToggle').checked)cashbackUse=Math.max(0,Number(String($('#cashbackAmount').value).replace(',','.'))||0)};return out};
  const apiBase=api;api=async function(slug,opts={}){if(slug==='create-order'&&opts.body&&cashbackUse>0){try{const body=JSON.parse(opts.body);body.cashback_to_use=cashbackUse;opts={...opts,body:JSON.stringify(body)}}catch{}}const response=await apiBase(slug,opts);if(slug==='create-order')cashbackUse=0;return response};
- setTimeout(premiumBlocks,0);
+ setTimeout(()=>{premiumBlocks();decorateProductCashback();startFeaturedCarousel()},0);
 })();
