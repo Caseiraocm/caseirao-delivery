@@ -560,6 +560,14 @@ const performanceStyle=document.createElement('style');performanceStyle.textCont
 /* Permite que as melhorias carregadas depois deste bloco componham as funções
    principais sem perder o mesmo estado interno do carrinho e do checkout. */
 Object.defineProperties(window,{
+  caseiraoData:{configurable:true,get:()=>data},
+  caseiraoEsc:{configurable:true,get:()=>esc},
+  caseiraoFmt:{configurable:true,get:()=>fmt},
+  caseiraoPriceOf:{configurable:true,get:()=>priceOf},
+  caseiraoOpenProduct:{configurable:true,get:()=>openProduct},
+  caseiraoModal:{configurable:true,get:()=>modal},
+  caseiraoBindClose:{configurable:true,get:()=>bindClose},
+  caseiraoCartSubtotal:{configurable:true,get:()=>cartSubtotal},
   caseirao$:{value:$,configurable:false},
   caseiraoApi:{value:api,configurable:false},
   openCheckout:{configurable:true,get:()=>openCheckout,set:value=>{openCheckout=value}},
