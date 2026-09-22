@@ -23,15 +23,18 @@ function priceOf(p){return Number(p.promo_price)>0?Number(p.promo_price):Number(
 function allowedAddons(p){const ids=new Set(data.product_addons.filter(x=>x.product_id===p.id).map(x=>x.addon_id));return data.addons.filter(a=>a.active!==false&&ids.has(a.id))}
 function cartCount(){return cart.reduce((s,x)=>s+x.qty,0)}function cartSubtotal(){return cart.reduce((s,x)=>s+(priceOf(x.product)+x.addons.reduce((a,b)=>a+Number(b.price||0),0))*x.qty,0)}
 function renderCatalog(){const st=data.settings||{};$('#storeName').textContent=st.store_name||'O Caseirão Burger';const open=!!st.store_open;$('#storeStatus').textContent=open?(st.status_text||'Aberto'):'Fechado no momento';$('#storeStatus').className='status '+(open?'open':'closed');{const bn=$('#banner'),img=String(st.banner_image_url||''),txt=String(st.banner_text||'');if(st.banner_active&&(img||txt)){bn.innerHTML=img?`<img src="${esc(img)}" alt="Banner O Caseirão Burger" onerror="this.style.display='none'">${txt?`<div class="bannerCaption">${esc(txt)}</div>`:''}`:`<div>${esc(txt)}</div>`;bn.className='banner'+(img?' hasimg':'');bn.classList.remove('hide')}else{bn.className='banner hide';bn.innerHTML=''}}const cats=['Todos',...new Set(data.products.filter(p=>p.active!==false).map(p=>p.category||'Outros'))];$('#cats').innerHTML=cats.map(c=>`<button class="chip ${c===cat?'on':''}" data-cat="${esc(c)}">${esc(c)}</button>`).join('');document.querySelectorAll('[data-cat]').forEach(b=>b.onclick=()=>{cat=b.dataset.cat;renderCatalog()});const q=search.trim().toLowerCase();const arr=data.products.filter(p=>p.active!==false&&(cat==='Todos'||(p.category||'Outros')===cat)&&(!q||(p.name+' '+(p.description||'')).toLowerCase().includes(q)));$('#products').innerHTML=arr.length?arr.map(p=>{const promo=Number(p.promo_price)>0;return `<article class="card"><div class="pic">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy" onerror="this.parentNode.innerHTML='SEM FOTO'">`:'SEM FOTO'}</div><div class="pc"><div class="name">${esc(p.name)}</div><div class="desc">${esc(p.description||p.category||'')}</div><div class="price">${promo?`<span class="old">${fmt(p.price)}</span>`:''}${fmt(priceOf(p))}</div><button class="add" data-add="${p.id}">Adicionar</button></div></article>`}).join(''):'<div class="empty">Nenhum item encontrado.</div>';document.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>openProduct(b.dataset.add));updateCartBar()}
-/* Inicialização resiliente do cardápio.
-   Agenda a carga assim que o núcleo do catálogo já existe.
-   Se alguma melhoria opcional abaixo falhar, o cardápio ainda carrega. */
+/* Inicialização resiliente do cardápio: a carga do catálogo não depende
+   de todas as melhorias opcionais terminarem de inicializar. */
 let caseiraoCatalogBooted=false;
 const bootCaseiraoCatalog=()=>{
   if(caseiraoCatalogBooted)return;
   caseiraoCatalogBooted=true;
   Promise.resolve().then(()=>catalog()).catch(error=>{
     console.error('Falha ao iniciar o cardápio:',error);
+    const status=document.querySelector('#storeStatus');
+    const products=document.querySelector('#products');
+    if(status){status.textContent='Erro ao carregar';status.className='status closed'}
+    if(products&&products.querySelector('.skeleton'))products.innerHTML='<div class="empty"><b>Não foi possível carregar o cardápio.</b><br><br><button class="secondary" onclick="location.reload()">Tentar novamente</button></div>';
   });
 };
 setTimeout(bootCaseiraoCatalog,0);

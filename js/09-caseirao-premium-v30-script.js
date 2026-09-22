@@ -102,7 +102,7 @@
  }
 
  const renderCatalogBase=window.renderCatalog;
- window.renderCatalog=function(){const out=renderCatalogBase();premiumBlocks();decorateProductCashback();return out};
+ if(typeof renderCatalogBase==='function')window.renderCatalog=function(){const out=renderCatalogBase();premiumBlocks();decorateProductCashback();return out};
 
  let cashbackAvailable=0,cashbackUse=0,cashbackMax=0,cashbackMin=0,cashbackObserver=null;
 
@@ -143,7 +143,7 @@
  }
 
  const openCheckoutBase=window.openCheckout;
- window.openCheckout=function(){
+ if(typeof openCheckoutBase==='function')window.openCheckout=function(){
   cashbackUse=0;cashbackAvailable=0;cashbackMax=0;cashbackMin=0;
   const out=openCheckoutBase(),$=window.caseirao$;const sum=$('#checkoutSum');if(!sum||$('#cashbackCheckout'))return out;
   const box=document.createElement('div');box.id='cashbackCheckout';box.className='cashbackCheckout';
@@ -200,7 +200,7 @@
  };
 
  const apiBase=window.api;
- window.api=async function(slug,opts={}){if(slug==='create-order'&&opts.body&&cashbackUse>0){try{const body=JSON.parse(opts.body);body.cashback_to_use=cashbackUse;opts={...opts,body:JSON.stringify(body)}}catch{}}const response=await apiBase(slug,opts);if(slug==='create-order')cashbackUse=0;return response};
+ if(typeof apiBase==='function')window.api=async function(slug,opts={}){if(slug==='create-order'&&opts.body&&cashbackUse>0){try{const body=JSON.parse(opts.body);body.cashback_to_use=cashbackUse;opts={...opts,body:JSON.stringify(body)}}catch{}}const response=await apiBase(slug,opts);if(slug==='create-order')cashbackUse=0;return response};
 
  setTimeout(()=>{premiumBlocks();decorateProductCashback()},0);
 })();
