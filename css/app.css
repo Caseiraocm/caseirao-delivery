@@ -153,3 +153,42 @@ main{max-width:760px;margin:auto}
 .productQtyControl button:disabled{opacity:.35}
 .productQtyControl b{min-width:32px;text-align:center;font-size:16px}
 @media(max-width:430px){.productQtyTop{margin-top:9px}.productQtyControl button{width:32px;height:32px}.productQtyControl b{min-width:28px}}
+
+
+/* v2.3.6 — Pagamento Pix premium */
+.pixPayment{padding-bottom:4px}
+.pixHead{align-items:flex-start;margin-bottom:14px}
+.pixHead small{display:block;color:#777;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;margin:2px 0 3px}
+.pixHead h2{margin:0;font-size:24px;letter-spacing:-.4px}
+.pixOrderCard{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 16px;border:1px solid #0000000b;border-radius:16px;background:#fafafa;margin-bottom:12px}
+.pixOrderCard span{font-size:13px;color:#666;font-weight:750}
+.pixOrderCard strong{font-size:22px;letter-spacing:-.4px;color:#111}
+.pixStatusCard{display:flex;align-items:center;gap:14px;padding:18px;border-radius:19px;margin:12px 0 16px;border:1px solid transparent;transition:.3s ease}
+.pixStatusCard.waiting{background:#fff8e8;border-color:#f2d98c}
+.pixStatusCard.confirmed{background:#eaf8ee;border-color:#a9dfb7;box-shadow:0 10px 28px #1c7b3920;animation:pixConfirmIn .42s ease both}
+.pixStatusIcon{width:54px;height:54px;flex:0 0 54px;border-radius:17px;display:grid;place-items:center;background:#fff;box-shadow:0 5px 16px #00000012}
+.pixStatusText{min-width:0;display:flex;flex-direction:column;gap:4px}
+.pixStatusText strong{font-size:19px;line-height:1.08;letter-spacing:-.25px}
+.pixStatusText span{font-size:13px;line-height:1.35;color:#666}
+.pixSpinner{width:25px;height:25px;border:3px solid #e6c65f;border-top-color:#171717;border-radius:50%;animation:pixSpin .85s linear infinite}
+.pixCheck{background:#187a38;color:#fff;font-size:31px;font-weight:900}
+.pixQrWrap{text-align:center;margin:8px 0 18px;transition:.25s ease}
+.pixQrCard{width:min(280px,78vw);margin:auto;padding:13px;border:1px solid #0000000d;border-radius:22px;background:#fff;box-shadow:0 12px 30px #00000012}
+.pixQrCard img{display:block;width:100%;max-width:100%;border-radius:12px}
+.pixQrWrap small{display:block;color:#777;margin-top:10px;font-size:12px}
+.pixCopyField label{font-size:13px}
+.pixCopyField textarea{min-height:82px;font-size:12px;line-height:1.35;background:#fafafa}
+.pixCopyBtn{min-height:52px;margin-top:8px;font-size:15px}
+.pixOpenBtn,.pixTrackBtn{display:block;text-align:center;text-decoration:none;margin-top:10px;min-height:48px}
+.pixPaidFade{opacity:.34;filter:grayscale(.2)}
+@keyframes pixSpin{to{transform:rotate(360deg)}}
+@keyframes pixConfirmIn{0%{transform:scale(.97);opacity:.5}70%{transform:scale(1.015)}100%{transform:scale(1);opacity:1}}
+@media(max-width:430px){
+ .pixHead h2{font-size:22px}
+ .pixOrderCard{padding:13px 14px}
+ .pixOrderCard strong{font-size:20px}
+ .pixStatusCard{padding:15px;gap:12px;border-radius:17px}
+ .pixStatusIcon{width:50px;height:50px;flex-basis:50px;border-radius:15px}
+ .pixStatusText strong{font-size:18px}
+ .pixQrCard{width:min(250px,76vw);padding:11px;border-radius:19px}
+}
