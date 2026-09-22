@@ -1,1 +1,0 @@
-// JavaScript - O Caseirão Burger
