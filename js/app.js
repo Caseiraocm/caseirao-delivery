@@ -31,7 +31,7 @@ function renderBestSellers(){
    const cards=[...track.querySelectorAll('.bestCard')];
    if(cards.length<2)return;
    index=(index+1)%cards.length;
-   cards[index].scrollIntoView({behavior:'smooth',inline:'start',block:'nearest'});
+   track.scrollTo({left:cards[index].offsetLeft-track.offsetLeft,behavior:'smooth'});
  },3500);
 }
 
