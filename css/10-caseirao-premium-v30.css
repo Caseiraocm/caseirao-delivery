@@ -37,3 +37,110 @@ body{background:radial-gradient(circle at 50% -80px,#fff 0,#f4f1ec 360px,#efede9
 .cashbackResult{padding:15px;border:1px solid #ead7b4;border-radius:17px;background:#fff9ed}.cashbackBalance{margin:7px 0;color:#b94b14;font-size:32px;font-weight:1000;letter-spacing:-.05em}.cashbackStats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.cashbackStat{padding:10px;border-radius:12px;background:#fff}.cashbackStat span{display:block;color:#77716a;font-size:10px}.cashbackStat b{display:block;margin-top:4px}
 .cashbackCheckout{margin:11px 0;padding:13px;border:1px solid #ead6b4;border-radius:15px;background:#fffaf0}.cashbackCheckoutTop{display:flex;align-items:center;justify-content:space-between;gap:10px}.cashbackCheckout button{border:0;border-radius:10px;background:#202126;color:#fff;padding:9px 11px;font-size:10px;font-weight:950}.cashbackCheckoutState{margin-top:7px;color:#706b63;font-size:11px}.cashbackUseRow{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:9px}.cashbackUseRow input{min-width:0;padding:11px;border:1px solid #d9d2c6;border-radius:11px;background:#fff;font-size:16px}.cashbackUseRow label{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:900}
 .grid .card{transition:transform .18s ease,box-shadow .18s ease}.grid .card:active{transform:scale(.985)}
+
+
+/* v34 — organização definitiva dos cards de produto no celular */
+@media(max-width:759px){
+  #products.grid{
+    gap:12px!important;
+    padding-bottom:105px!important;
+  }
+  #products .card{
+    position:relative!important;
+    grid-template-columns:132px minmax(0,1fr)!important;
+    min-height:154px!important;
+    border-radius:18px!important;
+    overflow:hidden!important;
+    align-items:stretch!important;
+  }
+  #products .card .pic{
+    width:132px!important;
+    min-height:154px!important;
+    height:100%!important;
+    overflow:hidden!important;
+  }
+  #products .card .pc{
+    padding:14px 14px 12px!important;
+    gap:6px!important;
+    overflow:hidden!important;
+  }
+  #products .card .name{
+    margin:0!important;
+    font-size:16px!important;
+    line-height:1.12!important;
+    font-weight:950!important;
+    padding:0!important;
+  }
+  #products .card .desc{
+    margin:0!important;
+    font-size:11.5px!important;
+    line-height:1.32!important;
+    -webkit-line-clamp:2!important;
+  }
+  #products .card .price{
+    margin:1px 0 0!important;
+    font-size:17px!important;
+    line-height:1.1!important;
+    min-height:19px!important;
+  }
+  #products .card .add{
+    width:100%!important;
+    min-height:38px!important;
+    padding:8px 10px!important;
+    margin-top:auto!important;
+    border-radius:12px!important;
+    font-size:15px!important;
+    line-height:1!important;
+  }
+
+  /* Promoção fica somente dentro da área da foto, sem cobrir o nome. */
+  #products .card .systemOfferBadge{
+    position:absolute!important;
+    top:9px!important;
+    left:8px!important;
+    right:auto!important;
+    z-index:30!important;
+    display:block!important;
+    width:116px!important;
+    max-width:calc(132px - 16px)!important;
+    box-sizing:border-box!important;
+    padding:6px 5px!important;
+    border-radius:8px!important;
+    overflow:hidden!important;
+    white-space:nowrap!important;
+    text-overflow:ellipsis!important;
+    text-align:center!important;
+    font-size:7.8px!important;
+    line-height:1!important;
+    letter-spacing:0!important;
+  }
+
+  /* Cashback permanece no rodapé da foto. */
+  #products .productCashbackBadge{
+    left:7px!important;
+    bottom:7px!important;
+    max-width:118px!important;
+    padding:5px 6px!important;
+    font-size:8px!important;
+  }
+}
+@media(max-width:390px){
+  #products .card{
+    grid-template-columns:118px minmax(0,1fr)!important;
+    min-height:150px!important;
+  }
+  #products .card .pic{
+    width:118px!important;
+    min-height:150px!important;
+  }
+  #products .card .pc{padding:12px 11px 11px!important}
+  #products .card .name{font-size:15px!important}
+  #products .card .desc{font-size:10.8px!important}
+  #products .card .price{font-size:16px!important}
+  #products .card .systemOfferBadge{
+    width:102px!important;
+    max-width:102px!important;
+    font-size:7.2px!important;
+  }
+  #products .productCashbackBadge{max-width:104px!important}
+}
