@@ -706,3 +706,107 @@ main{max-width:780px;padding:14px}
   .cartItemBottom{align-items:center!important}
   .cartCheckout{min-height:60px!important}
 }
+
+/* =========================================================
+   v2.4.3 — Modais auxiliares Dark Premium
+   Cashback • Fidelidade • Promoções
+   ========================================================= */
+
+/* Cashback e fidelidade */
+.sheet:has(#cphone),
+.sheet:has(#lphone),
+.sheet:has(.promoList){
+  background:#101114!important;
+  color:#f7f7f4!important;
+  border-radius:28px 28px 0 0!important;
+  border-top:1px solid rgba(255,255,255,.10)!important;
+  box-shadow:0 -24px 70px rgba(0,0,0,.58)!important;
+}
+
+.sheet:has(#cphone) .head h2,
+.sheet:has(#lphone) .head h2,
+.sheet:has(.promoList) .head h2{
+  color:#fff!important;
+  opacity:1!important;
+  font-weight:950!important;
+  letter-spacing:-.5px!important;
+}
+
+.sheet:has(#cphone) .head .x,
+.sheet:has(#lphone) .head .x,
+.sheet:has(.promoList) .head .x{
+  background:#24252a!important;
+  color:#fff!important;
+  border:1px solid rgba(255,255,255,.09)!important;
+}
+
+.sheet:has(#cphone) .field>label,
+.sheet:has(#lphone) .field>label{
+  color:#d6d6d9!important;
+  opacity:1!important;
+  font-weight:800!important;
+}
+
+.sheet:has(#cphone) .input,
+.sheet:has(#lphone) .input{
+  background:#18191d!important;
+  color:#fff!important;
+  border:1px solid rgba(255,255,255,.11)!important;
+  box-shadow:none!important;
+}
+.sheet:has(#cphone) .input:focus,
+.sheet:has(#lphone) .input:focus{
+  border-color:#ffb51b!important;
+  box-shadow:0 0 0 3px rgba(255,181,27,.12)!important;
+}
+
+.sheet:has(#cphone) .primary,
+.sheet:has(#lphone) .primary{
+  background:linear-gradient(135deg,#ffb51b,#ffc84a)!important;
+  color:#111!important;
+  border:0!important;
+  box-shadow:0 12px 28px rgba(255,181,27,.16)!important;
+}
+
+.sheet:has(#cphone) .success,
+.sheet:has(#lphone) .success{
+  background:#18191d!important;
+  color:#eee!important;
+  border-color:rgba(255,181,27,.24)!important;
+}
+.sheet:has(#cphone) .success b,
+.sheet:has(#lphone) .success b{color:#ffb51b!important}
+
+/* Promoções */
+.sheet:has(.promoList) .promoHead small{
+  color:#a7a7ac!important;
+  opacity:1!important;
+}
+.sheet:has(.promoList) .promoList{color:#fff!important}
+.sheet:has(.promoList) .notice{
+  background:#18191d!important;
+  color:#b9b9be!important;
+  border:1px solid rgba(255,255,255,.09)!important;
+}
+.sheet:has(.promoList) .promoCard{
+  background:#18191d!important;
+  color:#fff!important;
+  border:1px solid rgba(255,255,255,.09)!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.22)!important;
+}
+.sheet:has(.promoList) .promoName{color:#fff!important}
+.sheet:has(.promoList) .promoPrices strong{color:#ffb51b!important}
+.sheet:has(.promoList) .promoPrices .old{color:#88898f!important}
+.sheet:has(.promoList) .promoAdd{
+  background:linear-gradient(135deg,#ffb51b,#ffc84a)!important;
+  color:#111!important;
+  border:0!important;
+}
+
+/* Garantia contra regras antigas que deixavam texto branco em painel branco */
+.sheet:has(#cphone) *,
+.sheet:has(#lphone) *,
+.sheet:has(.promoList) *{
+  text-shadow:none;
+}
+
