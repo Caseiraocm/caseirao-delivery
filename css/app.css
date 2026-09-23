@@ -810,3 +810,16 @@ main{max-width:780px;padding:14px}
   text-shadow:none;
 }
 
+
+
+/* =========================================================
+   v2.4.4 — Pedido recebido: contraste corrigido
+   Corrige somente o cabeçalho do modal de confirmação.
+   ========================================================= */
+.sheet:has(.success) > .head h2,
+.sheet:has(.success) .head h2{
+  color:#171717!important;
+  opacity:1!important;
+  font-weight:950!important;
+  text-shadow:none!important;
+}
