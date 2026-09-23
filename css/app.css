@@ -284,3 +284,98 @@ main{max-width:760px;margin:auto}
   .cartTotals{padding:14px;border-radius:17px}
   .cartCheckout{min-height:56px}
 }
+
+
+/* v2.3.9 — Pagamento Pix premium e responsivo */
+.sheet:has(.pixPayment){
+  padding:0;
+  overflow-x:hidden;
+  background:#f7f7f5;
+  border-radius:28px 28px 0 0;
+}
+.pixPayment{padding:20px 18px 24px;overflow:hidden}
+.pixHead{align-items:center;margin-bottom:14px}
+.pixHead>div{min-width:0}
+.pixHead small{
+  display:block;color:#777;font-size:11px;font-weight:800;
+  text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px
+}
+.pixHead h2{margin:0;font-size:27px;line-height:1.05;letter-spacing:-.65px}
+.pixHead .x{
+  width:44px;height:44px;flex:0 0 44px;background:#fff;
+  border:1px solid #0000000b;box-shadow:0 5px 16px #0000000c
+}
+.pixOrderCard{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 16px;margin-bottom:10px;border-radius:17px;
+  background:#101115;color:#fff;box-shadow:0 10px 26px #0000001d
+}
+.pixOrderCard span{font-size:13px;color:#d8d8d8;font-weight:750}
+.pixOrderCard strong{font-size:20px;white-space:nowrap;letter-spacing:-.3px}
+.pixStatusCard{
+  display:flex;align-items:center;gap:12px;padding:14px 15px;margin-bottom:16px;
+  border:1px solid #0000000b;border-radius:17px;background:#fff;
+  box-shadow:0 7px 22px #0000000a
+}
+.pixStatusIcon{
+  width:42px;height:42px;flex:0 0 42px;border-radius:13px;
+  display:grid;place-items:center;background:#f0f0ee
+}
+.pixStatusText{min-width:0;display:flex;flex-direction:column;gap:3px}
+.pixStatusText strong{font-size:14px;line-height:1.2;color:#171717}
+.pixStatusText span{font-size:11px;line-height:1.35;color:#777}
+.pixSpinner{
+  width:19px;height:19px;border:2px solid #d5d5d2;border-top-color:#101115;
+  border-radius:50%;animation:pixSpin .8s linear infinite
+}
+@keyframes pixSpin{to{transform:rotate(360deg)}}
+.pixStatusCard.confirmed{
+  border-color:#1d7a3a24;background:#eef9f1
+}
+.pixStatusCard.confirmed .pixStatusIcon{
+  background:#17672e;color:#fff;font-size:20px;font-weight:900
+}
+.pixStatusCard.confirmed .pixStatusText strong{color:#17672e;font-size:15px}
+.pixQrWrap{
+  width:100%;max-width:340px;margin:0 auto 16px;text-align:center;
+  padding:14px;border:1px solid #0000000b;border-radius:20px;background:#fff;
+  box-shadow:0 8px 24px #0000000b
+}
+.pixQrCard{
+  width:min(100%,280px);aspect-ratio:1/1;margin:0 auto;
+  padding:10px;border-radius:15px;background:#fff;overflow:hidden
+}
+.pixQrCard img{
+  display:block;width:100%;height:100%;max-width:100%;object-fit:contain
+}
+.pixQrWrap small{
+  display:block;margin-top:8px;color:#777;font-size:10px;line-height:1.35
+}
+.pixCopyField{
+  padding:14px!important;margin:12px 0!important;border:1px solid #0000000b;
+  border-radius:19px;background:#fff;box-shadow:0 8px 24px #0000000a
+}
+.pixCopyField label{font-size:13px!important;font-weight:850!important}
+.pixCopyField .textarea{
+  min-height:72px;max-height:90px;resize:none;border-radius:13px;
+  font-size:11px;line-height:1.35;word-break:break-all;background:#f7f7f5
+}
+.pixCopyBtn{min-height:52px;margin-top:8px;border-radius:14px}
+.pixOpenBtn,.pixTrackBtn{
+  display:block;width:100%;min-height:50px;border:0;border-radius:14px;
+  text-align:center;text-decoration:none;padding:15px;font-weight:850;margin-top:9px
+}
+.pixPaidFade{display:none!important}
+@media(max-width:430px){
+  .pixPayment{padding:17px 14px 21px}
+  .pixHead h2{font-size:25px}
+  .pixOrderCard{padding:13px 14px;border-radius:15px}
+  .pixOrderCard strong{font-size:18px}
+  .pixStatusCard{padding:12px;border-radius:15px}
+  .pixQrWrap{max-width:310px;padding:12px;border-radius:18px}
+  .pixQrCard{width:min(100%,250px);padding:8px}
+}
+@media(max-width:360px){
+  .pixQrWrap{max-width:280px}
+  .pixQrCard{width:min(100%,225px)}
+}
