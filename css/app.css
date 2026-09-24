@@ -823,3 +823,21 @@ main{max-width:780px;padding:14px}
   font-weight:950!important;
   text-shadow:none!important;
 }
+
+
+/* =========================================================
+   v2.4.5 — Acompanhar pedido: contraste no modal claro
+   Somente apresentação; não altera consulta/rastreamento.
+   ========================================================= */
+.sheet > .head h2{
+  color:#171717!important;
+  opacity:1!important;
+  font-weight:950!important;
+  text-shadow:none!important;
+}
+.sheet > .field > label{
+  color:#252525!important;
+  opacity:1!important;
+  font-weight:800!important;
+  text-shadow:none!important;
+}
