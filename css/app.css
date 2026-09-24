@@ -823,26 +823,3 @@ main{max-width:780px;padding:14px}
   font-weight:950!important;
   text-shadow:none!important;
 }
-
-
-/* CASEIRAO DELIVERY - FEEDBACK VISUAL DE TOQUE */
-button,
-[role="button"],
-.btn,
-.chip,
-.add,
-.cartbar{
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-  transition: transform .08s ease, filter .08s ease, opacity .08s ease !important;
-}
-button:not(:disabled):active,
-[role="button"]:active,
-.btn:active,
-.chip:active,
-.add:active,
-.cartbar:active{
-  transform: translateY(1px) scale(.975) !important;
-  filter: brightness(.90) !important;
-  opacity: .94 !important;
-}
