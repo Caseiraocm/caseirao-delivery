@@ -16,7 +16,7 @@ function showOrderToast(o){document.querySelector('.orderToast')?.remove();const
 function showReadyToast(o){document.querySelector('.orderToast')?.remove();const t=document.createElement('div');t.className='orderToast readyToast';t.textContent=`✅ PEDIDO #${o.order_number} ESTÁ NO PONTO`;document.body.appendChild(t);setTimeout(()=>t.remove(),10000)}
 function startOrderWatcher(){if(orderWatcher)clearInterval(orderWatcher);knownOrderIds=new Set((admin?.orders||[]).map(o=>o.id));knownOrderStatuses=new Map((admin?.orders||[]).map(o=>[String(o.id),o.status]));orderWatcher=setInterval(checkNewOrders,5000)}
 async function checkNewOrders(){if(!sessionStorage.getItem('caseirao_admin_pin'))return;try{const fresh=await adminCall('snapshot');const novos=(fresh.orders||[]).filter(o=>!knownOrderIds.has(o.id)&&o.source!=='manual');const prontos=(fresh.orders||[]).filter(o=>o.status==='pronto'&&knownOrderStatuses.has(String(o.id))&&knownOrderStatuses.get(String(o.id))!=='pronto');(fresh.orders||[]).forEach(o=>{knownOrderIds.add(o.id);knownOrderStatuses.set(String(o.id),o.status)});admin=fresh;if(prontos.length){playOrderSound();showReadyToast(prontos[0])}else if(novos.length){playOrderSound();showOrderToast(novos[0])}const box=$('#admContent');if(box&&adminTab==='pedidos'&&(novos.length||prontos.length))renderOrders(box)}catch{}}
-const modalRoot=$('#modalRoot');
+const modalRoot=$('#modalRoot')||$('#modal');
 async function api(slug,opts={}){const r=await fetch(FN+slug,{cache:'no-store',...opts});let j={};try{j=await r.json()}catch{}if(!r.ok||j.error)throw new Error(j.error||j.detail||('Erro '+r.status));return j}
 async function loyaltyStatus(trackingCodeOrPhone,phone){const customerPhone=phone||trackingCodeOrPhone;return api('loyalty-status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:customerPhone})})}
 async function loyaltyAdmin(action='snapshot',payload={}){const pin=sessionStorage.getItem('caseirao_admin_pin')||'';return api('loyalty-admin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pin,action,payload})})}
@@ -348,7 +348,7 @@ async function openDriverTrackingReliable(token){
 }
 openDriverTracking=openDriverTrackingReliable;
 function exposeDeliveryTrackingButtons(root=document){root.querySelectorAll('details.orderDetailed').forEach(card=>{const source=card.querySelector('.orderBody [data-delivery-map]'),summary=card.querySelector('.orderSummary .summaryRight');if(!source||!summary||summary.querySelector('[data-delivery-map]'))return;const quick=document.createElement('button');quick.type='button';quick.className='trackingQuick';quick.dataset.deliveryMap=source.dataset.deliveryMap;quick.dataset.orderNumber=source.dataset.orderNumber;quick.textContent='📍 RASTREAMENTO';summary.prepend(quick)})}
-const trackingObserver=new MutationObserver(()=>exposeDeliveryTrackingButtons($('#modalRoot')));trackingObserver.observe($('#modalRoot'),{childList:true,subtree:true});
+const trackingObserver=new MutationObserver(()=>exposeDeliveryTrackingButtons(modalRoot));if(modalRoot)trackingObserver.observe(modalRoot,{childList:true,subtree:true});
 document.addEventListener('click',event=>{const button=event.target.closest('[data-delivery-map]');if(button){event.preventDefault();event.stopPropagation();openAdminDeliveryTracking(button.dataset.deliveryMap,button.dataset.orderNumber)}});
 
 /* CASEIRAO PROFESSIONAL V2 — camada organizada de experiência e operação */
@@ -904,11 +904,19 @@ document.addEventListener('click',event=>{
 const caseiraoNativeAlert=window.alert.bind(window);window.alert=function(...args){document.querySelectorAll('.adminActionLoading').forEach(clearAdminActionFeedback);return caseiraoNativeAlert(...args)};
 
 restoreCart();lastCartCount=cartCount();updateCartBar();
-$('#search').addEventListener('input',e=>{search=e.target.value;renderCatalog()});$('#cartBtn').onclick=renderCart;$('#trackBtn').onclick=()=>openTracking();$('#adminBtn').onclick=openAdmin;$('#homeBtn').onclick=goHome;$('#promotionsBtn').onclick=openDailyPromotions;$('#loyaltyBtn').onclick=openCustomerLoyalty;$('#installBtn').onclick=installApp;
-$('#teamEmployeeBtn').onclick=()=>employeeToken()?openTeamEmployeePanel().catch(e=>{sessionStorage.removeItem('caseirao_employee_token');employeeSnapshot=null;openEmployeeLogin();setTimeout(()=>alert(e.message),50)}):openEmployeeLogin();
-$('#teamDispatcherBtn').onclick=()=>employeeToken()?openDispatcherPanel():openDispatcherLogin();
-$('#teamAdminBtn').onclick=openAdmin;
-$('#teamInstallBtn').onclick=installApp;
+$('#search')?.addEventListener('input',e=>{search=e.target.value;renderCatalog()});
+if($('#cartBtn'))$('#cartBtn').onclick=renderCart;
+if($('#trackBtn'))$('#trackBtn').onclick=()=>openTracking();
+if($('#adminBtn'))$('#adminBtn').onclick=openAdmin;
+if($('#homeBtn'))$('#homeBtn').onclick=goHome;
+const promotionsButton=$('#promotionsBtn')||$('#promoBtn');
+if(promotionsButton)promotionsButton.onclick=openDailyPromotions;
+if($('#loyaltyBtn'))$('#loyaltyBtn').onclick=openCustomerLoyalty;
+if($('#installBtn'))$('#installBtn').onclick=installApp;
+if($('#teamEmployeeBtn'))$('#teamEmployeeBtn').onclick=()=>employeeToken()?openTeamEmployeePanel().catch(e=>{sessionStorage.removeItem('caseirao_employee_token');employeeSnapshot=null;openEmployeeLogin();setTimeout(()=>alert(e.message),50)}):openEmployeeLogin();
+if($('#teamDispatcherBtn'))$('#teamDispatcherBtn').onclick=()=>employeeToken()?openDispatcherPanel():openDispatcherLogin();
+if($('#teamAdminBtn'))$('#teamAdminBtn').onclick=openAdmin;
+if($('#teamInstallBtn'))$('#teamInstallBtn').onclick=installApp;
 catalog();
 /* ADM distribuido como arquivo unico: remove workers/caches antigos para impedir
    que o navegador continue exibindo uma versao anterior depois do deploy. */
@@ -1073,7 +1081,7 @@ function startDriverAreaGps(assignmentId,button){if(!navigator.geolocation)retur
 
 const renderAdminDeliveryBase=renderAdmin;renderAdmin=function(){if(admin&&adminTab)setInternalResume('admin:'+adminTab);const result=renderAdminDeliveryBase();const bar=document.querySelector('.admbar');if(bar&&!bar.querySelector('[data-tab="entregas"]')){const b=document.createElement('button');b.dataset.tab='entregas';b.className=adminTab==='entregas'?'on':'';b.textContent='Entregas';b.onclick=()=>{adminTab='entregas';renderAdmin()};const caixa=bar.querySelector('[data-tab="caixa"]');caixa?caixa.after(b):bar.appendChild(b)}if(adminTab==='entregas'){const box=$('#admContent');if(box)renderDeliveryHub(box)}return result};
 const renderAdminTabDeliveryBase=renderAdminTab;renderAdminTab=function(){if(adminTab==='entregas'){const box=$('#admContent');if(box)renderDeliveryHub(box);return}return renderAdminTabDeliveryBase()};
-const driverChoice=document.createElement('button');driverChoice.id='teamDriverBtn';driverChoice.className='teamChoice driverAccessChoice';driverChoice.type='button';driverChoice.innerHTML='<span class="teamChoiceIcon">🛵</span><span><strong>Acesso do entregador</strong><small>Rotas, GPS, pagamentos, troco e retorno.</small></span>';($('#teamDispatcherBtn')||$('#teamEmployeeBtn')).after(driverChoice);driverChoice.onclick=()=>localStorage.getItem(driverTokenKey)?renderDriverArea():openDriverLogin();
+const driverChoice=document.createElement('button');driverChoice.id='teamDriverBtn';driverChoice.className='teamChoice driverAccessChoice';driverChoice.type='button';driverChoice.innerHTML='<span class="teamChoiceIcon">🛵</span><span><strong>Acesso do entregador</strong><small>Rotas, GPS, pagamentos, troco e retorno.</small></span>';const driverChoiceAnchor=$('#teamDispatcherBtn')||$('#teamEmployeeBtn');if(driverChoiceAnchor)driverChoiceAnchor.after(driverChoice);driverChoice.onclick=()=>localStorage.getItem(driverTokenKey)?renderDriverArea():openDriverLogin();
 
 /* CASEIRÃO ENTREGAS PRO — tabela própria por bairro, gasolina e fechamento */
 const deliveryProStyle=document.createElement('style');deliveryProStyle.textContent=`
@@ -2574,4 +2582,3 @@ try{caseiraoPrintV3CleanQueue()}catch(e){}
   `;
   if (!document.getElementById(style.id)) document.head.appendChild(style);
 })();
-
