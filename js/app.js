@@ -912,7 +912,7 @@ $('#teamInstallBtn').onclick=installApp;
 catalog();
 /* ADM distribuido como arquivo unico: remove workers/caches antigos para impedir
    que o navegador continue exibindo uma versao anterior depois do deploy. */
-if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=20260924-v42').catch(()=>{}));}
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=20260924-v49').catch(()=>{}));}
 
 /* CASEIRÃO ENTREGAS — área autenticada, pagamentos, troco e acerto */
 const driverAppStyle=document.createElement('style');driverAppStyle.textContent=`
@@ -2543,3 +2543,20 @@ flushPendingAutoPrint=async function(){
 };
 try{caseiraoPrintV3CleanQueue()}catch(e){}
 /* ===== FIM CASEIRAO PRINTER ENGINE V3 ===== */
+
+
+/* CASEIRAO TOUCH FEEDBACK V49 - somente visual */
+const caseiraoTouchFeedbackV49=document.createElement('style');
+caseiraoTouchFeedbackV49.textContent=`
+button,[role="button"],.btn,.chip,.add,.cartbar{
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+  transition:transform .08s ease,filter .08s ease,opacity .08s ease!important
+}
+button:not(:disabled):active,[role="button"]:active,.btn:active,.chip:active,.add:active,.cartbar:active{
+  transform:translateY(1px) scale(.975)!important;
+  filter:brightness(.90)!important;
+  opacity:.94!important
+}`;
+document.head.appendChild(caseiraoTouchFeedbackV49);
+
