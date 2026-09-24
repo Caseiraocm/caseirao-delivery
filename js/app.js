@@ -2495,39 +2495,7 @@ connectBluetoothPrinter=async function(){
     const connected=await caseiraoPrintV3Attach(device);
     if(printerPrefs().auto)setTimeout(()=>flushPendingAutoPrint().catch(()=>{}),150);
     return connected;
-  
-
-/* ===== CASEIRAO FEEDBACK GLOBAL DE TOQUE V47 =====
-   Feedback visual para todo botão clicável do sistema.
-   Não altera handlers, Pix, pedidos, impressão ou regras de negócio. */
-const caseiraoGlobalTouchStyle=document.createElement('style');
-caseiraoGlobalTouchStyle.textContent=`
-button,[role="button"],.btn,.chip,.add,.cartbar{
-  -webkit-tap-highlight-color:transparent;
-  touch-action:manipulation;
-  transition:transform .09s ease,filter .09s ease,box-shadow .09s ease,opacity .09s ease!important;
-}
-button:not(:disabled):active,[role="button"]:active,.btn:active,.chip:active,.add:active,.cartbar:active,
-.caseiraoTouchPressed{
-  transform:translateY(2px) scale(.965)!important;
-  filter:brightness(.86)!important;
-  opacity:.92!important;
-  box-shadow:inset 0 2px 5px rgba(0,0,0,.18)!important;
-}
-button:disabled{cursor:not-allowed}
-`;
-document.head.appendChild(caseiraoGlobalTouchStyle);
-(function caseiraoGlobalTouchFeedback(){
-  const selector='button,[role="button"],.btn,.chip,.add,.cartbar';
-  const press=e=>{const el=e.target.closest?.(selector);if(!el||el.disabled)return;el.classList.add('caseiraoTouchPressed')};
-  const release=e=>{const el=e.target.closest?.(selector);if(!el)return;setTimeout(()=>el.classList.remove('caseiraoTouchPressed'),70)};
-  document.addEventListener('pointerdown',press,{passive:true});
-  document.addEventListener('pointerup',release,{passive:true});
-  document.addEventListener('pointercancel',release,{passive:true});
-  document.addEventListener('pointerleave',release,{passive:true,capture:true});
-})();
-
-})();
+  })();
   try{return await caseiraoPrintV3ConnectPromise}finally{caseiraoPrintV3ConnectPromise=null}
 };
 function printerConnected(){return !!(btDevice?.gatt?.connected&&btWriteChar)}
@@ -2575,3 +2543,35 @@ flushPendingAutoPrint=async function(){
 };
 try{caseiraoPrintV3CleanQueue()}catch(e){}
 /* ===== FIM CASEIRAO PRINTER ENGINE V3 ===== */
+
+/* ===== CASEIRAO FEEDBACK DE TOQUE V48 =====
+   Somente visual. Não altera handlers, catálogo, Pix, pedidos ou impressão. */
+(() => {
+  const style = document.createElement('style');
+  style.id = 'caseirao-touch-feedback-v48';
+  style.textContent = `
+    button,
+    [role="button"],
+    .btn,
+    .chip,
+    .add,
+    .cartbar {
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      transition: transform .08s ease, filter .08s ease, opacity .08s ease !important;
+    }
+
+    button:not(:disabled):active,
+    [role="button"]:active,
+    .btn:active,
+    .chip:active,
+    .add:active,
+    .cartbar:active {
+      transform: translateY(1px) scale(.975) !important;
+      filter: brightness(.90) !important;
+      opacity: .94 !important;
+    }
+  `;
+  if (!document.getElementById(style.id)) document.head.appendChild(style);
+})();
+
