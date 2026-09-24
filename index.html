@@ -1,16 +1,48 @@
-<!doctype html><html lang="pt-BR"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#101115"><meta name="description" content="O Caseirão Burger - pedidos online">
-<title>O Caseirão Burger</title><link rel="manifest" href="./manifest.webmanifest">
-<link rel="stylesheet" href="./css/app.css?v=2.4.1"><script defer src="./js/app.js?v=2.4.1"></script>
-</head><body>
-<header class="top"><div><h1 id="storeName">O Caseirão Burger</h1><span id="storeStatus">Carregando cardápio…</span></div><button id="trackBtn" class="ghost">Acompanhar</button></header>
-<main>
-<section id="banner" class="banner hidden"></section>
-<section id="bestSection" class="best hidden"><div class="bestHead"><div><b>🔥 Mais pedidos</b><small>Os queridinhos do Caseirão</small></div><span id="bestCash"></span></div><div id="bestTrack" class="bestTrack"></div></section>
-<section class="quick"><button id="promoBtn">🔥 Promoções</button><button id="loyaltyBtn">🎁 Minha fidelidade</button><button id="cashbackBtn">💰 Cashback</button><button id="installBtn" class="hidden">⬇ Instalar</button></section>
-<input id="search" class="search" placeholder="Buscar no cardápio" autocomplete="off"><nav id="cats" class="cats"></nav>
-<section id="products" class="products"><div class="loading">Carregando produtos…</div></section>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#e76620"/>
+<meta name="caseirao-build" content="2026-09-24-adm-struct-v42"/>
+<meta name="description" content="Aplicativo interno da equipe e Central ADM do O Caseirão Burger."/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Caseirão"/>
+<link rel="icon" href="./icon-192.png" sizes="192x192" type="image/png"/>
+<link rel="manifest" href="./manifest.webmanifest?v=20260924-v46"/>
+<title>Caseirão Equipe</title>
+<link rel="stylesheet" href="./css/base.css?v=20260924-v46"/>
+<link rel="stylesheet" href="./css/admin.css?v=20260924-v46"/>
+</head>
+<body class="teamApp">
+<section aria-label="Acesso interno do Caseirão" class="teamLauncher" id="teamHome">
+<div class="teamLauncherCard">
+<div aria-hidden="true" class="teamLogo">CB</div>
+<h1>Caseirão Equipe</h1>
+<p>Escolha sua área para iniciar o expediente.</p>
+<button class="teamChoice" id="teamAdminBtn" type="button"><span class="teamChoiceIcon">⚙️</span><span><strong>Central ADM</strong><small>Gestão completa, relatórios, cardápio e configurações.</small></span></button>
+<button class="teamChoice" id="teamEmployeeBtn" type="button"><span class="teamChoiceIcon">👥</span><span><strong>Acesso da equipe</strong><small>Produção, caixa, entregas e operação do dia.</small></span></button>
+<button class="teamChoice dispatcherAccessChoice" id="teamDispatcherBtn" type="button"><span class="teamChoiceIcon">📦</span><span><strong>Área da despachante</strong><small>Veja os pedidos e avise à central quando estiverem no ponto.</small></span></button>
+<button class="teamInstall" id="teamInstallBtn" type="button">↓ Instalar este aplicativo</button>
+<div class="teamVersion">ADM ESTÁVEL • BUILD 24/09/2026 • © O Caseirão Burger</div>
+</div>
+</section>
+<header class="top"><div class="topin"><div class="brand"><div aria-hidden="true" class="brandMark">CB</div><h1 id="storeName">O Caseirão Burger</h1><div class="status" id="storeStatus">Carregando cardápio...</div></div><button class="headbtn" id="trackBtn">Acompanhar</button><button class="headbtn" id="adminBtn">ADM</button></div></header>
+<main class="wrap">
+<div class="banner hide" id="banner"></div>
+<input autocomplete="off" class="search" id="search" placeholder="Buscar no cardápio"/>
+<nav aria-label="Atalhos" class="quicknav"><button class="quickbtn" id="homeBtn">⌂ Início</button><button class="quickbtn promoQuick" id="promotionsBtn">🔥 Promoções</button><button class="quickbtn" id="loyaltyBtn">★ Minha fidelidade</button><button class="quickbtn" id="installBtn">↓ Instalar</button></nav>
+<div class="cats" id="cats"></div>
+<div class="grid" id="products"><div aria-label="Carregando" class="card skeleton"><div class="pic"></div><div class="pc"><div class="name">Carregando...</div><div class="desc">Preparando o cardápio</div></div></div></div>
+<footer class="siteFooter">© 2026 O Caseirão Burger — Todos os direitos reservados.</footer>
 </main>
-<button id="cartBtn" class="cart"><span id="cartLabel">Carrinho • 0 itens</span><b id="cartTotal">R$ 0,00</b></button><div id="modal"></div>
-</body></html>
+<div class="cartbar"><button class="cartbtn" id="cartBtn"><span id="cartLabel">Carrinho • 0 itens</span><span id="cartTotal">R$ 0,00</span></button></div>
+<div id="modalRoot"></div>
+<div aria-hidden="true" class="loadingBar hide" id="loadingBar"></div>
+<script src="./js/config.js?v=20260924-v46"></script>
+<script src="./js/app.js?v=20260924-v49"></script>
+<script src="./js/admin-ui.js?v=20260924-v46"></script>
+</body>
+</html>
