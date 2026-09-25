@@ -938,3 +938,28 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   .brandMark{display:none}.top{gap:8px}.ghost{padding:9px 10px}.top h1{font-size:17px}
   #products .card{grid-template-columns:40% minmax(0,1fr)}
 }
+
+
+/* v3.0.1 — faixa contínua de localização e contato */
+.storeTicker{
+  width:100%;overflow:hidden;background:rgba(13,14,17,.98);
+  border-bottom:1px solid rgba(246,185,30,.14);
+  box-shadow:0 8px 22px rgba(0,0,0,.16);
+}
+.storeTickerViewport{max-width:780px;margin:0 auto;overflow:hidden;white-space:nowrap}
+.storeTickerTrack{
+  display:flex;width:max-content;align-items:center;gap:15px;
+  padding:8px 0;color:#d8d8da;font-size:11px;font-weight:700;letter-spacing:.12px;
+  animation:caseiraoTicker 22s linear infinite;will-change:transform;
+}
+.storeTickerTrack span{display:inline-flex;align-items:center;flex:0 0 auto}
+.storeTickerTrack i{color:var(--cr-gold);font-style:normal;opacity:.9;flex:0 0 auto}
+@keyframes caseiraoTicker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media(max-width:520px){
+  .storeTickerTrack{gap:13px;padding:7px 0;font-size:10.5px;animation-duration:20s}
+}
+@media(prefers-reduced-motion:reduce){
+  .storeTickerViewport{overflow-x:auto;scrollbar-width:none}
+  .storeTickerViewport::-webkit-scrollbar{display:none}
+  .storeTickerTrack{animation:none;padding-left:14px;padding-right:14px}
+}
