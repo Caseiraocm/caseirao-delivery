@@ -79,7 +79,7 @@ function acceptedOrder(order,phone){
 }
 async function recoverPixOrder(state){
   const pix=await post('mercadopago-create-pix',{order_id:state.order.id,email:state.email});
-  state.pix=pix;savePendingOrder(state);cart=[];updateCart();openPixPayment(state.order,pix,state.phone);
+  state.pix=pix;cart=[];updateCart();clearPendingOrder();openPixPayment(state.order,pix,state.phone);
 }
 async function sendOrderSafe(){
   const btn=$('#send');
