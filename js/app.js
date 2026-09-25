@@ -140,9 +140,41 @@ const timer=setInterval(async()=>{tries++;if(!document.querySelector('#pixStatus
 function openTracking(code='',phone=''){let saved={};try{saved=JSON.parse(localStorage.getItem('caseirao_last_tracking')||'{}')}catch{}modal(`<div class="head"><h2>Acompanhar pedido</h2><button class="x" data-close>×</button></div><div class="field"><label>Código</label><input id="tcode" class="input" value="${esc(code||saved.tracking_code||'')}"></div><div class="field"><label>Telefone</label><input id="tphone" class="input" value="${esc(phone||saved.phone||'')}"></div><button id="track" class="primary">Consultar</button><div id="trackResult"></div>`);$('#track').onclick=async()=>{try{const j=await post('track-order',{tracking_code:$('#tcode').value.trim(),phone:digits($('#tphone').value)}),o=j.order;$('#trackResult').innerHTML=`<div class="success"><b>Pedido #${o.order_number}</b><br>Status: <b>${esc(o.status)}</b><br>Total: <b>${money(o.total)}</b><br>Previsão: ${esc(o.eta_text||'')}</div>`}catch(e){$('#trackResult').innerHTML=`<div class="error">${esc(e.message)}</div>`}}}
 function openLoyalty(){modal(`<div class="head"><h2>Minha fidelidade</h2><button class="x" data-close>×</button></div><div class="field"><label>WhatsApp com DDD</label><input id="lphone" class="input" inputmode="tel" value="${esc(customerMemory().phone||'')}"></div><button id="lgo" class="primary">Consultar</button><div id="lres"></div>`);$('#lgo').onclick=async()=>{try{const j=await post('loyalty-status',{phone:digits($('#lphone').value)}),l=j.loyalty;$('#lres').innerHTML=`<div class="success"><b>${l.progress} de ${l.orders_required} pedidos</b><br>Faltam ${l.remaining} para completar o ciclo.<br>Brindes disponíveis: <b>${l.reward_balance}</b></div>`}catch(e){$('#lres').innerHTML=`<div class="error">${esc(e.message)}</div>`}}}
 function openCashback(){modal(`<div class="head"><h2>Meu cashback</h2><button class="x" data-close>×</button></div><div class="field"><label>WhatsApp com DDD</label><input id="cphone" class="input" inputmode="tel" value="${esc(customerMemory().phone||'')}"></div><button id="cgo" class="primary">Consultar</button><div id="cres"></div>`);$('#cgo').onclick=async()=>{try{const j=await post('cashback-api',{action:'status',payload:{phone:digits($('#cphone').value)}}),c=j.customer,s=j.settings;$('#cres').innerHTML=`<div class="success">Saldo: <b>${money(c.balance)}</b><br>Acumulado: ${money(c.earned)}<br>Usado: ${money(c.used)}</div>${s?.cashback_enabled?'<div class="notice">Cashback ativo no Caseirão.</div>':''}`}catch(e){$('#cres').innerHTML=`<div class="error">${esc(e.message)}</div>`}}}
+function repeatLastOrder(){
+ let saved={};try{saved=JSON.parse(localStorage.getItem('caseirao_last_tracking')||'{}')}catch{}
+ const ask=async()=>{
+  let code=String(saved.tracking_code||'').trim(),phone=digits(saved.phone||customerMemory().phone||'');
+  if(!code){const v=prompt('Digite o código do seu último pedido:','');if(v===null)return;code=v.trim()}
+  if(!phone){const v=prompt('Digite o WhatsApp usado no pedido:','');if(v===null)return;phone=digits(v)}
+  if(!code||phone.length<10){alert('Informe o código do pedido e um WhatsApp válido.');return}
+  const btn=$('#repeatBtn');if(btn){btn.disabled=true;btn.textContent='Buscando pedido…'}
+  try{
+   const j=await post('track-order',{tracking_code:code,phone}),o=j.order,items=Array.isArray(o?.order_items)?o.order_items:[];
+   if(!items.length)throw new Error('Não encontrei os itens desse pedido.');
+   const rebuilt=[],missing=[];
+   for(const old of items){
+    const product=data.products.find(p=>String(p.id)===String(old.product_id))||data.products.find(p=>String(p.name||'').trim().toLowerCase()===String(old.product_name||'').trim().toLowerCase());
+    if(!product||product.active===false||product.sold_out){missing.push(old.product_name||'Item indisponível');continue}
+    const oldAddons=Array.isArray(old.order_item_addons)?old.order_item_addons:[];
+    const addons=[];
+    for(const oa of oldAddons){
+     const addon=data.addons.find(a=>String(a.id)===String(oa.addon_id))||data.addons.find(a=>String(a.name||'').trim().toLowerCase()===String(oa.addon_name||'').trim().toLowerCase());
+     if(addon&&addon.active!==false&&!addon.sold_out)addons.push(addon);
+    }
+    rebuilt.push({key:crypto.randomUUID(),product,addons,note:String(old.note||''),qty:Math.max(1,Number(old.quantity||old.qty||1))});
+   }
+   if(!rebuilt.length)throw new Error('Os itens do pedido anterior não estão disponíveis no cardápio agora.');
+   cart=rebuilt;updateCart();
+   localStorage.setItem('caseirao_last_tracking',JSON.stringify({tracking_code:code,phone}));
+   renderCart();
+   if(missing.length)setTimeout(()=>alert('Alguns itens indisponíveis não foram adicionados: '+missing.join(', ')),150);
+  }catch(e){alert(e.message||'Não foi possível repetir esse pedido agora.')}finally{if(btn){btn.disabled=false;btn.textContent='🔁 Pedir novamente'}}
+ };
+ ask();
+}
 function openPromos(){const list=data.products.filter(p=>p.active!==false&&Number(p.promo_price)>0);modal(`<div class="head promoHead"><div><h2>Promoções</h2><small>Ofertas especiais do Caseirão</small></div><button class="x" data-close>×</button></div><div class="promoList">${list.length?list.map(p=>`<article class="promoCard"><div class="promoPhoto">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy">`:'<span>Sem foto</span>'}</div><div class="promoInfo"><b class="promoName">${esc(p.name)}</b><div class="promoPrices"><span class="old">${money(p.price)}</span><strong>${money(p.promo_price)}</strong></div></div><button class="promoAdd" data-pa="${p.id}" ${p.sold_out?'disabled':''}>${p.sold_out?'Esgotado':'Adicionar'}</button></article>`).join(''):'<div class="notice">Nenhuma promoção de produto ativa agora.</div>'}</div>`);$$('[data-pa]').forEach(b=>b.onclick=()=>{if(!b.disabled)openProduct(b.dataset.pa)})}
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;$('#installBtn').classList.remove('hidden')});$('#installBtn').onclick=async()=>{if(deferredPrompt){deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;$('#installBtn').classList.add('hidden')}};
-$('#search').oninput=e=>{search=e.target.value;render()};$('#cartBtn').onclick=renderCart;$('#trackBtn').onclick=()=>openTracking();$('#loyaltyBtn').onclick=openLoyalty;$('#cashbackBtn').onclick=openCashback;$('#promoBtn').onclick=openPromos;
+$('#search').oninput=e=>{search=e.target.value;render()};$('#cartBtn').onclick=renderCart;$('#repeatBtn').onclick=repeatLastOrder;$('#trackBtn').onclick=()=>openTracking();$('#loyaltyBtn').onclick=openLoyalty;$('#cashbackBtn').onclick=openCashback;$('#promoBtn').onclick=openPromos;
 if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
 updateCart();loadCatalog();
 })();
