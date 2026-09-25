@@ -2,6 +2,8 @@
 
 Cardápio público e acompanhamento de pedidos do O Caseirão Burger.
 
+Versão visual: **Premium 3.0**.
+
 ## Estrutura ativa
 
 - `index.html`: entrada do cardápio.
