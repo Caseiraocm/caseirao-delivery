@@ -1127,3 +1127,11 @@ main{max-width:800px}
   .premiumLead{max-width:235px}
 }
 @media(prefers-reduced-motion:reduce){.premiumBite span{animation:none}.premiumWelcome h2{transition:none}}
+/* Horário automático da loja — America/Fortaleza */
+.automaticStoreNotice{display:flex;align-items:center;justify-content:center;gap:10px;padding:11px 16px;text-align:center;font-size:13px;line-height:1.25}
+.automaticStoreNotice b{font-weight:950}.automaticStoreNotice span{font-weight:700}
+.automaticStoreNotice.closingSoon{background:#fff0c7;border-block:1px solid #edc568;color:#664300}
+.automaticStoreNotice.closedNow{background:#ffe3df;border-block:1px solid #ed9c92;color:#791e15}
+.automaticStoreNotice.hidden{display:none!important}
+.automaticStoreClosed [data-add],.automaticStoreClosed [data-best],.automaticStoreClosed [data-pa]{filter:grayscale(.25);cursor:not-allowed}
+@media(max-width:480px){.automaticStoreNotice{align-items:flex-start;flex-direction:column;gap:2px;padding:10px 14px;text-align:left}}
