@@ -963,3 +963,42 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   .storeTickerViewport::-webkit-scrollbar{display:none}
   .storeTickerTrack{animation:none;padding-left:14px;padding-right:14px}
 }
+
+/* v3.0.2 — carrinho sempre acessível com muitos itens */
+.cart{
+  z-index:50;
+  isolation:isolate;
+}
+.sheet:has(.cartSheet){
+  overflow:hidden;
+}
+.cartSheet{
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+  max-height:calc(94dvh - 44px);
+}
+.cartLines{
+  flex:1 1 auto;
+  min-height:0;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  padding-right:2px;
+  scrollbar-gutter:stable;
+}
+.cartSummaryTop,
+.cartTotals,
+.cartCheckout{
+  flex:0 0 auto;
+}
+.cartCheckout{
+  position:relative;
+  z-index:2;
+  margin-top:12px!important;
+  box-shadow:0 12px 28px rgba(0,0,0,.32)!important;
+}
+@media(max-width:520px){
+  .cartSheet{max-height:calc(94dvh - 36px)}
+  .cartLines{padding-bottom:4px}
+}
