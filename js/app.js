@@ -175,7 +175,16 @@ function repeatLastOrder(){
 function openPromos(){const list=data.products.filter(p=>p.active!==false&&Number(p.promo_price)>0);modal(`<div class="head promoHead"><div><h2>Promoções</h2><small>Ofertas especiais do Caseirão</small></div><button class="x" data-close>×</button></div><div class="promoList">${list.length?list.map(p=>`<article class="promoCard"><div class="promoPhoto">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy">`:'<span>Sem foto</span>'}</div><div class="promoInfo"><b class="promoName">${esc(p.name)}</b><div class="promoPrices"><span class="old">${money(p.price)}</span><strong>${money(p.promo_price)}</strong></div></div><button class="promoAdd" data-pa="${p.id}" ${p.sold_out?'disabled':''}>${p.sold_out?'Esgotado':'Adicionar'}</button></article>`).join(''):'<div class="notice">Nenhuma promoção de produto ativa agora.</div>'}</div>`);$$('[data-pa]').forEach(b=>b.onclick=()=>{if(!b.disabled)openProduct(b.dataset.pa)})}
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;$('#installBtn').classList.remove('hidden')});$('#installBtn').onclick=async()=>{if(deferredPrompt){deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;$('#installBtn').classList.add('hidden')}};
 $('#search').oninput=e=>{search=e.target.value;render()};$('#cartBtn').onclick=renderCart;$('#repeatBtn').onclick=repeatLastOrder;$('#trackBtn').onclick=()=>openTracking();$('#loyaltyBtn').onclick=openLoyalty;$('#cashbackBtn').onclick=openCashback;$('#promoBtn').onclick=openPromos;
-const premiumGreeting=$('#premiumGreeting');if(premiumGreeting){const hour=new Date().getHours();premiumGreeting.textContent=`${hour<12?'Bom dia':hour<18?'Boa tarde':'Boa noite'}, seja bem-vindo`}
+const premiumOffers=[
+ {title:'Bateu a fome?',accent:'Vem de Caseirão.',support:'Escolha seu favorito e peça em poucos cliques.'},
+ {title:'Seu lanche favorito',accent:'está logo aqui.',support:'Monte do seu jeito. A gente prepara com capricho.'},
+ {title:'Hoje combina com',accent:'hambúrguer artesanal.',support:'Peça pelo sistema e acompanhe tudo pelo celular.'},
+ {title:'Mais sabor.',accent:'Menos espera.',support:'Escolha, personalize e envie seu pedido agora.'}
+];
+let premiumOfferIndex=0,premiumOfferTimer=null;
+const drawPremiumOffer=()=>{const line=$('#premiumOfferLine'),support=$('#premiumOfferSupport'),offer=premiumOffers[premiumOfferIndex];if(!line||!support)return;line.classList.add('isChanging');setTimeout(()=>{line.innerHTML=`<span>${offer.title}</span><em>${offer.accent}</em>`;support.textContent=offer.support;line.classList.remove('isChanging')},180)};
+if(!matchMedia('(prefers-reduced-motion: reduce)').matches)premiumOfferTimer=setInterval(()=>{premiumOfferIndex=(premiumOfferIndex+1)%premiumOffers.length;drawPremiumOffer()},3800);
+$('#premiumMenuCta')?.addEventListener('click',()=>{const best=$('#bestSection');const target=best&&!best.classList.contains('hidden')?best:$('#products');target?.scrollIntoView({behavior:'smooth',block:'start'})});
 const premiumReveal=()=>{$$('#products .card,.bestCard').forEach((el,index)=>{if(el.dataset.premiumReveal)return;el.dataset.premiumReveal='1';el.style.setProperty('--reveal-delay',`${Math.min(index,7)*45}ms`);el.classList.add('premiumReveal')})};
 const premiumObserver=new MutationObserver(premiumReveal);premiumObserver.observe($('#products'),{childList:true});premiumObserver.observe($('#bestTrack'),{childList:true});
 if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
