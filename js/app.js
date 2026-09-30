@@ -33,13 +33,18 @@ function fortalezaMinutes(now=new Date()){
  return hour*60+minute;
 }
 function timeToMinutes(value){const [hour,minute]=String(value||'00:00').split(':').map(Number);return hour*60+minute}
+const MANUAL_OPEN_MARK='[[MANUAL_OPEN]]';
+function manualOpenEnabled(settings=data.settings||{}){return String(settings.status_text||'').startsWith(MANUAL_OPEN_MARK)}
+function publicStatusText(settings=data.settings||{}){return String(settings.status_text||'Aberto').replace(MANUAL_OPEN_MARK,'').trim()||'Aberto'}
 function automaticStoreState(manualOpen=!!data.settings?.store_open,now=new Date()){
- const current=fortalezaMinutes(now),opening=timeToMinutes(STORE_OPEN_TIME),closing=timeToMinutes(STORE_CLOSE_TIME);
+ const settings=data.settings||{},openTime=String(settings.open_time||STORE_OPEN_TIME).slice(0,5),closeTime=String(settings.close_time||STORE_CLOSE_TIME).slice(0,5);
+ const current=fortalezaMinutes(now),opening=timeToMinutes(openTime),closing=timeToMinutes(closeTime);
  const inWindow=opening<closing?current>=opening&&current<closing:current>=opening||current<closing;
  const untilClose=(closing-current+1440)%1440;
  if(!manualOpen)return {open:false,warning:false,reason:'manual',message:'Loja fechada no momento'};
- if(!inWindow)return {open:false,warning:false,reason:'schedule',message:`Loja fechada. Abriremos às ${STORE_OPEN_TIME.replace(':','h')}.`};
- if(untilClose>0&&untilClose<=STORE_WARNING_MINUTES)return {open:true,warning:true,reason:'schedule',message:`Fecharemos em breve. Faça seu pedido até ${STORE_CLOSE_TIME.replace(':','h')}.`};
+ if(manualOpenEnabled(settings))return {open:true,warning:false,reason:'manual-override',message:'Loja aberta manualmente pelo ADM'};
+ if(!inWindow)return {open:false,warning:false,reason:'schedule',message:`Loja fechada. Abriremos às ${openTime.replace(':','h')}.`};
+ if(untilClose>0&&untilClose<=STORE_WARNING_MINUTES)return {open:true,warning:true,reason:'schedule',message:`Fecharemos em breve. Faça seu pedido até ${closeTime.replace(':','h')}.`};
  return {open:true,warning:false,reason:'schedule',message:''};
 }
 function ordersOpen(){return automaticStoreState().open}
@@ -84,7 +89,7 @@ function renderBestSellers(){
  },3500);
 }
 
-function render(){const s=data.settings||{},clock=automaticStoreState(!!s.store_open),open=clock.open;$('#storeName').textContent=s.store_name||'O Caseirão Burger';$('#storeStatus').textContent=open?(clock.warning?'Fecharemos às 23h30':(s.status_text||'Aberto')):'Fechado no momento';$('#storeStatus').className=open?'open':'closed';drawAutomaticStoreNotice(clock);document.body.classList.toggle('automaticStoreClosed',!open);renderBanner();renderBestSellers();const catPriority=n=>{const x=String(n||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();if(x.includes('hamburg'))return 0;if(x.includes('combo'))return 1;if(x.includes('bebida'))return 2;if(x.includes('suco'))return 3;if(x.includes('batata'))return 99;return 10};
+function render(){const s=data.settings||{},clock=automaticStoreState(!!s.store_open),open=clock.open;$('#storeName').textContent=s.store_name||'O Caseirão Burger';$('#storeStatus').textContent=open?(clock.warning?`Fecharemos às ${String(s.close_time||STORE_CLOSE_TIME).slice(0,5).replace(':','h')}`:(clock.reason==='manual-override'?'Aberto manualmente':publicStatusText(s))):'Fechado no momento';$('#storeStatus').className=open?'open':'closed';drawAutomaticStoreNotice(clock);document.body.classList.toggle('automaticStoreClosed',!open);renderBanner();renderBestSellers();const catPriority=n=>{const x=String(n||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();if(x.includes('hamburg'))return 0;if(x.includes('combo'))return 1;if(x.includes('bebida'))return 2;if(x.includes('suco'))return 3;if(x.includes('batata'))return 99;return 10};
 const realCats=[...new Set(data.products.filter(p=>p.active!==false).map(p=>p.category||'Outros'))];
 realCats.sort((a,b)=>catPriority(a)-catPriority(b));
 const cats=['Todos',...realCats];
