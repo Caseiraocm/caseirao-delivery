@@ -25,7 +25,7 @@ function drawAutomaticStoreNotice(state=automaticStoreState()){
  notice.classList.toggle('hidden',state.open&&!state.warning);
  notice.classList.toggle('closingSoon',state.warning);
  notice.classList.toggle('closedNow',!state.open);
- notice.innerHTML=state.warning?`<span class="automaticStoreIcon" aria-hidden="true">⏰</span><span class="automaticStoreCopy"><b>Fecharemos em breve</b><small>Faça seu pedido até ${STORE_CLOSE_TIME.replace(':','h')}.</small></span>`:`<span class="automaticStoreIcon" aria-hidden="true">🌙</span><span class="automaticStoreCopy"><b>Pedidos encerrados por hoje</b><small>Abrimos novamente às ${STORE_OPEN_TIME.replace(':','h')}.</small></span>`;
+ notice.innerHTML=state.warning?`<span class="automaticStoreIcon" aria-hidden="true">⏰</span><span class="automaticStoreCopy"><b>Fecharemos em breve</b><small>Faça seu pedido até ${STORE_CLOSE_TIME.replace(':','h')}.</small></span>`:`<span class="automaticStoreCopy"><b>Loja fechada. Abriremos às 18h00.</b></span>`;
 }
 function showClosedMessage(){const state=automaticStoreState();modal(`<div class="head"><h2>Loja fechada</h2><button class="x" data-close>×</button></div><div class="notice"><b>Não estamos recebendo novos pedidos agora.</b><br>${esc(state.message)}</div><div class="operationHint">Seu carrinho continuará salvo para você pedir quando a loja abrir.</div>`)}
 try{cart=JSON.parse(localStorage.getItem('caseirao_v2_cart')||'[]')}catch{cart=[]}
