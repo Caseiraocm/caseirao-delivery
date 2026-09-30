@@ -4,6 +4,29 @@ const money=v=>Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'B
 let data={settings:{},products:[],neighborhoods:[],addons:[],product_addons:[],coupons:[]},cart=[],cat='__START__',search='',orderType='delivery',coupon=null,cashback=0,deferredPrompt=null,slideTimer=null;
 const STORE_TIME_ZONE='America/Fortaleza',STORE_OPEN_TIME='18:00',STORE_CLOSE_TIME='23:30',STORE_WARNING_MINUTES=30;
 let catalogLoaded=false,lastAutomaticStoreState='';
+let categorySpyFrame=0,lastVisualCategory='';
+function setVisualCategory(name){
+ const menu=$('#cats');if(!menu)return;
+ const buttons=[...menu.querySelectorAll('[data-cat]')],active=buttons.find(button=>button.dataset.cat===name)||buttons.find(button=>button.dataset.cat==='Todos');
+ if(!active)return;
+ buttons.forEach(button=>button.classList.toggle('on',button===active));
+ if(lastVisualCategory===active.dataset.cat)return;
+ lastVisualCategory=active.dataset.cat;
+ const left=active.offsetLeft-(menu.clientWidth-active.offsetWidth)/2;
+ menu.scrollTo({left:Math.max(0,left),behavior:'smooth'});
+}
+function updateCategoryScrollSpy(){
+ categorySpyFrame=0;
+ if(cat!=='Todos'||search.trim()){setVisualCategory(cat);return}
+ const products=$('#products'),cards=products?[...products.querySelectorAll('.card[data-product-category]')]:[];
+ if(!products||!cards.length){setVisualCategory('Todos');return}
+ const menu=$('#cats'),line=Math.max((menu?.getBoundingClientRect().bottom||0)+18,window.innerHeight*.32);
+ if(products.getBoundingClientRect().top>line){setVisualCategory('Todos');return}
+ let current=cards[0].dataset.productCategory||'Todos';
+ for(const card of cards){if(card.getBoundingClientRect().top<=line)current=card.dataset.productCategory||current;else break}
+ setVisualCategory(current);
+}
+function scheduleCategoryScrollSpy(){if(!categorySpyFrame)categorySpyFrame=requestAnimationFrame(updateCategoryScrollSpy)}
 function fortalezaMinutes(now=new Date()){
  const parts=new Intl.DateTimeFormat('en-GB',{timeZone:STORE_TIME_ZONE,hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(now);
  const hour=Number(parts.find(x=>x.type==='hour')?.value||0),minute=Number(parts.find(x=>x.type==='minute')?.value||0);
@@ -25,7 +48,7 @@ function drawAutomaticStoreNotice(state=automaticStoreState()){
  notice.classList.toggle('hidden',state.open&&!state.warning);
  notice.classList.toggle('closingSoon',state.warning);
  notice.classList.toggle('closedNow',!state.open);
- notice.innerHTML=state.warning?`<span class="automaticStoreIcon" aria-hidden="true">⏰</span><span class="automaticStoreCopy"><b>Fecharemos em breve</b><small>Faça seu pedido até ${STORE_CLOSE_TIME.replace(':','h')}.</small></span>`:`<span class="automaticStoreCopy"><b>Loja fechada. Abriremos às 18h00.</b></span>`;
+ notice.innerHTML=state.warning?`<span class="automaticStoreIcon" aria-hidden="true">⏰</span><span class="automaticStoreCopy"><b>Fecharemos em breve</b><small>Faça seu pedido até ${STORE_CLOSE_TIME.replace(':','h')}.</small></span>`:`<span class="automaticStoreIcon" aria-hidden="true">🌙</span><span class="automaticStoreCopy"><b>Pedidos encerrados por hoje</b><small>Abrimos novamente às ${STORE_OPEN_TIME.replace(':','h')}.</small></span>`;
 }
 function showClosedMessage(){const state=automaticStoreState();modal(`<div class="head"><h2>Loja fechada</h2><button class="x" data-close>×</button></div><div class="notice"><b>Não estamos recebendo novos pedidos agora.</b><br>${esc(state.message)}</div><div class="operationHint">Seu carrinho continuará salvo para você pedir quando a loja abrir.</div>`)}
 try{cart=JSON.parse(localStorage.getItem('caseirao_v2_cart')||'[]')}catch{cart=[]}
@@ -65,7 +88,7 @@ function render(){const s=data.settings||{},clock=automaticStoreState(!!s.store_
 const realCats=[...new Set(data.products.filter(p=>p.active!==false).map(p=>p.category||'Outros'))];
 realCats.sort((a,b)=>catPriority(a)-catPriority(b));
 const cats=['Todos',...realCats];
-if(cat==='__START__'){cat=realCats.find(c=>catPriority(c)===0)||'Todos';}$('#cats').innerHTML=cats.map(c=>`<button class="chip ${c===cat?'on':''}" data-cat="${esc(c)}">${esc(c)}</button>`).join('');$$('[data-cat]').forEach(b=>b.onclick=()=>{cat=b.dataset.cat;render()});const q=search.trim().toLowerCase(),list=data.products.filter(p=>p.active!==false&&(cat==='Todos'||(p.category||'Outros')===cat)&&(!q||(p.name+' '+(p.description||'')).toLowerCase().includes(q)));$('#products').innerHTML=list.length?list.map(p=>`<article class="card"><div class="pic">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy">`:'SEM FOTO'}</div><div class="body"><div class="name">${esc(p.name)}</div>${Number(p.promo_price)>0?'<span class="promo">PROMO</span>':''}<div class="desc">${esc(p.description||'')}</div><div class="price">${Number(p.promo_price)>0?`<span class="old">${money(p.price)}</span>`:''}${money(price(p))}</div><button class="primary" data-add="${p.id}" ${p.sold_out||!open?'disabled':''}>${p.sold_out?'Esgotado':open?'Adicionar':'Loja fechada'}</button></div></article>`).join(''):'<div class="empty">Nenhum produto encontrado.</div>';$$('[data-add]').forEach(b=>b.onclick=()=>openProduct(b.dataset.add));updateCart()}
+if(cat==='__START__')cat='Todos';$('#cats').innerHTML=cats.map(c=>`<button class="chip ${c===cat?'on':''}" data-cat="${esc(c)}">${esc(c)}</button>`).join('');$$('[data-cat]').forEach(b=>b.onclick=()=>{cat=b.dataset.cat;lastVisualCategory='';render();if(cat==='Todos')requestAnimationFrame(updateCategoryScrollSpy)});const q=search.trim().toLowerCase(),list=data.products.filter(p=>p.active!==false&&(cat==='Todos'||(p.category||'Outros')===cat)&&(!q||(p.name+' '+(p.description||'')).toLowerCase().includes(q)));$('#products').innerHTML=list.length?list.map(p=>`<article class="card" data-product-category="${esc(p.category||'Outros')}"><div class="pic">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy">`:'SEM FOTO'}</div><div class="body"><div class="name">${esc(p.name)}</div>${Number(p.promo_price)>0?'<span class="promo">PROMO</span>':''}<div class="desc">${esc(p.description||'')}</div><div class="price">${Number(p.promo_price)>0?`<span class="old">${money(p.price)}</span>`:''}${money(price(p))}</div><button class="primary" data-add="${p.id}" ${p.sold_out||!open?'disabled':''}>${p.sold_out?'Esgotado':open?'Adicionar':'Loja fechada'}</button></div></article>`).join(''):'<div class="empty">Nenhum produto encontrado.</div>';$$('[data-add]').forEach(b=>b.onclick=()=>openProduct(b.dataset.add));updateCart();requestAnimationFrame(updateCategoryScrollSpy)}
 function allowed(p){const ids=new Set(data.product_addons.filter(x=>String(x.product_id)===String(p.id)).map(x=>String(x.addon_id)));return data.addons.filter(a=>a.active!==false&&!a.sold_out&&ids.has(String(a.id)))}
 function openProduct(id){if(!ordersOpen())return showClosedMessage();const p=data.products.find(x=>String(x.id)===String(id));if(!p)return;const adds=allowed(p);let itemQty=1;modal(`<div class="productDetail">
 <div class="productHero">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}">`:'<div class="productNoPhoto">Sem foto</div>'}<button class="productClose" data-close aria-label="Fechar">×</button></div>
@@ -211,6 +234,7 @@ const premiumOffers=[
 let premiumOfferIndex=0,premiumOfferTimer=null;
 const drawPremiumOffer=()=>{const line=$('#premiumOfferLine'),support=$('#premiumOfferSupport'),offer=premiumOffers[premiumOfferIndex];if(!line||!support)return;line.classList.add('isChanging');setTimeout(()=>{line.innerHTML=`<span>${offer.title}</span><em>${offer.accent}</em>`;support.textContent=offer.support;line.classList.remove('isChanging')},180)};
 if(!matchMedia('(prefers-reduced-motion: reduce)').matches)premiumOfferTimer=setInterval(()=>{premiumOfferIndex=(premiumOfferIndex+1)%premiumOffers.length;drawPremiumOffer()},3800);
+addEventListener('scroll',scheduleCategoryScrollSpy,{passive:true});addEventListener('resize',scheduleCategoryScrollSpy,{passive:true});
 $('#premiumMenuCta')?.addEventListener('click',()=>{const best=$('#bestSection');const target=best&&!best.classList.contains('hidden')?best:$('#products');target?.scrollIntoView({behavior:'smooth',block:'start'})});
 const premiumReveal=()=>{$$('#products .card,.bestCard').forEach((el,index)=>{if(el.dataset.premiumReveal)return;el.dataset.premiumReveal='1';el.style.setProperty('--reveal-delay',`${Math.min(index,7)*45}ms`);el.classList.add('premiumReveal')})};
 const premiumObserver=new MutationObserver(premiumReveal);premiumObserver.observe($('#products'),{childList:true});premiumObserver.observe($('#bestTrack'),{childList:true});
