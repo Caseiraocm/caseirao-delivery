@@ -1002,3 +1002,92 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   .cartSheet{max-height:calc(94dvh - 36px)}
   .cartLines{padding-bottom:4px}
 }
+
+/* =========================================================
+   v4.0.0 — CASEIRÃO BLACK GOLD EXPERIENCE
+   Upgrade visual premium sem alterar regras do pedido.
+   ========================================================= */
+:root{
+  --lux-gold:#f7bd2a;
+  --lux-gold-2:#ffd96a;
+  --lux-ink:#07080a;
+  --lux-card:#131419;
+  --lux-line:rgba(255,255,255,.09);
+}
+html{scroll-behavior:smooth;background:var(--lux-ink)}
+body{background:
+  radial-gradient(circle at 15% 5%,rgba(247,189,42,.11),transparent 24rem),
+  radial-gradient(circle at 95% 32%,rgba(247,189,42,.055),transparent 28rem),
+  linear-gradient(180deg,#090a0d 0%,#060709 55%,#0a0b0e 100%);
+  background-attachment:fixed;
+}
+body:after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.24;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.13'/%3E%3C/svg%3E")}
+.top{background:linear-gradient(180deg,rgba(9,10,13,.97),rgba(9,10,13,.89));border-bottom:1px solid rgba(247,189,42,.16);box-shadow:0 16px 50px #0009;-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px)}
+.brandMark{border:1px solid #ffe79b66;box-shadow:0 0 0 5px rgba(247,189,42,.055),0 14px 32px rgba(247,189,42,.21),inset 0 1px 0 #fff8}
+.brandEyebrow{letter-spacing:2px}.ghost{background:rgba(255,255,255,.035);box-shadow:inset 0 1px 0 #ffffff0d}
+main{max-width:800px}
+.premiumWelcome{position:relative;min-height:286px;margin:2px 0 20px;padding:32px 30px;overflow:hidden;display:flex;align-items:center;border:1px solid rgba(247,189,42,.22);border-radius:30px;background:linear-gradient(135deg,rgba(28,29,34,.98),rgba(11,12,15,.99) 72%);box-shadow:0 28px 75px #000a,inset 0 1px 0 rgba(255,255,255,.07)}
+.premiumWelcome:before{content:"";position:absolute;width:410px;height:410px;right:-205px;top:-205px;border:1px solid rgba(247,189,42,.14);border-radius:50%;box-shadow:0 0 0 46px rgba(247,189,42,.025),0 0 0 92px rgba(247,189,42,.018)}
+.premiumWelcome:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 0 42%,rgba(255,255,255,.035) 49%,transparent 56%);transform:translateX(-100%);animation:premiumSweep 8s ease-in-out infinite}
+.premiumGlow{position:absolute;width:270px;height:270px;right:-35px;bottom:-135px;border-radius:50%;background:var(--lux-gold);filter:blur(90px);opacity:.12}
+.premiumWelcomeContent{position:relative;z-index:2;max-width:570px}
+.premiumKicker{display:inline-flex;align-items:center;gap:8px;color:var(--lux-gold);font-size:9px;font-weight:1000;letter-spacing:2.5px}
+.premiumKicker:before{content:"";width:28px;height:1px;background:linear-gradient(90deg,var(--lux-gold),transparent)}
+.premiumGreeting{margin:15px 0 3px;color:#a7a8ae;font-size:12px;font-weight:700}
+.premiumWelcome h2{margin:0;color:#fff;font-size:clamp(38px,7vw,60px);line-height:.93;letter-spacing:-2.8px;font-weight:1000;text-wrap:balance}
+.premiumWelcome h2 em{font-style:normal;color:transparent;background:linear-gradient(115deg,var(--lux-gold),#ffe793 50%,#e69c00);-webkit-background-clip:text;background-clip:text;text-shadow:0 12px 45px rgba(247,189,42,.11)}
+.premiumLead{max-width:470px;margin:17px 0 20px;color:#a7a8ad;font-size:14px;line-height:1.55}
+.premiumTrust{display:flex;flex-wrap:wrap;gap:9px}
+.premiumTrust span{display:flex;align-items:center;gap:7px;padding:8px 10px;border:1px solid rgba(255,255,255,.08);border-radius:11px;background:rgba(255,255,255,.035);color:#d7d7da;font-size:10px;font-weight:800;box-shadow:inset 0 1px 0 rgba(255,255,255,.035)}
+.premiumTrust i{display:grid;place-items:center;width:18px;height:18px;border-radius:6px;background:rgba(247,189,42,.13);color:var(--lux-gold);font-style:normal;font-size:10px}
+.premiumSeal{position:absolute;z-index:2;right:27px;top:28px;width:82px;height:82px;border:1px solid rgba(247,189,42,.42);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;transform:rotate(7deg);box-shadow:0 0 0 5px rgba(247,189,42,.035),inset 0 0 28px rgba(247,189,42,.06)}
+.premiumSeal:before,.premiumSeal:after{content:"★";position:absolute;color:var(--lux-gold);font-size:7px;top:36px}.premiumSeal:before{left:7px}.premiumSeal:after{right:7px}
+.premiumSeal span{color:#a8a8ad;font-size:7px;font-weight:900;letter-spacing:1.2px}.premiumSeal b{color:var(--lux-gold);font-size:10px;letter-spacing:.5px}.premiumSeal small{font-size:7px;color:#86878c;margin-top:2px}
+.banner{border:1px solid rgba(247,189,42,.19);box-shadow:0 24px 70px #000a}.banner img{filter:saturate(1.06) contrast(1.03)}
+.bestHead{margin-top:9px}.bestHead b{font-size:24px;letter-spacing:-.7px}.bestHead span{background:linear-gradient(135deg,var(--lux-gold),var(--lux-gold-2));color:#121212;box-shadow:0 9px 28px rgba(247,189,42,.17)}
+.bestCard{border-color:rgba(247,189,42,.16);background:linear-gradient(145deg,#191a1f,#101115);box-shadow:0 24px 55px #0008;isolation:isolate}
+.bestPic{position:relative}.bestPic:after{content:"MAIS PEDIDO";position:absolute;left:10px;top:10px;padding:6px 8px;border-radius:8px;background:rgba(8,9,11,.86);border:1px solid rgba(247,189,42,.2);color:var(--lux-gold);font-size:7px;font-weight:1000;letter-spacing:1px;backdrop-filter:blur(8px)}
+.bestPrice{color:var(--lux-gold-2)!important}.bestAdd{background:linear-gradient(135deg,var(--lux-gold),var(--lux-gold-2));color:#111;box-shadow:0 9px 25px rgba(247,189,42,.16)}
+.quick button{position:relative;overflow:hidden;border-radius:14px;background:linear-gradient(180deg,#1b1c21,#121317);box-shadow:0 10px 28px #0005,inset 0 1px 0 #ffffff0a}
+.quick button:active{transform:translateY(1px);border-color:rgba(247,189,42,.35)}
+.searchShell .search{height:62px;border-radius:20px;box-shadow:0 16px 42px #0006,inset 0 1px 0 #ffffff08}
+#cats{padding-bottom:15px}.chip{border-radius:13px;font-weight:850}.chip.on{color:#111;background:linear-gradient(135deg,var(--lux-gold),var(--lux-gold-2));box-shadow:0 10px 28px rgba(247,189,42,.2)}
+.menuHeading{margin-top:18px}.menuHeading h2{font-size:30px;letter-spacing:-1.1px}.menuHeading small{letter-spacing:2.2px}.menuHeading>span{padding:7px 10px;border:1px solid var(--lux-line);border-radius:10px;background:#ffffff05}
+#products{gap:14px}
+#products .card{position:relative;min-height:190px;border-color:rgba(255,255,255,.095);border-radius:25px;background:linear-gradient(145deg,#18191e,#101115);box-shadow:0 24px 58px #0009,inset 0 1px 0 #ffffff0b;isolation:isolate}
+#products .card:before{content:"";position:absolute;z-index:3;left:42%;top:16px;bottom:16px;width:1px;background:linear-gradient(transparent,rgba(247,189,42,.18),transparent);pointer-events:none}
+#products .card .pic{min-height:190px}.card .pic:before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,transparent 55%,rgba(11,12,15,.58) 100%),linear-gradient(0deg,rgba(0,0,0,.14),transparent 45%);pointer-events:none}
+#products .card .pic img{filter:saturate(1.12) contrast(1.055);transform:scale(1.002)}
+#products .card .body{padding:17px 18px 17px 19px;background:radial-gradient(circle at 100% 0,rgba(247,189,42,.045),transparent 45%)}
+#products .card .name{font-size:20px;letter-spacing:-.55px;color:#fff}
+#products .card .desc{margin:7px 0;color:#98999f;line-height:1.38}
+#products .card .price{font-size:23px;color:var(--lux-gold-2);letter-spacing:-.45px}
+#products .card .primary{position:relative;overflow:hidden;min-height:49px;border-radius:14px;background:linear-gradient(135deg,var(--lux-gold),var(--lux-gold-2));color:#111;font-weight:950;box-shadow:0 12px 28px rgba(247,189,42,.16),inset 0 1px 0 #fff8}
+#products .card .primary:after{content:"";position:absolute;top:-80%;left:-35%;width:24%;height:260%;background:rgba(255,255,255,.35);transform:rotate(20deg);transition:left .45s ease}
+#products .card .primary:active:after{left:120%}
+.cart{border:1px solid rgba(247,189,42,.35);background:linear-gradient(145deg,rgba(28,29,34,.98),rgba(11,12,15,.99));box-shadow:0 25px 75px #000d,0 0 0 5px rgba(247,189,42,.035),inset 0 1px 0 #ffffff16}
+#cartLabel::before{background:linear-gradient(135deg,rgba(247,189,42,.20),rgba(247,189,42,.07));box-shadow:inset 0 0 0 1px rgba(247,189,42,.16)}
+#cartTotal{background:linear-gradient(135deg,var(--lux-gold),var(--lux-gold-2));box-shadow:0 8px 24px rgba(247,189,42,.2)}
+.premiumReveal{animation:premiumReveal .5s cubic-bezier(.2,.8,.2,1) both;animation-delay:var(--reveal-delay,0ms)}
+@keyframes premiumReveal{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes premiumSweep{0%,62%{transform:translateX(-110%)}85%,100%{transform:translateX(120%)}}
+@media(hover:hover){#products .card:hover{transform:translateY(-5px);border-color:rgba(247,189,42,.3);box-shadow:0 32px 75px #000c,0 0 0 1px rgba(247,189,42,.05)}}
+@media(max-width:520px){
+  main{padding-left:12px;padding-right:12px}
+  .premiumWelcome{min-height:270px;padding:28px 20px;border-radius:25px;margin-top:0}
+  .premiumWelcome h2{font-size:41px;letter-spacing:-2.15px;max-width:310px}
+  .premiumGreeting{margin-top:12px}.premiumLead{max-width:290px;margin:14px 0 17px;font-size:12.5px}
+  .premiumTrust{gap:6px}.premiumTrust span{padding:7px 8px;font-size:9px}.premiumTrust span:last-child{display:none}
+  .premiumSeal{width:67px;height:67px;right:16px;top:18px}.premiumSeal:before,.premiumSeal:after{top:29px}.premiumSeal b{font-size:8px}
+  .bestHead b{font-size:22px}.menuHeading h2{font-size:27px}
+  #products .card{min-height:182px;grid-template-columns:42% minmax(0,1fr);border-radius:22px}
+  #products .card:before{left:42%}#products .card .pic{min-height:182px}
+  #products .card .body{padding:14px 13px 14px 14px}#products .card .name{font-size:18px}#products .card .price{font-size:21px}
+  #products .card .primary{min-height:46px}
+}
+@media(max-width:370px){
+  .premiumWelcome h2{font-size:36px}.premiumSeal{opacity:.62}
+  .premiumTrust span:nth-child(2){display:none}
+  #products .card{grid-template-columns:39% minmax(0,1fr)}#products .card:before{left:39%}
+}
+@media(prefers-reduced-motion:reduce){.premiumWelcome:after,.premiumReveal{animation:none!important}}
