@@ -60,7 +60,20 @@ function showClosedMessage(){const state=automaticStoreState();modal(`<div class
 try{cart=JSON.parse(localStorage.getItem('caseirao_v2_cart')||'[]')}catch{cart=[]}
 const saveCart=()=>{try{localStorage.setItem('caseirao_v2_cart',JSON.stringify(cart))}catch{}};
 async function api(slug,opts={}){const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),12000);try{const r=await fetch(FN+slug,{cache:'no-store',...opts,signal:ctl.signal});let j={};try{j=await r.json()}catch{}if(!r.ok||j.error)throw new Error(j.error||j.detail||`Erro ${r.status}`);return j}catch(e){if(e.name==='AbortError')throw new Error('Servidor demorou para responder. Tente novamente.');throw e}finally{clearTimeout(timer)}}
-const post=(slug,body)=>api(slug,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+function normalizeCouponResult(result,body={}){
+ const response=result&&typeof result==='object'?result:{},details=response.coupon&&typeof response.coupon==='object'?response.coupon:response;
+ const catalogCoupon=(data.coupons||[]).find(item=>String(item.code||'').trim().toUpperCase()===String(body.code||'').trim().toUpperCase())||{};
+ const source={...catalogCoupon,...details},type=String(source.type||source.discount_type||'').toLowerCase(),value=Number(source.value??source.discount_value??source.percent??source.percentage??0);
+ let discount=Number(response.discount??response.discount_amount??response.coupon_discount??details.discount??details.discount_amount??0);
+ let deliveryDiscount=Number(response.delivery_discount??response.delivery_discount_amount??details.delivery_discount??details.delivery_discount_amount??0);
+ if(!discount&&!deliveryDiscount){
+  if(type==='percent'||type==='percentage')discount=Number(body.subtotal||0)*value/100;
+  else if(type==='fixed'||type==='value'||type==='amount')discount=Math.min(Number(body.subtotal||0),value);
+  else if(type==='free_delivery')deliveryDiscount=Number(body.delivery_fee||0);
+ }
+ return {...response,...source,code:String(response.code||source.code||body.code||'').trim().toUpperCase(),discount:moneyValue(Math.max(0,discount)),delivery_discount:moneyValue(Math.max(0,deliveryDiscount))};
+}
+const post=async(slug,body)=>{const result=await api(slug,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});return slug==='validate-coupon'?normalizeCouponResult(result,body):result};
 const price=p=>Number(p.promo_price)>0?Number(p.promo_price):Number(p.price||0), count=()=>cart.reduce((s,x)=>s+x.qty,0), subtotal=()=>cart.reduce((s,x)=>s+(price(x.product)+x.addons.reduce((a,b)=>a+Number(b.price||0),0))*x.qty,0);
 function updateCart(){saveCart();$('#cartLabel').textContent=`Carrinho • ${count()} ${count()===1?'item':'itens'}`;$('#cartTotal').textContent=money(subtotal())}
 function modal(html){$('#modal').innerHTML=`<div class="overlay"><section class="sheet">${html}</section></div>`;$('.overlay').onclick=e=>{if(e.target.classList.contains('overlay'))closeModal()};$$('[data-close]').forEach(x=>x.onclick=closeModal)}
