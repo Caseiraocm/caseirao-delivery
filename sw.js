@@ -1,5 +1,5 @@
-const CACHE='caseirao-delivery-final-v4.2.1-cupom';
-const APP_SHELL=['./','./index.html','./manifest.webmanifest','./icon.svg','./css/app.css','./js/app.js'];
+const CACHE='caseirao-delivery-professional-v1';
+const APP_SHELL=['./','./index.html','./manifest.webmanifest','./icon.svg','./css/app.css','./css/professional.css','./js/app.js'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(APP_SHELL)));self.skipWaiting()});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',event=>{
