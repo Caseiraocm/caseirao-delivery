@@ -842,6 +842,23 @@ main{max-width:780px;padding:14px}
   text-shadow:none!important;
 }
 
+/* Os campos do rastreamento ficam sobre um painel claro. A regra global do
+   tema escuro usa texto branco em .in; sobrescrevemos somente estes campos. */
+#trackCode,
+#trackPhone{
+  background:#fff!important;
+  color:#171717!important;
+  -webkit-text-fill-color:#171717!important;
+  caret-color:#171717!important;
+  opacity:1!important;
+}
+#trackCode::placeholder,
+#trackPhone::placeholder{
+  color:#777!important;
+  -webkit-text-fill-color:#777!important;
+  opacity:1!important;
+}
+
 /* =========================================================
    v3.0.0 — CASEIRÃO SIGNATURE
    Direção visual premium. Preserva cards, slides e produto.
