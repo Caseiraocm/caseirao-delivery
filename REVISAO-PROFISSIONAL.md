@@ -1,5 +1,12 @@
 # Revisão profissional
 
+## Tema preto e horário — v4.3.0
+
+- Fundo preto restaurado em toda a área do cliente.
+- Topo, destaques, atalhos, busca, categorias e produtos padronizados no tema preto e dourado.
+- Aviso de loja fechada é removido imediatamente quando a abertura manual está ativa.
+- Cache atualizado para impedir que o celular continue exibindo o visual claro anterior.
+
 ## Correções aplicadas
 
 - Remoção de CSS e JavaScript antigos que não eram utilizados pelo `index.html`.
