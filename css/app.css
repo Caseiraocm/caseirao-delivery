@@ -1136,3 +1136,29 @@ main{max-width:800px}
 .automaticStoreNotice.hidden{display:none!important}
 .automaticStoreClosed [data-add],.automaticStoreClosed [data-best],.automaticStoreClosed [data-pa]{filter:grayscale(.25);cursor:not-allowed}
 @media(max-width:480px){.automaticStoreNotice{width:calc(100% - 24px);margin-top:12px;padding:11px 12px;border-radius:14px}.automaticStoreIcon{flex-basis:38px;width:38px;height:38px;border-radius:11px;font-size:18px}.automaticStoreCopy b{font-size:13px}.automaticStoreCopy small{font-size:11px}}
+
+/* v4.3.0 — identidade preta definitiva e organização visual */
+:root{color-scheme:dark}
+html,body{background:#07080a!important;color:#f4f4f5!important}
+body{background:
+  radial-gradient(circle at 14% 0,rgba(247,189,42,.10),transparent 25rem),
+  radial-gradient(circle at 100% 32%,rgba(247,189,42,.045),transparent 30rem),
+  linear-gradient(180deg,#090a0d 0%,#060709 55%,#090a0c 100%)!important}
+.top{background:linear-gradient(180deg,rgba(8,9,11,.99),rgba(12,13,16,.97))!important;border-bottom:1px solid rgba(247,189,42,.18)!important;box-shadow:0 12px 38px rgba(0,0,0,.58)!important}
+.brandEyebrow{color:#d8aa35!important}.top h1{color:#fff!important}.top .ghost{background:#15161a!important;color:#fff!important;border-color:rgba(247,189,42,.32)!important}
+.storeTicker{background:#111216!important;color:#ececef!important;border-color:rgba(247,189,42,.18)!important}.storeTicker i{color:#f7bd2a!important}
+main{background:transparent!important}.premiumWelcome{background:linear-gradient(135deg,#1a1b20,#0b0c0f 72%)!important}
+.best{padding:15px!important;border:1px solid rgba(247,189,42,.15)!important;border-radius:22px!important;background:linear-gradient(145deg,#141519,#0c0d10)!important;box-shadow:0 18px 48px rgba(0,0,0,.48)!important}
+.bestHead b{color:#fff!important}.bestHead small{color:#a9abb1!important}
+.bestCard{background:linear-gradient(145deg,#191a1f,#101115)!important;border-color:rgba(247,189,42,.18)!important}.bestName{color:#fff!important}.bestMeta{color:#9da0a8!important}
+.quick{background:transparent!important}.quick button{background:linear-gradient(180deg,#1b1c21,#121317)!important;color:#f2f2f3!important;border-color:rgba(255,255,255,.10)!important}
+.searchShell{background:transparent!important}.searchShell .search{background:linear-gradient(180deg,#17181d,#111216)!important;color:#fff!important;border-color:rgba(247,189,42,.22)!important}.searchShell .search::placeholder{color:#92959d!important;opacity:1}
+#cats{background:#0b0c0f!important;border:1px solid rgba(247,189,42,.14)!important;border-radius:18px!important;padding:10px!important}
+.chip{background:#17181c!important;color:#d9dadd!important;border:1px solid rgba(255,255,255,.10)!important}.chip.on{background:linear-gradient(135deg,#f4b91e,#ffd965)!important;color:#111!important;border-color:#f7bd2a!important}
+.menuHeading small{color:#d7a92f!important}.menuHeading h2{color:#fff!important}.menuHeading>span{color:#b1b3b9!important}
+#products .card{background:linear-gradient(145deg,#18191e,#101115)!important;border-color:rgba(255,255,255,.10)!important}#products .card .body{background:radial-gradient(circle at 100% 0,rgba(247,189,42,.05),transparent 45%)!important}
+#products .card .name{color:#fff!important}#products .card .desc{color:#a6a8ae!important}#products .card .price{color:#ffd45a!important}
+.cart{background:linear-gradient(145deg,#1c1d22,#0b0c0f)!important;border-color:rgba(247,189,42,.38)!important}
+.automaticStoreNotice{background:linear-gradient(135deg,#171512,#0e0f11)!important;color:#fff!important}
+body:not(.automaticStoreClosed) #automaticStoreNotice.hidden{display:none!important}
+@media(max-width:520px){.best{padding:11px!important;border-radius:19px!important}#cats{padding:9px!important;border-radius:16px!important}.top{background:#090a0d!important}}
