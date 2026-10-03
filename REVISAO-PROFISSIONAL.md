@@ -7,6 +7,13 @@
 - Aviso de loja fechada é removido imediatamente quando a abertura manual está ativa.
 - Cache atualizado para impedir que o celular continue exibindo o visual claro anterior.
 
+## Checkout guiado — v4.4.0
+
+- Fluxo reorganizado em dados, recebimento, endereço, pagamento e conferência.
+- Entrega, retirada e consumo no local agora aparecem como opções destacadas.
+- Pix, dinheiro e cartão foram transformados em cartões de seleção legíveis.
+- Campos de endereço, descontos, observações e resumo receberam contraste reforçado.
+
 ## Correções aplicadas
 
 - Remoção de CSS e JavaScript antigos que não eram utilizados pelo `index.html`.
