@@ -1,4 +1,4 @@
-const CACHE='caseirao-delivery-final-v4.4.0-checkout-guiado';
+const CACHE='caseirao-delivery-final-v4.4.1-checkout-claro';
 const APP_SHELL=['./','./index.html','./manifest.webmanifest','./icon.svg','./css/app.css','./js/app.js'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(APP_SHELL)));self.skipWaiting()});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()))});

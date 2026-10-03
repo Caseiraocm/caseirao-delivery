@@ -13,6 +13,7 @@
 - Entrega, retirada e consumo no local agora aparecem como opções destacadas.
 - Pix, dinheiro e cartão foram transformados em cartões de seleção legíveis.
 - Campos de endereço, descontos, observações e resumo receberam contraste reforçado.
+- Ajuste v4.4.1: checkout devolvido ao fundo branco, com texto escuro e detalhes dourados.
 
 ## Correções aplicadas
 
