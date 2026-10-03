@@ -42,7 +42,7 @@ function automaticStoreState(manualOpen=!!data.settings?.store_open,now=new Date
  const inWindow=opening<closing?current>=opening&&current<closing:current>=opening||current<closing;
  const untilClose=(closing-current+1440)%1440;
  if(!manualOpen)return {open:false,warning:false,reason:'manual',message:'Loja fechada no momento'};
- if(manualOpenEnabled(settings))return {open:true,warning:false,reason:'manual-override',message:'Loja aberta manualmente pelo ADM'};
+ if(manualOpenEnabled(settings)||settings.schedule_enabled===false)return {open:true,warning:false,reason:'manual-override',message:'Loja aberta manualmente pelo ADM'};
  if(!inWindow)return {open:false,warning:false,reason:'schedule',message:`Loja fechada. Abriremos às ${openTime.replace(':','h')}.`};
  if(untilClose>0&&untilClose<=STORE_WARNING_MINUTES)return {open:true,warning:true,reason:'schedule',message:`Fecharemos em breve. Faça seu pedido até ${closeTime.replace(':','h')}.`};
  return {open:true,warning:false,reason:'schedule',message:''};
@@ -51,6 +51,7 @@ function ordersOpen(){return automaticStoreState().open}
 function drawAutomaticStoreNotice(state=automaticStoreState()){
   const notice=$('#automaticStoreNotice');if(!notice)return;
   const settings=data.settings||{},openTime=String(settings.open_time||STORE_OPEN_TIME).slice(0,5),closeTime=String(settings.close_time||STORE_CLOSE_TIME).slice(0,5);
+ if(state.open&&!state.warning){notice.className='automaticStoreNotice hidden';notice.replaceChildren();return}
  notice.classList.toggle('hidden',state.open&&!state.warning);
  notice.classList.toggle('closingSoon',state.warning);
  notice.classList.toggle('closedNow',!state.open);
