@@ -1,6 +1,6 @@
 'use strict';
 
-const CACHE = 'caseirao-delivery-runtime-auto-v45';
+const CACHE = 'caseirao-delivery-runtime-auto-v46';
 const APP_SHELL = ['./','./index.html','./manifest.webmanifest','./icon.svg','./css/app.css','./js/app.js'];
 
 function normalizedCacheKey(request) {
