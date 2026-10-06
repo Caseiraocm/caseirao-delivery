@@ -1217,3 +1217,11 @@ body:not(.automaticStoreClosed) #automaticStoreNotice.hidden{display:none!import
 .bestPrice .old{font-size:11px;margin-right:6px;color:#858892;text-decoration:line-through;font-weight:650}
 .bestTrack{overscroll-behavior-x:contain;touch-action:pan-x pan-y}
 @media (prefers-reduced-motion: reduce){.bestTrack{scroll-behavior:auto}.bestDots i{transition:none}}
+
+
+/* Código de acompanhamento: sempre visível após finalizar o pedido */
+.trackingCodeCard{margin:12px 0;padding:16px;border:2px solid #171717;border-radius:16px;background:#fff;text-align:center;box-shadow:0 4px 14px #00000012}
+.trackingCodeCard span{display:block;font-size:12px;font-weight:850;text-transform:uppercase;letter-spacing:.05em;color:#555}
+.trackingCodeCard strong{display:block;margin:7px 0 10px;font-size:25px;line-height:1.1;letter-spacing:.08em;color:#111;word-break:break-word}
+.trackingCodeCard .secondary{margin:0 0 9px;background:#171717;color:#fff}
+.trackingCodeCard small{display:block;color:#666;line-height:1.35}
