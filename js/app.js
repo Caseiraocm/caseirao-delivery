@@ -84,24 +84,30 @@ function renderBanner(){const s=data.settings||{},bn=$('#banner'),b=parseBanner(
 async function loadCatalog(){try{data=await api('catalog');if(!Array.isArray(data.products))throw new Error('Resposta do catálogo inválida.');catalogLoaded=true;render()}catch(e){$('#storeStatus').textContent='Erro ao carregar';$('#storeStatus').className='closed';$('#products').innerHTML=`<div class="empty"><b>Não foi possível carregar o cardápio.</b><div class="error">${esc(e.message)}</div><button class="primary" id="retry">Tentar novamente</button></div>`;$('#retry').onclick=loadCatalog}}
 
 function renderBestSellers(){
- const section=$('#bestSection'),track=$('#bestTrack'),cash=$('#bestCash');
+ const section=$('#bestSection'),track=$('#bestTrack'),cash=$('#bestCash'),title=$('#bestTitle'),subtitle=$('#bestSubtitle'),dots=$('#bestDots');
  if(!section||!track)return;
- const s=data.settings||{}, pct=Number(s.cashback_percent||0);
- const list=[...data.products].filter(p=>p.active!==false&&!p.sold_out&&Number(p.sold_qty||0)>0)
-   .sort((a,b)=>Number(b.sold_qty||0)-Number(a.sold_qty||0)).slice(0,6);
- if(!list.length){section.classList.add('hidden');return}
- cash.textContent=s.cashback_enabled&&pct>0?`+ ${pct}% cashback`:'Mais vendidos';
- track.innerHTML=list.map(p=>`<article class="bestCard"><div class="bestPic">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy">`:'SEM FOTO'}</div><div class="bestBody"><div class="bestName">${esc(p.name)}</div><div class="bestMeta">${Number(p.sold_qty||0)} pedidos registrados</div><div class="bestPrice">${money(price(p))}</div>${s.cashback_enabled&&pct>0?`<span class="cashTag">Ganhe cashback nesta compra</span>`:''}<button class="bestAdd" data-best="${p.id}">Adicionar</button></div></article>`).join('');
- $$('[data-best]').forEach(b=>b.onclick=()=>openProduct(b.dataset.best));
+ const settings=data.settings||{},pct=Number(settings.cashback_percent||0),open=ordersOpen();
+ const active=[...data.products].filter(p=>p.active!==false&&!p.sold_out);
+ const featured=active.filter(p=>p.featured===true).slice(0,8);
+ const fallback=active.filter(p=>Number(p.sold_qty||0)>0).sort((a,b)=>Number(b.sold_qty||0)-Number(a.sold_qty||0)).slice(0,6);
+ const usingFeatured=featured.length>0,list=usingFeatured?featured:fallback;
+ if(section._autoSlide){clearInterval(section._autoSlide);section._autoSlide=null}
+ if(!list.length){section.classList.add('hidden');if(dots)dots.innerHTML='';return}
+ if(title)title.textContent=usingFeatured?'⭐ Destaques do Caseirão':'🔥 Mais pedidos';
+ if(subtitle)subtitle.textContent=usingFeatured?'Escolhidos por nós para você':'Os queridinhos de quem pede no Caseirão';
+ if(cash)cash.textContent=settings.cashback_enabled&&pct>0?`+ ${pct}% cashback`:(usingFeatured?'Deslizando automaticamente':'Mais vendidos');
+ track.innerHTML=list.map(p=>`<article class="bestCard" data-featured="${usingFeatured?'1':'0'}"><div class="bestPic" data-label="${usingFeatured?'DESTAQUE':'MAIS PEDIDO'}">${p.image_url?`<img src="${esc(p.image_url)}" alt="${esc(p.name)}" loading="lazy">`:'SEM FOTO'}</div><div class="bestBody"><div class="bestName">${esc(p.name)}</div><div class="bestMeta">${usingFeatured?'Destaque do Caseirão':`${Number(p.sold_qty||0)} pedidos registrados`}</div><div class="bestPrice">${Number(p.promo_price)>0?`<span class="old">${money(p.price)}</span>`:''}${money(price(p))}</div>${settings.cashback_enabled&&pct>0?`<span class="cashTag">Ganhe cashback nesta compra</span>`:''}<button class="bestAdd" data-best="${p.id}" ${open?'':'disabled'}>${open?'Adicionar':'Loja fechada'}</button></div></article>`).join('');
+ $$('[data-best]').forEach(b=>b.onclick=()=>{if(!b.disabled)openProduct(b.dataset.best)});
  section.classList.remove('hidden');
- if(section._autoSlide)clearInterval(section._autoSlide);
- let index=0;
- section._autoSlide=setInterval(()=>{
-   const cards=[...track.querySelectorAll('.bestCard')];
-   if(cards.length<2)return;
-   index=(index+1)%cards.length;
-   track.scrollTo({left:cards[index].offsetLeft-track.offsetLeft,behavior:'smooth'});
- },3500);
+ const cards=[...track.querySelectorAll('.bestCard')];
+ let index=0,paused=false,scrollFrame=0;
+ const paintDots=()=>{if(!dots)return;dots.innerHTML=cards.length>1?cards.map((_,n)=>`<i class="${n===index?'on':''}"></i>`).join(''):''};
+ const gotoCard=n=>{if(cards.length<2)return;index=(n+cards.length)%cards.length;paintDots();track.scrollTo({left:Math.max(0,cards[index].offsetLeft-4),behavior:'smooth'})};
+ paintDots();
+ track.onscroll=()=>{if(scrollFrame)return;scrollFrame=requestAnimationFrame(()=>{scrollFrame=0;if(cards.length<2)return;const left=track.scrollLeft;let best=0,distance=Infinity;cards.forEach((card,n)=>{const d=Math.abs((card.offsetLeft-4)-left);if(d<distance){distance=d;best=n}});if(best!==index){index=best;paintDots()}})};
+ const pause=()=>{paused=true},resume=()=>{paused=false};
+ track.onpointerdown=pause;track.onpointerup=resume;track.onpointercancel=resume;track.onmouseenter=pause;track.onmouseleave=resume;
+ if(cards.length>1&&!matchMedia('(prefers-reduced-motion: reduce)').matches){section._autoSlide=setInterval(()=>{if(!paused&&document.visibilityState==='visible')gotoCard(index+1)},3200)}
 }
 
 function render(){const s=data.settings||{},clock=automaticStoreState(!!s.store_open),open=clock.open;$('#storeName').textContent=s.store_name||'O Caseirão Burger';$('#storeStatus').textContent=open?(clock.warning?`Fecharemos às ${String(s.close_time||STORE_CLOSE_TIME).slice(0,5).replace(':','h')}`:(clock.reason==='manual-override'?'Aberto manualmente':publicStatusText(s))):'Fechado no momento';$('#storeStatus').className=open?'open':'closed';drawAutomaticStoreNotice(clock);document.body.classList.toggle('automaticStoreClosed',!open);renderBanner();renderBestSellers();const catPriority=n=>{const x=String(n||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();if(x.includes('hamburg'))return 0;if(x.includes('combo'))return 1;if(x.includes('bebida'))return 2;if(x.includes('suco'))return 3;if(x.includes('batata'))return 99;return 10};
@@ -280,6 +286,11 @@ $('#premiumMenuCta')?.addEventListener('click',()=>{const best=$('#bestSection')
 const premiumReveal=()=>{$$('#products .card,.bestCard').forEach((el,index)=>{if(el.dataset.premiumReveal)return;el.dataset.premiumReveal='1';el.style.setProperty('--reveal-delay',`${Math.min(index,7)*45}ms`);el.classList.add('premiumReveal')})};
 const premiumObserver=new MutationObserver(premiumReveal);premiumObserver.observe($('#products'),{childList:true});premiumObserver.observe($('#bestTrack'),{childList:true});
 setInterval(()=>{if(!catalogLoaded)return;const next=JSON.stringify(automaticStoreState());if(next!==lastAutomaticStoreState){lastAutomaticStoreState=next;render()}else drawAutomaticStoreNotice()},15000);
-if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+if('serviceWorker'in navigator){
+ const updateDeliveryWorker=async()=>{try{const registration=await navigator.serviceWorker.register('./sw.js?v=20261006-destaques-v45',{updateViaCache:'none'});await registration.update();return registration}catch{return null}};
+ window.addEventListener('load',()=>{sessionStorage.removeItem('caseirao_delivery_sw_reloading');updateDeliveryWorker()});
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)updateDeliveryWorker()});
+ navigator.serviceWorker.addEventListener('controllerchange',()=>{const key='caseirao_delivery_sw_reloading';if(sessionStorage.getItem(key))return;sessionStorage.setItem(key,'1');location.reload()});
+}
 updateCart();premiumReveal();loadCatalog();
 })();
