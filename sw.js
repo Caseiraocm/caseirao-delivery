@@ -1,7 +1,7 @@
 'use strict';
 
-const CACHE = 'caseirao-delivery-signature-v50-20261019';
-const APP_SHELL = ['./','./index.html','./manifest.webmanifest','./icon.svg','./css/app.css','./css/caseirao-signature-5.css','./js/app.js'];
+const CACHE = 'caseirao-delivery-pix-v7-20261022';
+const APP_SHELL = ['./','./index.html','./manifest.webmanifest','./icon.svg','./css/app.css','./css/caseirao-signature-5.css','./css/caseirao-pix-warning-v7.css','./js/app.js'];
 
 function normalizedCacheKey(request) {
   const url = new URL(typeof request === 'string' ? request : request.url, self.location.href);
