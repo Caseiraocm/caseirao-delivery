@@ -1,0 +1,18 @@
+CASEIRÃO — CARDÁPIO MODERNO
+Versão para substituição manual dos arquivos no GitHub.
+
+COMO COLOCAR NO AR
+1. Extraia este ZIP.
+2. Coloque index.html, css/, js/ e os demais arquivos na raiz do repositório do cardápio, substituindo os anteriores. Não envie o ZIP fechado nem crie uma subpasta.
+3. Faça o commit e aguarde a publicação do GitHub Pages.
+4. Abra o site e atualize a página para receber o novo visual.
+
+O pacote não tem demonstrações, fotos de exemplo, bibliotecas de teste ou arquivos antigos sem uso. As fotos, produtos e configurações vêm do catálogo real. Mantidos o domínio, o backend e os contratos das APIs existentes.
+
+VERIFICAÇÃO
+Catálogo real consultado em 14/11/2026: respondeu HTTP 200 com 40 produtos e 28 bairros.
+Testes funcionais com rede simulada: busca, categorias, quantidade, adicionais, carrinho, alternância entrega/retirada/local com preservação do endereço, formas de pagamento, cupom, cashback, envio, confirmação Pix, acompanhamento, recuperação de Pix sem duplicar pedido e armazenamento antigo inválido.
+Validados sintaxe JavaScript, CSS e referências locais.
+
+LIMITES
+Não foram criados pedidos ou cobranças reais. Inspeção visual em navegador não concluída por restrição do ambiente. A integração Pix depende dos serviços de pagamento e do backend em funcionamento. A versão não foi publicada automaticamente.

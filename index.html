@@ -1,36 +1,30 @@
 <!doctype html><html lang="pt-BR"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#fffaf3"><meta name="description" content="O Caseirão Burger - pedidos online">
+<meta name="theme-color" content="#f5f6f8"><meta name="description" content="O Caseirão Burger - pedidos online">
 <title>O Caseirão Burger | Peça online</title><link rel="manifest" href="./manifest.webmanifest">
-<link rel="stylesheet" href="./css/app.css?v=5.0.0"><link rel="stylesheet" href="./css/caseirao-signature-5.css?v=5.0.0"><script defer src="./js/app.js?v=7.0.0"></script>
-<link rel="stylesheet" href="./css/caseirao-pix-warning-v7.css?v=20261022"></head><body>
+<script defer src="./js/app.js?v=20261114-final"></script>
+<link rel="stylesheet" href="./css/app.css?v=20261114-final"></head><body>
 <header class="top"><div class="brandLockup"><div class="brandMark" aria-hidden="true"><span>OC</span></div><div><small class="brandEyebrow">HAMBURGUERIA ARTESANAL</small><h1 id="storeName">O Caseirão Burger</h1><span id="storeStatus">Carregando cardápio…</span></div></div><button id="trackBtn" class="ghost" aria-label="Acompanhar meu pedido" title="Acompanhar pedido"><span aria-hidden="true">⌖</span> Acompanhar</button></header>
-<div class="storeTicker" role="region" aria-label="Localização e contato do Caseirão">
-  <div class="storeTickerViewport">
-    <div class="storeTickerTrack">
-      <span>📍 Av. Monsenhor Matheus, 340 – Flores</span><i aria-hidden="true">•</i><span>📞 (86) 99565-3888</span><i aria-hidden="true">•</i><span>O Caseirão Burger</span>
-    </div>
-  </div>
-</div>
+<div class="storeTicker" role="region" aria-label="Localização e contato"><div class="locationBar"><button type="button" id="storeLocationBtn" class="locationTrigger" aria-haspopup="dialog"><span aria-hidden="true">⌖</span><span><strong>Av. Monsenhor Matheus, 340 · Flores</strong><small>Campo Maior · Veja como chegar e fale com a gente</small></span><span class="locationArrow" aria-hidden="true">›</span></button><a class="contactLink" href="https://wa.me/5586995653888" target="_blank" rel="noopener">Falar no WhatsApp ↗</a></div></div>
 <section id="automaticStoreNotice" class="automaticStoreNotice hidden" role="status" aria-live="polite"></section>
 <main>
 <section class="premiumWelcome" aria-label="Boas-vindas ao Caseirão">
   <div class="premiumGlow" aria-hidden="true"></div>
   <div class="premiumWelcomeContent">
-    <span class="premiumKicker">SEU PEDIDO COMEÇA AQUI</span>
-    <h2 id="premiumOfferLine" aria-live="polite"><span>Bateu a fome?</span><em>Vem de Caseirão.</em></h2>
-    <p id="premiumOfferSupport" class="premiumLead">Escolha seu favorito e peça em poucos cliques.</p>
-    <button id="premiumMenuCta" class="premiumMenuCta" type="button"><span>Escolher meu lanche</span><b>↓</b></button>
+    <span class="premiumKicker">FEITO COM CAPRICHO. FEITO PRA VOCÊ.</span>
+    <h2 id="premiumOfferLine" aria-live="polite"><span>Seu favorito.</span><em>Do seu jeito.</em></h2>
+    <p id="premiumOfferSupport" class="premiumLead">Escolha, personalize e acompanhe. Do primeiro clique à última mordida.</p>
+    <button id="premiumMenuCta" class="premiumMenuCta" type="button"><span>Explorar cardápio</span><b>↓</b></button>
   </div>
-  <div class="welcomeMedia" id="welcomeMedia" aria-hidden="true"><span class="welcomeMediaFallback">FEITO NA<br>CHAPA</span></div>
+  <div class="welcomeMedia" id="welcomeMedia" aria-hidden="true"><span class="welcomeMediaFallback"><span class="burgerArt" aria-hidden="true"><i class="bunTop"></i><i class="lettuce"></i><i class="cheese"></i><i class="meat"></i><i class="bunBottom"></i></span></span></div>
 </section>
 <div class="signatureTrust" aria-label="Vantagens de pedir direto com o Caseirão"><span><b>✓</b> Feito na chapa</span><span><b>✓</b> Pedido direto com a gente</span><span><b>✓</b> Acompanhe pelo celular</span></div>
 <section id="banner" class="banner hidden"></section>
 <section id="bestSection" class="best hidden" aria-label="Destaques do cardápio"><div class="bestHead"><div><b id="bestTitle">⭐ Destaques do Caseirão</b><small id="bestSubtitle">Escolhidos para chamar sua atenção</small></div><span id="bestCash"></span></div><div id="bestTrack" class="bestTrack"></div><div id="bestDots" class="bestDots" aria-hidden="true"></div></section>
-<section class="quick"><button id="repeatBtn">🔁 Pedir novamente</button><button id="promoBtn">🔥 Promoções</button><button id="loyaltyBtn">🎁 Minha fidelidade</button><button id="cashbackBtn">💰 Cashback</button><button id="installBtn" class="hidden">⬇ Instalar</button></section>
-<div class="searchShell"><span aria-hidden="true">⌕</span><input id="search" class="search" placeholder="O que você quer pedir hoje?" autocomplete="off"></div><nav id="cats" class="cats" aria-label="Categorias do cardápio"></nav>
-<div class="menuHeading"><div><small>FEITO NA CHAPA</small><h2>Nosso cardápio</h2></div><span>Escolha o seu favorito</span></div>
+<section class="quick"><button id="repeatBtn"><span class="quickIcon" aria-hidden="true">↻</span><span>Pedir de novo</span></button><button id="promoBtn"><span class="quickIcon" aria-hidden="true">%</span><span>Promoções</span></button><button id="loyaltyBtn"><span class="quickIcon" aria-hidden="true">✧</span><span>Fidelidade</span></button><button id="cashbackBtn"><span class="quickIcon" aria-hidden="true">＋</span><span>Cashback</span></button><button id="installBtn" class="hidden">⬇ Instalar</button></section>
+<div class="searchShell"><span aria-hidden="true">⌕</span><input id="search" class="search" placeholder="Busque seu lanche favorito" aria-label="Buscar no cardápio" autocomplete="off"></div><nav id="cats" class="cats" aria-label="Categorias do cardápio"></nav>
+<div class="menuHeading"><div><small>ESCOLHA E PERSONALIZE</small><h2>O que vai ser hoje?</h2></div><span>Escolha o seu favorito</span></div>
 <section id="products" class="products"><div class="loading">Carregando produtos…</div></section>
-</main>
+<footer class="siteFooter"><a href="./privacidade.html">Privacidade</a></footer></main>
 <button id="cartBtn" class="cart"><span id="cartLabel">Carrinho • 0 itens</span><b id="cartTotal">R$ 0,00</b></button><div id="modal"></div>
 </body></html>

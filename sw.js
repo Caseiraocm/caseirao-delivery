@@ -1,7 +1,7 @@
 'use strict';
 
-const CACHE = 'caseirao-delivery-pix-v7-20261022';
-const APP_SHELL = ['./','./index.html','./manifest.webmanifest','./icon.svg','./css/app.css','./css/caseirao-signature-5.css','./css/caseirao-pix-warning-v7.css','./js/app.js'];
+const CACHE = 'caseirao-delivery-final-20261114';
+const APP_SHELL = ['./','./index.html','./manifest.webmanifest','./icon.svg','./css/app.css','./js/app.js','./privacidade.html'];
 
 function normalizedCacheKey(request) {
   const url = new URL(typeof request === 'string' ? request : request.url, self.location.href);
@@ -29,7 +29,7 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   event.waitUntil((async () => {
     const keys = await caches.keys();
-    await Promise.all(keys.filter(key => key !== CACHE && key.startsWith('caseirao-')).map(key => caches.delete(key)));
+    await Promise.all(keys.filter(key => key !== CACHE && key.startsWith('caseirao-delivery-')).map(key => caches.delete(key)));
     await self.clients.claim();
   })());
 });
