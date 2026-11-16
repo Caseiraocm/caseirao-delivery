@@ -1474,3 +1474,15 @@ main{max-width:1100px!important;padding:24px 22px 0!important;margin:0 auto!impo
 .sheet button:disabled{opacity:.65;cursor:not-allowed}
 
 .siteFooter{text-align:center;margin:28px 0 12px;font-size:12px}.siteFooter a{color:#646f7f;text-underline-offset:3px}
+
+/* Finalização: total e envio no final do formulário, sem sobrepor os campos. */
+.sheet.checkoutSheet{padding-bottom:calc(24px + env(safe-area-inset-bottom, 0px))!important}
+.sheet.checkoutSheet>.checkoutFooter{
+ position:static!important;inset:auto!important;z-index:auto!important;
+ transform:none!important;float:none!important;
+ display:grid!important;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)!important;
+ gap:12px!important;width:100%!important;max-width:100%!important;
+ box-sizing:border-box!important;margin:20px 0 0!important;
+ padding:16px 0 0!important;box-shadow:none!important;backdrop-filter:none!important;
+}
+.sheet.checkoutSheet>.checkoutFooter #send{min-width:0!important;width:100%!important;white-space:normal!important}
