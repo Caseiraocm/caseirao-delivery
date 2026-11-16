@@ -1,6 +1,6 @@
 'use strict';
 
-const CACHE = 'caseirao-delivery-checkout-20261116';
+const CACHE = 'caseirao-agendamentos-v1-delivery-checkout-20261116';
 const APP_SHELL = ['./','./index.html','./manifest.webmanifest','./icon.svg','./css/app.css','./js/app.js','./privacidade.html'];
 
 function normalizedCacheKey(request) {
