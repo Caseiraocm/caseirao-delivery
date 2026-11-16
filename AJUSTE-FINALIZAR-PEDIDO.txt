@@ -1,0 +1,12 @@
+AJUSTE DO CHECKOUT
+
+O total e o botão ficam no final do formulário, após os dados de entrega, pagamento e resumo. A barra acompanha a rolagem normal; não fica presa sobre os campos.
+Texto do botão: Enviar pedido.
+
+Atualização no GitHub:
+- index.html e sw.js: na pasta principal do cardápio.
+- app.js: dentro da pasta js.
+- app.css: dentro da pasta css.
+Este ZIP contém o cardápio completo. Mantenha a estrutura das pastas ao atualizar e reabra o cardápio após a publicação.
+
+Verificado em DOM: barra estática e no final; entrega, retirada e consumo local; preservação dos dados ao alternar; atualização do total com taxa; evento de envio e seleção de pagamento preservados. No JavaScript, somente o texto inicial do botão foi alterado. Nenhum pagamento ou pedido real foi enviado. Não foi possível testar visualmente no navegador do Instagram e com o teclado de um celular físico.
