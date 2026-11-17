@@ -1,0 +1,12 @@
+CASEIRÃO BURGER — CORREÇÃO DO CHECKOUT
+
+No repositório Caseiraocm/caseirao-delivery, substitua:
+- index.html
+- sw.js
+- js/app.js (mantenha a pasta js)
+
+Essa atualização é para o cardápio do cliente.
+Depois da publicação, feche e reabra o cardápio com internet.
+O envio consulta o estoque atualizado antes de registrar o pedido.
+
+A correção foi testada sem criar pedidos reais.
