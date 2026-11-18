@@ -8,3 +8,8 @@
 .caseiraoCardDialog [hidden], #caseiraoCardQuote[hidden] { display:none !important; }
 #caseiraoCardQuote { margin:8px 0; padding:10px 14px; border:1px solid #ebce73; border-radius:10px; background:#fff7da; color:#38301e; font-size:13px; }
 #caseiraoCardQuote p { margin:5px 0; }
+#caseiraoCardQuote h3 { margin:4px 0 10px; color:inherit; font-size:16px; }
+#caseiraoCardQuote dl { margin:0 0 8px; }
+#caseiraoCardQuote dl > div { display:flex; justify-content:space-between; align-items:baseline; gap:8px; padding:5px 0; }
+#caseiraoCardQuote dd { margin:0; font-weight:700; text-align:right; }
+#caseiraoCardQuote .caseiraoCardAmountTotal { margin:5px 0; padding:8px 0; border-top:1px solid #d8b876; border-bottom:1px solid #d8b876; font-size:16px; font-weight:800; }
