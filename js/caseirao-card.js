@@ -1,0 +1,141 @@
+(() => {
+  'use strict';
+  const marker = 'caseirao_card_session';
+  const currency = new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'});
+  const percent = new Intl.NumberFormat('pt-BR',{maximumFractionDigits:4});
+  const money = cents => currency.format(cents/100);
+  const due = value => value.split('-').reverse().join('/');
+  const tokenPattern = /^[a-f0-9]{64}$/;
+  let token = '';
+  try { token = sessionStorage.getItem(marker)||''; } catch {}
+  function remember(value){
+    token=value;
+    try { if(value)sessionStorage.setItem(marker,value); else sessionStorage.removeItem(marker); } catch {}
+  }
+  let openedByLink=false;
+  const fragment=location.hash.slice(1);
+  if(fragment.startsWith('cartao-caseirao=')){
+    const code=fragment.slice('cartao-caseirao='.length).trim().toLowerCase();
+    if(tokenPattern.test(code)){remember(code);openedByLink=true;}
+    history.replaceState(history.state,'',location.pathname+location.search);
+  }
+
+  async function showAccount(dialog){
+    const form=dialog.querySelector('form');
+    const content=dialog.querySelector('[data-account]');
+    const input=form.elements.namedItem('token');
+    const feedback=dialog.querySelector('[role="status"]');
+    async function load(code){
+      feedback.textContent='Consultando…';
+      try {
+        const result=await fetch('https://jhvtjhjzlljqfzdccrxc.supabase.co/functions/v1/caseirao-card',{
+          method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({action:'customer',payload:{token:code}})
+        });
+        if(!result.ok)throw new Error('Não foi possível abrir o cartão. Confira o código e tente novamente.');
+        const card=await result.json();
+        remember(code);
+        form.hidden=true;
+        dialog.querySelector('[data-card-signout]').hidden=false;
+        content.replaceChildren();
+        const heading=document.createElement('h3');
+        heading.textContent=card.name;
+        const info=document.createElement('p');
+        info.textContent=`Limite disponível ${money(card.available)} de ${money(card.credit_limit)}`;
+        content.append(heading,info);
+        if(!card.can_shop){
+          const blocked=document.createElement('p');
+          blocked.textContent='Cartão indisponível para novas compras. Consulte as faturas ou fale com a loja.';
+          content.append(blocked);
+        }
+        const settled=new Map(card.payments.map(item=>[item.id,item]));
+        const invoices=new Map();
+        for(const charge of card.charges){
+          const key=charge.payment_id||charge.due_date;
+          if(charge.cancelled_at)continue;
+          const entry=invoices.get(key)||{amount:0,due:charge.due_date,orders:[]};
+          entry.amount+=charge.principal+charge.interest;
+          entry.orders.push('#'+charge.order_number);
+          invoices.set(key,entry);
+        }
+        for(const [key,bill] of invoices){
+          const paid=settled.get(key);
+          const row=document.createElement('p');
+          const status=paid?'Paga':bill.due<card.today?'Vencida':'Em aberto';
+          row.textContent=`${status} · ${due(bill.due)} · ${money(paid?paid.amount:bill.amount)} · pedidos ${bill.orders.join(', ')}`;
+          content.append(row);
+        }
+        if(!invoices.size){
+          const empty=document.createElement('p');empty.textContent='Nenhuma fatura registrada.';content.append(empty);
+        }
+        const cancelled=card.charges.filter(charge=>charge.cancelled_at);
+        if(cancelled.length){
+          const item=document.createElement('p');item.textContent='Compras estornadas · '+cancelled.map(charge=>'#'+charge.order_number).join(', ');content.append(item);
+        }
+        feedback.textContent='Pague a fatura com o Caseirão em dinheiro, maquininha ou Pix. Consulte a loja para quitação antecipada.';
+      }catch(error){feedback.textContent=error.message;}
+    }
+    form.onsubmit=event=>{
+      event.preventDefault();
+      const code=input.value.trim().toLowerCase();
+      if(tokenPattern.test(code))load(code);
+      else feedback.textContent='Cole o código privado recebido do Caseirão.';
+    };
+    dialog.querySelector('[data-card-signout]').onclick=()=>{
+      remember('');
+      form.hidden=false;
+      dialog.querySelector('[data-card-signout]').hidden=true;
+      input.value='';
+      content.replaceChildren();
+      feedback.textContent='';
+      input.focus();
+    };
+    if(token)await load(token);
+  }
+
+  const dialog=document.createElement('dialog');
+  dialog.className='caseiraoCardDialog';
+  dialog.innerHTML=`<header><h2>Meu Cartão Caseirão</h2><button type="button" data-card-close aria-label="Fechar">×</button></header>
+    <form><label>Código privado do cartão<input required name="token" type="password" autocomplete="off" maxlength="64"></label><button class="primary">Acessar cartão</button></form>
+    <div data-account></div><p role="status"></p><button type="button" data-card-signout hidden>Sair do cartão</button>`;
+  document.body.append(dialog);
+  dialog.querySelector('[data-card-close]').onclick=()=>dialog.close();
+  const show=()=>{if(!dialog.open)dialog.showModal();showAccount(dialog);};
+  document.getElementById('caseiraoCardHome').onclick=show;
+  if(openedByLink)show();
+
+  function describe(quote,lookup){
+    const ratio=quote.total/quote.principal;
+    const monthly=(ratio**(30/quote.days)-1)*100;
+    const yearly=(ratio**(365/quote.days)-1)*100;
+    const panel=lookup('#caseiraoCardQuote');
+    panel.hidden=false;
+    panel.replaceChildren();
+    for(const line of [
+      `À vista ${money(quote.principal)} · Acréscimo ${money(quote.interest)}`,
+      `Total da compra a prazo ${money(quote.total)} · Vence em ${due(quote.due_date)}`,
+      `Limite após a compra ${money(quote.remaining)}`,
+      `Juros efetivos ${percent.format(monthly)}% ao mês · CET ${percent.format(yearly)}% ao ano`,
+      'Credor: O Caseirão Burger · Av. Monsenhor Mateus, 340, Campo Maior–PI · caseiraopedidos.api.br',
+      'Pagamento integral no vencimento. Antecipação reduz proporcionalmente o acréscimo. Em atraso, novas compras ficam bloqueadas.'
+    ]){
+      const row=document.createElement('p');row.textContent=line;panel.append(row);
+    }
+    lookup('#send').textContent='Confirmar compra no Cartão Caseirão';
+  }
+
+  window.caseiraoCard={
+    token:()=>token,
+    mount(lookup){
+      const payment=lookup('#payment');
+      const cardOption=[...payment.options].find(option=>option.value==='Cartão Caseirão');
+      cardOption.hidden=!token;
+      cardOption.disabled=!token;
+      payment.addEventListener('change',()=>{
+        lookup('#caseiraoCardQuote').hidden=true;
+        if(payment.value!=='Cartão Caseirão')lookup('#send').textContent='Enviar pedido';
+      });
+    },
+    describe
+  };
+})();
