@@ -53,8 +53,9 @@
         for(const charge of card.charges){
           const key=charge.payment_id||charge.due_date;
           if(charge.cancelled_at)continue;
-          const entry=invoices.get(key)||{amount:0,due:charge.due_date,orders:[]};
+          const entry=invoices.get(key)||{amount:0,principal:0,due:charge.due_date,orders:[]};
           entry.amount+=charge.principal+charge.interest;
+          entry.principal+=charge.principal;
           entry.orders.push('#'+charge.order_number);
           invoices.set(key,entry);
         }
@@ -62,7 +63,9 @@
           const paid=settled.get(key);
           const row=document.createElement('p');
           const status=paid?'Paga':bill.due<card.today?'Vencida':'Em aberto';
-          row.textContent=`${status} · ${due(bill.due)} · ${money(paid?paid.amount:bill.amount)} · pedidos ${bill.orders.join(', ')}`;
+          const total=paid?paid.amount:bill.amount;
+          const interest=Math.max(0,total-bill.principal);
+          row.textContent=`${status} · ${due(bill.due)} · ${money(total)} (juros ${money(interest)}) · pedidos ${bill.orders.join(', ')}`;
           content.append(row);
         }
         if(!invoices.size){
@@ -104,24 +107,44 @@
   document.getElementById('caseiraoCardHome').onclick=show;
   if(openedByLink)show();
 
-  function describe(quote,lookup){
+  function describe(quote,breakdown,panel){
     const ratio=quote.total/quote.principal;
     const monthly=(ratio**(30/quote.days)-1)*100;
     const yearly=(ratio**(365/quote.days)-1)*100;
-    const panel=lookup('#caseiraoCardQuote');
-    panel.hidden=false;
-    panel.replaceChildren();
-    for(const line of [
-      `À vista ${money(quote.principal)} · Acréscimo ${money(quote.interest)}`,
-      `Total da compra a prazo ${money(quote.total)} · Vence em ${due(quote.due_date)}`,
+    const heading=document.createElement('h3');
+    heading.textContent='Confira sua compra no Cartão Caseirão';
+    const amounts=document.createElement('dl');
+    function line(label,amount,emphasis=false){
+      const row=document.createElement('div');
+      if(emphasis)row.className='caseiraoCardAmountTotal';
+      const name=document.createElement('dt');
+      name.textContent=label;
+      const value=document.createElement('dd');
+      value.textContent=amount;
+      row.append(name,value);
+      amounts.append(row);
+    }
+    if(Number.isSafeInteger(breakdown?.products)){
+      line('Produtos',money(breakdown.products));
+      if(breakdown.delivery>0)line('Entrega',money(breakdown.delivery));
+      if(breakdown.discount>0)line('Descontos','− '+money(breakdown.discount));
+    }
+    line('Total à vista',money(quote.principal));
+    line(`Juros por ${quote.days} ${quote.days===1?'dia':'dias'}`,money(quote.interest));
+    line('Total a pagar na fatura',money(quote.total),true);
+    line('Vencimento',due(quote.due_date));
+    panel.replaceChildren(heading,amounts);
+    for(const text of [
       `Limite após a compra ${money(quote.remaining)}`,
       `Juros efetivos ${percent.format(monthly)}% ao mês · CET ${percent.format(yearly)}% ao ano`,
       'Credor: O Caseirão Burger · Av. Monsenhor Mateus, 340, Campo Maior–PI · caseiraopedidos.api.br',
-      'Pagamento integral no vencimento. Antecipação reduz proporcionalmente o acréscimo. Em atraso, novas compras ficam bloqueadas.'
+      'Pagamento integral no vencimento. Antecipação reduz proporcionalmente os juros. Em atraso, novas compras ficam bloqueadas.'
     ]){
-      const row=document.createElement('p');row.textContent=line;panel.append(row);
+      const row=document.createElement('p');
+      row.textContent=text;
+      panel.append(row);
     }
-    lookup('#send').textContent='Confirmar compra no Cartão Caseirão';
+    panel.hidden=false;
   }
 
   window.caseiraoCard={
@@ -131,10 +154,6 @@
       const cardOption=[...payment.options].find(option=>option.value==='Cartão Caseirão');
       cardOption.hidden=!token;
       cardOption.disabled=!token;
-      payment.addEventListener('change',()=>{
-        lookup('#caseiraoCardQuote').hidden=true;
-        if(payment.value!=='Cartão Caseirão')lookup('#send').textContent='Enviar pedido';
-      });
     },
     describe
   };
