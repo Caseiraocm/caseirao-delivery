@@ -144,7 +144,7 @@
   }
 
   const requestMessage='Olá! Tenho interesse no Cartão Caseirão. Como faço para solicitar uma análise?';
-  const whatsAppLink='https://wa.me/5586995653888?text='+encodeURIComponent(requestMessage);
+  const whatsAppLink='https://wa.me/5586988620979?text='+encodeURIComponent(requestMessage);
   const dialog=document.createElement('dialog');
   dialog.setAttribute('aria-labelledby','caseiraoCardHeading');
   dialog.className='caseiraoCardDialog';
@@ -220,3 +220,4 @@
     describe
   };
 })();
+
