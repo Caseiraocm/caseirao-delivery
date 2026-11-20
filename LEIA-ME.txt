@@ -1,4 +1,3 @@
-WhatsApp do Cartão Caseirão
+Cartão Caseirão — novo visual
 
-Substitua index.html, sw.js e js/caseirao-card.js no repositório caseirao-delivery.
-A alteração vale para o botão Solicitar análise pelo WhatsApp, em Meu Cartão Caseirão.
+Substitua os quatro arquivos deste ZIP no repositório caseirao-delivery, mantendo as pastas. Aguarde o GitHub Pages publicar e reabra o cardápio.
