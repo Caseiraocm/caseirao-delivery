@@ -23,6 +23,7 @@
   async function showAccount(dialog){
     const form=dialog.querySelector('form');
     const content=dialog.querySelector('[data-account]');
+    const pilotNotice=dialog.querySelector('[data-card-pilot-notice]');
     const input=form.elements.namedItem('token');
     const feedback=dialog.querySelector('[role="status"]');
     async function load(code){
@@ -36,6 +37,7 @@
         const card=await result.json();
         remember(code);
         form.hidden=true;
+        pilotNotice.hidden=true;
         dialog.querySelector('[data-card-signout]').hidden=false;
         content.replaceChildren();
         const heading=document.createElement('h3');
@@ -76,7 +78,10 @@
           const item=document.createElement('p');item.textContent='Compras estornadas · '+cancelled.map(charge=>'#'+charge.order_number).join(', ');content.append(item);
         }
         feedback.textContent='Pague a fatura com o Caseirão em dinheiro, maquininha ou Pix. Consulte a loja para quitação antecipada.';
-      }catch(error){feedback.textContent=error.message;}
+      }catch(error){
+        if(!form.hidden)pilotNotice.hidden=false;
+        feedback.textContent=error.message;
+      }
     }
     form.onsubmit=event=>{
       event.preventDefault();
@@ -87,6 +92,7 @@
     dialog.querySelector('[data-card-signout]').onclick=()=>{
       remember('');
       form.hidden=false;
+      pilotNotice.hidden=false;
       dialog.querySelector('[data-card-signout]').hidden=true;
       input.value='';
       content.replaceChildren();
@@ -96,9 +102,18 @@
     if(token)await load(token);
   }
 
+  const requestMessage='Olá! Tenho interesse no Cartão Caseirão. Como faço para solicitar uma análise?';
+  const whatsAppLink='https://wa.me/5586995653888?text='+encodeURIComponent(requestMessage);
   const dialog=document.createElement('dialog');
+  dialog.setAttribute('aria-labelledby','caseiraoCardHeading');
   dialog.className='caseiraoCardDialog';
-  dialog.innerHTML=`<header><h2>Meu Cartão Caseirão</h2><button type="button" data-card-close aria-label="Fechar">×</button></header>
+  dialog.innerHTML=`<header><h2 id="caseiraoCardHeading">Meu Cartão Caseirão</h2><button type="button" data-card-close aria-label="Fechar">×</button></header>
+    <section class="caseiraoCardPilotNotice" data-card-pilot-notice aria-labelledby="caseiraoCardPilotTitle">
+      <h3 id="caseiraoCardPilotTitle">Cartão em fase de adaptação</h3>
+      <p>Tem interesse no Cartão Caseirão? Fale com a gente pelo WhatsApp para solicitar o seu.</p>
+      <p><strong>Nesta fase, a liberação do cartão depende da análise e da aprovação da administração.</strong></p>
+      <a class="caseiraoCardContact" href="${whatsAppLink}" target="_blank" rel="noopener noreferrer">Solicitar análise pelo WhatsApp</a>
+    </section>
     <form><label>Código privado do cartão<input required name="token" type="password" autocomplete="off" maxlength="64"></label><button class="primary">Acessar cartão</button></form>
     <div data-account></div><p role="status"></p><button type="button" data-card-signout hidden>Sair do cartão</button>`;
   document.body.append(dialog);
