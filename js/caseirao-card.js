@@ -148,20 +148,35 @@
   const dialog=document.createElement('dialog');
   dialog.setAttribute('aria-labelledby','caseiraoCardHeading');
   dialog.className='caseiraoCardDialog';
-  dialog.innerHTML=`<header><h2 id="caseiraoCardHeading">Meu Cartão Caseirão</h2><button type="button" data-card-close aria-label="Fechar">×</button></header>
-    <section class="caseiraoCardPilotNotice" data-card-pilot-notice aria-labelledby="caseiraoCardPilotTitle">
-      <h3 id="caseiraoCardPilotTitle">Cartão em fase de adaptação</h3>
-      <p>Tem interesse no Cartão Caseirão? Fale com a gente pelo WhatsApp para solicitar o seu.</p>
-      <p><strong>Nesta fase, a liberação do cartão depende da análise e da aprovação da administração.</strong></p>
-      <a class="caseiraoCardContact" href="${whatsAppLink}" target="_blank" rel="noopener noreferrer">Solicitar análise pelo WhatsApp</a>
-    </section>
-    <form>
-      <label>WhatsApp cadastrado com DDD<input name="phone" type="tel" autocomplete="tel" maxlength="24" aria-describedby="caseiraoCardAccessHint"></label>
-      <label>Código privado do cartão<input required name="token" type="password" autocomplete="off" maxlength="64"></label>
-      <small id="caseiraoCardAccessHint">Para entrar com o código de 8 a 10 dígitos, informe seu WhatsApp.</small>
-      <button class="primary">Acessar cartão</button>
+  dialog.innerHTML=`<header class="caseiraoCardHeader">
+    <div class="caseiraoCardHeaderCopy">
+      <span class="caseiraoCardBrand">O Caseirão Burger</span>
+      <h2 id="caseiraoCardHeading">Meu Cartão Caseirão</h2>
+    </div>
+    <span class="caseiraoCardEmblem" aria-hidden="true"><i></i><b>CB</b></span>
+    <button type="button" class="caseiraoCardClose" data-card-close aria-label="Fechar">×</button>
+  </header>
+  <div class="caseiraoCardBody">
+    <form aria-labelledby="caseiraoCardAccessTitle">
+      <h3 id="caseiraoCardAccessTitle">Acesse seu cartão</h3>
+      <div class="caseiraoCardFields">
+        <label>WhatsApp com DDD<input name="phone" type="tel" autocomplete="tel" maxlength="24" placeholder="(86) 00000-0000" aria-describedby="caseiraoCardAccessHint"></label>
+        <label>Código privado<input required name="token" type="password" autocomplete="off" maxlength="64" aria-describedby="caseiraoCardAccessHint"></label>
+      </div>
+      <small id="caseiraoCardAccessHint">Use o WhatsApp cadastrado e o código de 8 a 10 dígitos recebido da loja.</small>
+      <button class="caseiraoCardAccess" type="submit">Acessar cartão <span aria-hidden="true">→</span></button>
     </form>
-    <div data-account></div><p role="status"></p><button type="button" data-card-signout hidden>Sair do cartão</button>`;
+    <div class="caseiraoCardAccount" data-account></div>
+    <p class="caseiraoCardFeedback" role="status"></p>
+    <button type="button" class="caseiraoCardSignout" data-card-signout hidden>Sair do cartão</button>
+    <section class="caseiraoCardPilotNotice" data-card-pilot-notice aria-labelledby="caseiraoCardPilotTitle">
+      <h3 id="caseiraoCardPilotTitle">Quer solicitar seu cartão?</h3>
+      <p>O Cartão Caseirão está em fase de adaptação. A liberação depende da análise e aprovação da administração.</p>
+      <a class="caseiraoCardContact" href="${whatsAppLink}" target="_blank" rel="noopener noreferrer">
+        Solicitar análise pelo WhatsApp <span aria-hidden="true">↗</span>
+      </a>
+    </section>
+  </div>`;
   document.body.append(dialog);
   dialog.querySelector('[data-card-close]').onclick=()=>dialog.close();
   const refreshAccount=setupAccount(dialog);
@@ -220,4 +235,5 @@
     describe
   };
 })();
+
 
