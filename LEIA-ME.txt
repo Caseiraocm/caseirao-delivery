@@ -1,5 +1,4 @@
-Correção do cardápio para celular
+WhatsApp do Cartão Caseirão
 
-Este ZIP substitui o pacote anterior de correção para celular.
-Publique index.html, sw.js, css/balcao-cardapio.css e js/app.js na raiz e nas respectivas pastas do repositório caseirao-delivery.
-Depois de o GitHub Pages concluir a publicação, reabra o cardápio.
+Substitua index.html, sw.js e js/caseirao-card.js no repositório caseirao-delivery.
+A alteração vale para o botão Solicitar análise pelo WhatsApp, em Meu Cartão Caseirão.

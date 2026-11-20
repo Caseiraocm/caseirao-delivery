@@ -1,6 +1,6 @@
 'use strict';
 
-const CACHE = 'caseirao-delivery-20261120-balcao-mobile-v3';
+const CACHE = 'caseirao-delivery-20261120-whatsapp-cartao-v1';
 const APP_SHELL = ['./css/balcao-carrossel.css','./css/balcao-cardapio.css','./js/balcao-carrossel.js','./js/combo-refrigerantes.js','./css/combo-refrigerantes.css','./','./index.html','./manifest.webmanifest','./icon.svg','./css/app.css','./js/app.js','./js/caseirao-card.js','./css/caseirao-card.css','./privacidade.html'];
 
 function normalizedCacheKey(request) {
@@ -56,3 +56,4 @@ self.addEventListener('fetch', event => {
     }
   })());
 });
+
