@@ -1,0 +1,225 @@
+/* Layout do cardápio. Os painéis de pedido e pagamento mantêm seus estilos. */
+html:has(body.cardapioBalcao) { scroll-padding-top: 78px; }
+body.cardapioBalcao {
+  --menu-petroleo: #092f30;
+  --menu-ambar: #ffc04e;
+  --menu-fundo: #fff;
+  --menu-borda: #e4e2da;
+  --menu-texto: #1e2523;
+  --menu-muted: #525f59;
+  background: var(--menu-fundo) !important;
+  color: var(--menu-texto) !important;
+  padding-bottom: 20px;
+}
+
+.cardapioBalcao .top {
+  position: sticky !important;
+  top: 0;
+  min-height: 63px !important;
+  padding: 7px max(15px, calc((100% - 1152px) / 2)) !important;
+  border-bottom: 2px solid var(--menu-ambar) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: var(--menu-petroleo) !important;
+}
+.cardapioBalcao .top .brandMark {
+  width: 39px !important;
+  height: 39px !important;
+  flex-basis: 39px !important;
+  border-radius: 10px !important;
+  background: var(--menu-ambar) !important;
+}
+.cardapioBalcao .top .brandMark span { color: #182721 !important; font-size: 16px !important; }
+.cardapioBalcao .top h1 { color: #fff !important; font-size: clamp(16px, 2.1vw, 23px) !important; line-height: 1.1 !important; }
+.cardapioBalcao .top #storeStatus { color: #e1ede6 !important; font-size: 11px !important; }
+.cardapioBalcao .top #storeStatus.open { color: #c3f2d4 !important; }
+.cardapioBalcao .top #storeStatus.closed { color: #ffd5b7 !important; }
+.cardapioBalcao .top .brandLockup > div:last-child { min-width: 0; }
+.balcaoHeaderActions { display: flex; align-items: center; gap: 9px; flex-shrink: 0; }
+.cardapioBalcao .top .ghost {
+  min-height: 44px !important;
+  padding: 6px 10px !important;
+  border-radius: 8px !important;
+  border-color: #ffffff51 !important;
+  background: transparent !important;
+  color: #fff !important;
+}
+.cardapioBalcao #cartBtn {
+  position: static !important;
+  inset: auto !important;
+  transform: none !important;
+  width: auto !important;
+  min-height: 44px !important;
+  margin: 0 !important;
+  padding: 5px 9px 5px 12px !important;
+  gap: 10px !important;
+  border-radius: 9px !important;
+  background: var(--menu-ambar) !important;
+  box-shadow: none !important;
+}
+.cardapioBalcao #cartLabel,
+.cardapioBalcao #cartTotal { color: #1c2c25 !important; font-size: 13px !important; }
+.cardapioBalcao #cartTotal { padding: 4px 7px !important; background: #092f3012 !important; }
+
+.cardapioBalcao .storeTicker { background: #fff !important; border-color: var(--menu-borda) !important; }
+.cardapioBalcao .locationBar { max-width: 1184px; padding: 0 16px !important; }
+.cardapioBalcao .locationTrigger { min-height: 44px; gap: 6px; }
+.cardapioBalcao .locationTrigger > span:first-child { color: #815314; font-size: 18px; }
+.cardapioBalcao .locationTrigger strong { font-size: 12px; }
+.cardapioBalcao .locationTrigger small { display: inline; }
+.cardapioBalcao .locationTrigger small::before { content: ' · '; }
+.cardapioBalcao .contactLink { min-height: 44px; display: inline-flex; align-items: center; white-space: nowrap; }
+
+.cardapioBalcao main { max-width: 1184px !important; padding: 12px 16px 0 !important; }
+.cardapioBalcao main { margin-inline: auto; }
+.cardapioBalcao .balcao-hero { margin: 0 0 8px; }
+.cardapioBalcao .quick {
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 9px !important;
+  margin: 0 0 25px !important;
+  padding: 0 !important;
+}
+.cardapioBalcao .quick button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row !important;
+  gap: 8px !important;
+  min-height: 46px !important;
+  padding: 6px 7px !important;
+  border: 1px solid #e5e3df !important;
+  border-radius: 10px !important;
+  background: #fff !important;
+  color: #242422 !important;
+  font-size: 12px !important;
+  box-shadow: none !important;
+}
+.cardapioBalcao .quick .hidden { display: none !important; }
+.cardapioBalcao .quick .quickIcon { color: #9a3825 !important; font-size: 19px !important; }
+.cardapioBalcao .balcaoCatalog {
+  display: grid;
+  grid-template-columns: minmax(145px, 17%) minmax(0, 1fr);
+  grid-template-areas: "cats search" "cats heading" "cats products";
+  grid-template-rows: auto auto 1fr;
+  gap: 13px 22px;
+  align-items: start;
+}
+.cardapioBalcao .searchShell { grid-area: search; margin: 0 !important; width: 100%; border: 1px solid #dedfda; border-radius: 11px; background: white; }
+.cardapioBalcao .searchShell .search { min-height: 44px; background: transparent; }
+.cardapioBalcao .cats {
+  grid-area: cats;
+  position: static !important;
+  display: flex !important;
+  flex-direction: column;
+  gap: 5px !important;
+  margin: 0 !important;
+  padding: 7px !important;
+  background: #fff !important;
+  border: 1px solid #e5e3df !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+}
+.cardapioBalcao .cats .chip {
+  min-height: 44px;
+  text-align: left;
+  padding: 6px 10px !important;
+  white-space: normal;
+  border: 1px solid transparent !important;
+  background: #fff !important;
+  color: #202522 !important;
+  box-shadow: none !important;
+}
+.cardapioBalcao .cats .chip.on { background: #983622 !important; color: white !important; }
+.cardapioBalcao .menuHeading { grid-area: heading; margin: 0 !important; }
+.cardapioBalcao .menuHeading h2 { margin: 0; color: #1f2322; font-size: clamp(23px, 3vw, 31px); letter-spacing: -.035em; }
+.cardapioBalcao .products {
+  grid-area: products;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 13px !important;
+  align-items: stretch;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.cardapioBalcao .products > :not(.card) { grid-column: 1 / -1; }
+.cardapioBalcao .products .card {
+  display: grid !important;
+  min-width: 0;
+  grid-template-columns: minmax(0, 47%) minmax(0, 1fr);
+  grid-template-rows: minmax(68px, 1fr) auto;
+  gap: 0 !important;
+  padding: 0 !important;
+  overflow: hidden;
+  border: 1px solid #e7e5e1 !important;
+  border-radius: 13px !important;
+  background: white !important;
+  box-shadow: 0 2px 9px #241b0b08 !important;
+}
+.cardapioBalcao .products .card .pic { grid-row: span 2; height: auto !important; min-height: 158px; width: 100% !important; aspect-ratio: auto !important; border-radius: 0 !important; position: relative; overflow: hidden; }
+.cardapioBalcao .products .card .pic img { position: absolute; inset: 0; width: 100% !important; height: 100% !important; object-fit: cover !important; }
+.cardapioBalcao .products .card .body { display: block !important; min-width: 0; padding: 9px 10px 4px !important; }
+.cardapioBalcao .products .card .name { color: #202321 !important; font-size: clamp(13px, 1.55vw, 19px) !important; font-weight: 800; overflow-wrap: anywhere; }
+.cardapioBalcao .products .card .desc {
+  color: #5b5c59 !important;
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+  margin-top: 4px;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.cardapioBalcao .products .cardBottom { display: flex !important; flex-direction: column; align-items: stretch !important; gap: 5px !important; padding: 2px 10px 9px !important; margin: 0 !important; }
+.cardapioBalcao .products .price { color: #202321 !important; font-size: clamp(15px, 1.7vw, 22px) !important; line-height: 1.1; }
+.cardapioBalcao .products .cardBottom button {
+  min-height: 44px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  padding: 4px !important;
+  border: 1px solid #b15139 !important;
+  border-radius: 8px !important;
+  background: white !important;
+  color: #912f1b !important;
+  font-size: 12px !important;
+  box-shadow: none !important;
+}
+.cardapioBalcao .products .cardBottom button:disabled { opacity: .55; }
+.cardapioBalcao #bestSection { margin-top: 24px; }
+@media (min-width: 701px) and (max-width: 900px) {
+  .cardapioBalcao .balcaoCatalog { grid-template-columns: 125px minmax(0, 1fr); gap: 11px 13px; }
+  .cardapioBalcao .products .card { grid-template-columns: minmax(0, 40%) minmax(0, 1fr); }
+}
+@media (max-width: 700px) {
+  html:has(body.cardapioBalcao) { scroll-padding-top: 72px; }
+  body.cardapioBalcao { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+  .cardapioBalcao .top { padding-inline: 12px !important; z-index: 20; }
+  .cardapioBalcao main { padding-inline: 12px !important; }
+  .cardapioBalcao .top .brandLockup { gap: 7px !important; min-width: 0; }
+  .cardapioBalcao .top .brandMark { width: 34px !important; height: 34px !important; flex-basis: 34px !important; }
+  .cardapioBalcao .top .ghost { font-size: 11px !important; }
+  .cardapioBalcao .locationBar { padding-inline: 12px !important; }
+  .cardapioBalcao .locationTrigger small, .cardapioBalcao .contactLink { display: none !important; }
+  .cardapioBalcao .quick { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px !important; margin-bottom: 17px !important; }
+  .cardapioBalcao .quick button { grid-column: span 2; gap: 4px !important; font-size: 11px !important; }
+  .cardapioBalcao .quick button:nth-child(4), .cardapioBalcao .quick button:nth-child(5) { grid-column: span 3; }
+  .cardapioBalcao .balcaoCatalog { grid-template-columns: minmax(0, 1fr); grid-template-areas: "search" "cats" "heading" "products"; gap: 10px; }
+  .cardapioBalcao .cats { flex-direction: row; padding: 0 0 3px !important; overflow-x: auto; border: 0 !important; }
+  .cardapioBalcao .cats .chip { flex: 0 0 auto; border-color: #e6e3df !important; }
+  .cardapioBalcao .cats .chip.on { background: #0b302b !important; }
+  .cardapioBalcao .products { gap: 9px !important; }
+  .cardapioBalcao .products .card { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr auto; }
+  .cardapioBalcao .products .card .pic { grid-row: auto; min-height: 0; aspect-ratio: 1.65 !important; }
+  .cardapioBalcao .products .card .body, .cardapioBalcao .products .cardBottom { padding-inline: 8px !important; }
+  .cardapioBalcao #cartBtn {
+    position: fixed !important;
+    inset: auto 12px calc(8px + env(safe-area-inset-bottom)) !important;
+    z-index: 22;
+    min-height: 48px !important;
+    justify-content: space-between;
+    background: #983622 !important;
+    box-shadow: 0 4px 18px #43170642 !important;
+  }
+  .cardapioBalcao #cartLabel, .cardapioBalcao #cartTotal { color: white !important; }
+  .cardapioBalcao #cartTotal { background: #fff2 !important; }
+}
