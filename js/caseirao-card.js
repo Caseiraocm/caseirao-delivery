@@ -6,6 +6,7 @@
   const money = cents => currency.format(cents/100);
   const due = value => value.split('-').reverse().join('/');
   const tokenPattern = /^[a-f0-9]{64}$/;
+  const shortCodePattern = /^\d{8,10}$/;
   let token = '';
   try { token = sessionStorage.getItem(marker)||''; } catch {}
   function remember(value){
@@ -20,25 +21,48 @@
     history.replaceState(history.state,'',location.pathname+location.search);
   }
 
-  async function showAccount(dialog){
+  function setupAccount(dialog){
     const form=dialog.querySelector('form');
     const content=dialog.querySelector('[data-account]');
     const pilotNotice=dialog.querySelector('[data-card-pilot-notice]');
     const input=form.elements.namedItem('token');
     const feedback=dialog.querySelector('[role="status"]');
-    async function load(code){
+    const phone=form.elements.namedItem('phone');
+    const submit=form.querySelector('button');
+    const signout=dialog.querySelector('[data-card-signout]');
+    let pending=false;
+    async function load(code,phoneNumber=''){
+      if(pending)return;
+      const usingCode=Boolean(phoneNumber);
+      const payload=usingCode?{action:'customer_access_code',payload:{phone:phoneNumber,code}}:
+        {action:'customer',payload:{token:code}};
+      pending=true;
+      submit.disabled=signout.disabled=true;
       feedback.textContent='Consultando…';
       try {
         const result=await fetch('https://jhvtjhjzlljqfzdccrxc.supabase.co/functions/v1/caseirao-card',{
           method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({action:'customer',payload:{token:code}})
+          body:JSON.stringify(payload)
         });
-        if(!result.ok)throw new Error('Não foi possível abrir o cartão. Confira o código e tente novamente.');
         const card=await result.json();
-        remember(code);
+        if(!result.ok){
+          if(result.status===401&&!usingCode&&token===code){
+            remember('');
+            form.hidden=false;
+            content.replaceChildren();
+            signout.hidden=true;
+          }
+          throw new Error(result.status===429?'Limite de tentativas. Aguarde 10 minutos.':
+            result.status===401?'Confira o WhatsApp e o código do cartão.':'Não foi possível abrir o cartão agora.');
+        }
+        const credential=usingCode?card.session_token:code;
+        if(!tokenPattern.test(credential))throw new Error('Não foi possível abrir o cartão agora.');
+        remember(credential);
+        input.value='';
+        phone.value='';
         form.hidden=true;
         pilotNotice.hidden=true;
-        dialog.querySelector('[data-card-signout]').hidden=false;
+        signout.hidden=false;
         content.replaceChildren();
         const heading=document.createElement('h3');
         heading.textContent=card.name;
@@ -81,25 +105,42 @@
       }catch(error){
         if(!form.hidden)pilotNotice.hidden=false;
         feedback.textContent=error.message;
+      }finally{
+        pending=false;
+        submit.disabled=signout.disabled=false;
       }
     }
     form.onsubmit=event=>{
       event.preventDefault();
       const code=input.value.trim().toLowerCase();
-      if(tokenPattern.test(code))load(code);
-      else feedback.textContent='Cole o código privado recebido do Caseirão.';
+      if(tokenPattern.test(code)){
+        load(code);
+        return;
+      }
+      if(!shortCodePattern.test(code)){
+        feedback.textContent='Digite o código de 8 a 10 dígitos recebido do Caseirão.';
+        return;
+      }
+      const digits=phone.value.replace(/\D/g,'');
+      if(!/^(?:55)?\d{10,11}$/.test(digits)){
+        feedback.textContent='Informe o WhatsApp cadastrado com DDD.';
+        phone.focus();
+        return;
+      }
+      load(code,digits);
     };
-    dialog.querySelector('[data-card-signout]').onclick=()=>{
+    signout.onclick=()=>{
       remember('');
       form.hidden=false;
       pilotNotice.hidden=false;
-      dialog.querySelector('[data-card-signout]').hidden=true;
+      signout.hidden=true;
       input.value='';
+      phone.value='';
       content.replaceChildren();
       feedback.textContent='';
       input.focus();
     };
-    if(token)await load(token);
+    return ()=>{if(token)load(token);};
   }
 
   const requestMessage='Olá! Tenho interesse no Cartão Caseirão. Como faço para solicitar uma análise?';
@@ -114,11 +155,17 @@
       <p><strong>Nesta fase, a liberação do cartão depende da análise e da aprovação da administração.</strong></p>
       <a class="caseiraoCardContact" href="${whatsAppLink}" target="_blank" rel="noopener noreferrer">Solicitar análise pelo WhatsApp</a>
     </section>
-    <form><label>Código privado do cartão<input required name="token" type="password" autocomplete="off" maxlength="64"></label><button class="primary">Acessar cartão</button></form>
+    <form>
+      <label>WhatsApp cadastrado com DDD<input name="phone" type="tel" autocomplete="tel" maxlength="24" aria-describedby="caseiraoCardAccessHint"></label>
+      <label>Código privado do cartão<input required name="token" type="password" autocomplete="off" maxlength="64"></label>
+      <small id="caseiraoCardAccessHint">Para entrar com o código de 8 a 10 dígitos, informe seu WhatsApp.</small>
+      <button class="primary">Acessar cartão</button>
+    </form>
     <div data-account></div><p role="status"></p><button type="button" data-card-signout hidden>Sair do cartão</button>`;
   document.body.append(dialog);
   dialog.querySelector('[data-card-close]').onclick=()=>dialog.close();
-  const show=()=>{if(!dialog.open)dialog.showModal();showAccount(dialog);};
+  const refreshAccount=setupAccount(dialog);
+  const show=()=>{if(!dialog.open){dialog.showModal();refreshAccount();}};
   document.getElementById('caseiraoCardHome').onclick=show;
   if(openedByLink)show();
 
