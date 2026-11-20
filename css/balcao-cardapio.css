@@ -191,18 +191,56 @@ body.cardapioBalcao {
   .cardapioBalcao .products .card { grid-template-columns: minmax(0, 40%) minmax(0, 1fr); }
 }
 @media (max-width: 700px) {
-  html:has(body.cardapioBalcao) { scroll-padding-top: 72px; }
-  body.cardapioBalcao { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
-  .cardapioBalcao .top { padding-inline: 12px !important; z-index: 20; }
+  html:has(body.cardapioBalcao) { scroll-padding-top: 12px; }
+  body.cardapioBalcao { padding-bottom: env(safe-area-inset-bottom); }
+  body.cardapioBalcao:has(#cartBtn:not([data-empty])) {
+    padding-bottom: calc(66px + env(safe-area-inset-bottom));
+  }
+  .cardapioBalcao .top { position: static !important; min-height: 56px !important; padding-inline: 12px !important; }
+  .cardapioBalcao .top h1 { font-size: clamp(14px, 4.4vw, 19px) !important; }
   .cardapioBalcao main { padding-inline: 12px !important; }
   .cardapioBalcao .top .brandLockup { gap: 7px !important; min-width: 0; }
   .cardapioBalcao .top .brandMark { width: 34px !important; height: 34px !important; flex-basis: 34px !important; }
   .cardapioBalcao .top .ghost { font-size: 11px !important; }
   .cardapioBalcao .locationBar { padding-inline: 12px !important; }
+  .cardapioBalcao .locationTrigger strong { font-size: 11px; }
   .cardapioBalcao .locationTrigger small, .cardapioBalcao .contactLink { display: none !important; }
-  .cardapioBalcao .quick { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px !important; margin-bottom: 17px !important; }
-  .cardapioBalcao .quick button { grid-column: span 2; gap: 4px !important; font-size: 11px !important; }
-  .cardapioBalcao .quick button:nth-child(4), .cardapioBalcao .quick button:nth-child(5) { grid-column: span 3; }
+  .cardapioBalcao #banner .balcao-hero-track { grid-template-columns: minmax(0, 1fr); }
+  .cardapioBalcao #banner .balcao-hero-slide { min-height: clamp(128px, 38vw, 162px); }
+  .cardapioBalcao #banner .balcao-hero-slide:nth-child(n+2) { display: none; }
+  .cardapioBalcao #banner .balcao-hero-copy {
+    width: 74%;
+    padding: 11px 0 11px 42px;
+  }
+  .cardapioBalcao #banner .balcao-hero-copy h2 { font-size: clamp(22px, 6.2vw, 31px); }
+  .cardapioBalcao #banner .balcao-hero-copy button { margin-top: 10px; }
+  .cardapioBalcao #banner .balcao-hero-dots { min-height: 28px; }
+  .cardapioBalcao #banner .balcao-hero-dots button { min-height: 28px; }
+  .cardapioBalcao #banner:has(.balcao-hero-dots) :is(.balcao-hero-prev,.balcao-hero-next) {
+    top: calc((100% - 28px) / 2);
+  }
+  .cardapioBalcao .quick {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+    margin-bottom: 14px !important;
+  }
+  .cardapioBalcao .quick button {
+    grid-column: span 2;
+    gap: 4px !important;
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+    min-height: 44px !important;
+    text-align: center;
+  }
+  .cardapioBalcao .quick :is(#cashbackBtn,#caseiraoCardHome) { grid-column: span 3; }
+  .cardapioBalcao .quick .quickIcon { flex-shrink: 0; font-size: 15px !important; }
+  .cardapioBalcao .searchShell .search {
+    min-height: 44px !important;
+    height: 44px !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+  .cardapioBalcao .searchShell:focus-within { outline: 2px solid #a74831; outline-offset: 1px; }
   .cardapioBalcao .balcaoCatalog { grid-template-columns: minmax(0, 1fr); grid-template-areas: "search" "cats" "heading" "products"; gap: 10px; }
   .cardapioBalcao .cats { flex-direction: row; padding: 0 0 3px !important; overflow-x: auto; border: 0 !important; }
   .cardapioBalcao .cats .chip { flex: 0 0 auto; border-color: #e6e3df !important; }
@@ -211,11 +249,12 @@ body.cardapioBalcao {
   .cardapioBalcao .products .card { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr auto; }
   .cardapioBalcao .products .card .pic { grid-row: auto; min-height: 0; aspect-ratio: 1.65 !important; }
   .cardapioBalcao .products .card .body, .cardapioBalcao .products .cardBottom { padding-inline: 8px !important; }
+  .cardapioBalcao #cartBtn[data-empty] { display: none !important; }
   .cardapioBalcao #cartBtn {
     position: fixed !important;
     inset: auto 12px calc(8px + env(safe-area-inset-bottom)) !important;
     z-index: 22;
-    min-height: 48px !important;
+    min-height: 46px !important;
     justify-content: space-between;
     background: #983622 !important;
     box-shadow: 0 4px 18px #43170642 !important;
