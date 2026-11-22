@@ -56,3 +56,16 @@
   font:inherit;font-size:.84rem;font-weight:750;cursor:pointer;text-align:left;
 }
 #customerSupportDialog[aria-busy=true] #orderAssistantChoices{opacity:.65}
+
+#orderAssistantLog .assistantTyping{
+  display:flex;align-items:center;gap:5px;align-self:flex-start;
+  background:#e9f3ee;color:#35504b;border-radius:11px;padding:8px 10px;
+  font-size:.76rem;
+}
+.assistantTyping span{margin-inline-end:3px}
+.assistantTyping i{width:4px;height:4px;border-radius:50%;background:currentColor;animation:assistantTypingPulse 1.2s infinite alternate}
+.assistantTyping i:nth-of-type(2){animation-delay:.2s}
+.assistantTyping i:nth-of-type(3){animation-delay:.4s}
+@keyframes assistantTypingPulse{from{opacity:.32}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.assistantTyping i{animation:none}}
+#customerSupportDialog [type=submit]:disabled,#orderAssistantChoices .assistantChoice:disabled{cursor:wait;opacity:.65}
