@@ -19,6 +19,10 @@
 .supportBubble.outgoing{align-self:flex-end;background:#f5e8c3}
 .supportBubble strong{display:block;font-size:.74rem;color:#35504b}
 .supportBubble p{margin:3px 0 0;white-space:pre-wrap}
+#customerSupportDialog .supportTrackingButton{
+  display:block;margin-top:9px;padding:9px 12px;min-height:44px;border:0;border-radius:9px;
+  background:#ffad16;color:#231608;font:inherit;font-weight:750;cursor:pointer;
+}
 .supportEmpty{color:#53635d}
 #customerSupportDialog form{display:flex;align-items:flex-end;gap:8px;padding:10px 16px 0;border-top:1px solid #ddd9cd}
 #customerSupportDialog textarea{flex:1;min-width:0;max-height:8em;resize:vertical;border:1px solid #a6aaa0;border-radius:8px;padding:10px;font:inherit}
