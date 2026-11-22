@@ -3,6 +3,10 @@
 (() => {
   const normalize = value => String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
     .toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+  const conversational = value => normalize(value)
+    .replace(/\b(qto|qt|qnt)\b/g,'quanto').replace(/\b(vcs|vces)\b/g,'voces')
+    .replace(/\b(pra|pro|pr|p) (?:a |o )?(entrega|retirada)\b/g,'para $1')
+    .replace(/\b(zap|wpp|zapzap)\b/g,'whatsapp');
   const words = value => ' ' + normalize(value) + ' ';
   const includes = (text, term) => !!normalize(term) && words(text).includes(words(term));
   const brl = cents => (cents / 100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
@@ -18,7 +22,34 @@
   const typeFrom = value => /\b(retirada|retirar|buscar|busco)\b/.test(normalize(value)) ? 'pickup'
     : /\b(no local|consumo no local|comer ai|comer aqui|mesa)\b/.test(normalize(value)) ? 'local'
     : /\b(entrega|delivery|entregar)\b/.test(normalize(value)) ? 'delivery' : '';
-  const alias = name => normalize(name).replace(/\bcoca cola\b/g,'coca').replace(/\b(500 ml|350 ml|600 ml|1 litro|lata)\b/g,'').replace(/\s+/g,' ').trim();
+  const phoneDigits = input => {
+    if (phonePattern.test(input.trim())) return input.replace(/\D/g,'');
+    const tokens=conversational(input).replace(/^(?:(?:meu|o|eu) )?(?:telefone|whatsapp|celular|numero)(?: e)? /,'').split(' ');
+    const spoken={zero:0,meia:6,...numberWords,onze:11,doze:12,treze:13,catorze:14,quatorze:14,
+      quinze:15,dezesseis:16,dezessete:17,dezoito:18,dezenove:19,vinte:20,trinta:30,quarenta:40,
+      cinquenta:50,sessenta:60,setenta:70,oitenta:80,noventa:90};
+    const digits=[];
+    for (let index=0;index<tokens.length;index++) {
+      const word=tokens[index];
+      if (/^\d+$/.test(word)) {digits.push(word);continue;}
+      if (!Object.hasOwn(spoken,word)) return '';
+      const value=spoken[word];
+      const unit=spoken[tokens[index+2]];
+      if (value>=20&&tokens[index+1]==='e'&&unit>0&&unit<10) {
+        digits.push(String(value+unit));index+=2;
+      } else digits.push(String(value));
+    }
+    const result=digits.join('');
+    return /^(?:55)?\d{10,11}$/.test(result)?result:'';
+  };
+  const orderQuantity = normalized => {
+    const token=normalized.match(/\b(um|uma|dois|duas|tres|quatro|cinco|seis|sete|oito|nove|dez|\d{1,2})\s+(?:lanches?|hamburguer(?:es)?|burgers?|combos?)\b/)?.[1];
+    const qty=Number(numberWords[token]||token);
+    return qty>0&&qty<=30?qty:0;
+  };
+  const orderIntent = text => /\b(quero(?! saber)|queria(?! saber)|gostaria de (pedir|comprar|fazer)|me (ve|manda|da)|manda|coloca|bota|adiciona|vou (querer|pedir)|mais (um|uma|dois|duas|\d+))\b/.test(text);
+  const inquiryIntent = text => /\b(quanto|preco|valor|tem|ingrediente|ingredientes|o que vem|vem com|adicionais|disponivel|esgotado|mostre|saber|queria ver)\b/.test(text);
+  const alias = name => normalize(name).replace(/\bcoca cola\b/g,'coca').replace(/\b((?:500|350|600) ?ml|1 ?l(?:itro)?|lata)\b/g,'').replace(/\s+/g,' ').trim();
 
   function matchingProducts(text, products, useAliases = false) {
     let rest = words(useAliases ? alias(text) : text);
@@ -43,11 +74,38 @@
     return matches.sort((a,b)=>a.index-b.index);
   }
 
+  function similarToken(left,right) {
+    if (left===right) return true;
+    if (left.length<4 || Math.abs(left.length-right.length)>1) return false;
+    if (right.length<left.length) [left,right]=[right,left];
+    let index=0;
+    while (index<left.length && left[index]===right[index]) index++;
+    if (left.length!==right.length) return left.slice(index)===right.slice(index+1);
+    return left.slice(index+1)===right.slice(index+1) ||
+      (left[index]===right[index+1] && left[index+1]===right[index] && left.slice(index+2)===right.slice(index+2));
+  }
+  function suggestedProducts(text,products) {
+    const tokens=alias(text).split(' ').filter(word=>word.length>=4 &&
+      !['quero','queria','gostaria','pedir','adiciona','quanto','custa','lanches','lanche','pegar','saber','mostre','preco','valor','pedir','cardapio','pedido','igual','entrega','retirada'].includes(word));
+    if (!tokens.length) return [];
+    return products.map(product=>{
+      const name=alias(product.name);
+      const score=tokens.reduce((sum,word)=>sum+(includes(name,word)?3:
+        name.split(' ').some(part=>similarToken(word,part))?2:0),0);
+      return {product,score};
+    }).filter(item=>item.score>0).sort((a,b)=>b.score-a.score)
+      .filter((item,_,list)=>item.score>=list[0].score-1).slice(0,5).map(item=>item.product);
+  }
+
   function create({host,log,form,input,feedback,actions,request,catalogRequest,onTrack,onPix,onHuman,remember}) {
     const history=[];
     const draft={items:[],address:{},requestId:crypto.randomUUID()};
     let catalog,mode='home',step='',focusProduct=null,pendingChoices=[],quote,receipt,busy=false;
     let finishRequested=false;
+    let suggestedQuantity=0;
+    let productContext=null;
+    let checkingFee=false;
+    let typingTurn=null;
     let retryPending=false;
     const timestamps = {catalog:0};
     const nav = () => [
@@ -63,6 +121,7 @@
       return element;
     }
     function say(text,customer=false) {
+      if (!customer) typingTurn?.remove();
       history.push({text,customer});
       const bubble=node('div','',customer?'supportBubble outgoing':'supportBubble');
       bubble.append(node('strong',customer?'Você':'Assistente do Caseirão'),node('p',text));
@@ -77,14 +136,34 @@
         return button;
       }));
     }
-    async function run(action) {
+    async function run(action,delay=450) {
       if (busy) return;
       busy=true;
       host.setAttribute('aria-busy','true');
+      const submitButton=form.querySelector('button[type=submit]');
+      if (submitButton) submitButton.disabled=true;
+      const choices=[...actions.querySelectorAll('button')];
+      choices.forEach(button=>button.disabled=true);
       feedback.textContent='';
-      try { await action(); }
-      catch (error) { feedback.textContent=error.message || 'Não consegui concluir. Tente de novo.'; }
-      finally { busy=false; host.removeAttribute('aria-busy'); }
+      const typing=node('div','','assistantTyping');
+      typing.setAttribute('aria-hidden','true');
+      typing.append(node('span','Assistente digitando'),node('i'),node('i'),node('i'));
+      typingTurn=typing;
+      log.append(typing);
+      log.scrollTop=log.scrollHeight;
+      function removeTyping() {typing.remove();}
+      try {
+        await new Promise(resolve=>setTimeout(resolve,delay));
+        if (host.open) await action();
+      } catch (error) {feedback.textContent=error.message || 'Não consegui concluir. Tente de novo.';}
+      finally {
+        removeTyping();
+        typingTurn=null;
+        if (submitButton) submitButton.disabled=false;
+        choices.forEach(button=>button.disabled=false);
+        busy=false;
+        host.removeAttribute('aria-busy');
+      }
     }
     async function latest(force=false) {
       if (force || !catalog || Date.now()-timestamps.catalog>12_000) {
@@ -94,7 +173,8 @@
       return catalog;
     }
     function footer(extra=[]) {
-      return [...extra,...(mode==='checkout'&&step!=='confirm'?[['Continuar pedido',()=>proceed()]]:[]),...(draft.items.length?[['Ver meu pedido',()=>review()],['Adicionar mais',()=>beginOrder()]]:[]),['Falar com a equipe',()=>handoff()]];
+      const menu=extra.some(([label])=>label==='Ver cardápio'||label==='Outras categorias')?[]:[['Ver cardápio',()=>showMenu()]];
+      return [...extra,...menu,...(mode==='checkout'&&step!=='confirm'?[['Continuar pedido',()=>proceed()]]:[]),...(draft.items.length?[['Ver meu pedido',()=>review()],['Adicionar mais',()=>beginOrder()]]:[]),['Falar com a equipe',()=>handoff()]];
     }
     function handoff() {
       if (retryPending) {
@@ -132,6 +212,7 @@
       return catalog.addons.filter(addon=>linked.has(String(addon.id)));
     }
     function describe(product, addonsOnly) {
+      productContext=product.id;
       const addons=linkedAddons(product).filter(available);
       const lines=[productDetails(product)];
       if (!addonsOnly && (product.description||product.desc)) lines.push(product.description||product.desc);
@@ -296,7 +377,8 @@
     function pickupDetails(text) {
       draft.type ||= typeFrom(text);
       draft.payment ||= paymentFrom(text);
-      const explicitName=text.match(/(?:me chamo|meu nome (?:é|e))\s+([^,.;!?]+)/i)?.[1];
+      const explicitName=text.match(/(?:me chamo|meu nome (?:é|e)|aqui (?:é|e))\s+([^,.;!?]+)/i)?.[1]
+        ?.split(/\s+(?:e\s+)?(?:o pagamento|vou pagar|pago|meu telefone|meu whatsapp|meu email|o endereço|endereço|moro|rua|avenida)\b/i)[0];
       if (explicitName&&explicitName.length<90) draft.name ||= explicitName.trim();
       const phone=text.match(/(?:\b(?:telefone|whatsapp|celular)\s*:?\s*)?((?:\+55\s*)?\(?\d{2}\)?[ -]?\d{4,5}[ -]?\d{4})\b/)?.[1];
       if (phone) draft.phone ||= phone.replace(/\D/g,'');
@@ -310,6 +392,8 @@
           draft.address.street ||= address[1].trim();
           draft.address.number ||= address[2];
         }
+        const reference=text.match(/(?:referência|referencia|complemento)(?:\s*(?:é|e|:))?\s+([^.;!?]+)/i)?.[1];
+        if (reference) draft.address.reference ??= reference.trim().slice(0,190);
       }
       if (draft.type==='local') {
         const table=normalize(text).match(/\bmesa (\d{1,3})\b/)?.[1];
@@ -322,7 +406,7 @@
       switch(field) {
         case 'type': draft.type=typeFrom(text); break;
         case 'name': if (text.length<90&&text.length>1&&/^[\p{L}][\p{L} .'-]+$/u.test(text)) draft.name=text; break;
-        case 'phone': if (phonePattern.test(text)) draft.phone=text.replace(/\D/g,''); break;
+        case 'phone': draft.phone ||= phoneDigits(text); break;
         case 'neighborhood': {
           const candidates=catalog.neighborhoods.filter(hood=>normalize(hood.name)===normalized||includes(text,hood.name));
           if(candidates.length===1) draft.address.neighborhood_id=candidates[0].id;
@@ -490,50 +574,126 @@
       buttons([...(isPix?[['Pagar com Pix',()=>onPix(receipt,draft.phone,email)]]:[]),
         ['Acompanhar pedido',()=>onTrack(receipt,draft.phone)],['Novo pedido',()=>{savePix(null);return reset()}],['Falar com a equipe',()=>handoff()]]);
     }
+    function storeQuestion(normalized) {
+      if (/\b(alergia|alergico|alergica|contaminacao cruzada|celiaco|celiaca)\b/.test(normalized)) {
+        say('Para confirmar ingredientes e preparo por causa de alergia, fale com a equipe do Caseirão.');
+        buttons(footer());
+        return true;
+      }
+      if (/\b(onde fica|qual (o )?endereco (da loja|de voces)|localizacao da loja|como chegar|qual o endereco)\b/.test(normalized)) {
+        const place=document.querySelector('#storeLocationBtn strong')?.textContent;
+        say(place?'O Caseirão fica em '+place+', Campo Maior–PI.':'Você pode ver a localização do Caseirão no topo do cardápio.');
+        buttons(footer());
+        return true;
+      }
+      if (checkingFee||/\b(taxa|frete|entrega para|entregam no|entregam na|entrega no bairro|fazem entrega em)\b/.test(normalized)&&!orderIntent(normalized)) {
+        const neighborhoods=catalog.neighborhoods.filter(hood=>includes(normalized,hood.name));
+        if (neighborhoods.length) {
+          checkingFee=false;
+          say(neighborhoods.map(hood=>hood.name+': taxa de '+brl(cents(hood.fee))+'.').join(' '));
+          buttons(footer());
+        } else {
+          checkingFee=true;
+          say('Qual é o bairro? Posso consultar os valores de entrega por região do cardápio.');
+          buttons(footer(catalog.neighborhoods.map(hood=>[hood.name,()=>{
+            checkingFee=false;
+            say('A taxa de entrega no bairro '+hood.name+' é '+brl(cents(hood.fee))+'.');
+            buttons(footer());
+          }])));
+        }
+        return true;
+      }
+      const budget=normalized.match(/\b(?:ate|menos de|no maximo) (?:r )?(\d{1,3})(?: (\d{2}))?\b/);
+      if (budget&&/\b(lanche|lanches|hamburguer|hamburgueres|combo|combos|opcoes|tem)\b/.test(normalized)&&!orderIntent(normalized)) {
+        const category=/\bcombos?\b/.test(normalized)?'combo':'hamburguer';
+        const limit=Number(budget[1])*100+Number(budget[2]||0);
+        const results=catalog.products.filter(product=>available(product)&&price(product)<=limit&&normalize(product.category).includes(category))
+          .sort((a,b)=>price(a)-price(b)).slice(0,5);
+        say(results.length?'Aqui vão opções de até '+brl(limit)+' no cardápio, antes da entrega:\n'+results.map(productDetails).join('\n'):
+          'Não encontrei uma opção disponível nessa faixa no cardápio.');
+        buttons(footer(results.map(product=>['Ver '+product.name,()=>describe(product,false)])));
+        return true;
+      }
+      if (/\b(quanto tempo|qual o prazo|demora quanto|previsao de entrega|tempo de entrega)\b/.test(normalized)) {
+        const {settings}=catalog;
+        const eta=settings.peak_mode?settings.peak_delivery_eta:settings.delivery_eta;
+        say(eta?'A previsão de entrega informada no cardápio é de '+eta+'.':'A previsão de entrega ainda não está informada no cardápio.');
+        buttons(footer());
+        return true;
+      }
+      if (/^(?:voces )?(aceita|aceitam|recebe|recebem|quais|como|pode|da pra|tem)\b/.test(normalized)&&/\b(pagamento|pagar|pix|cartao|dinheiro)\b/.test(normalized)) {
+        say('Pelo assistente você pode escolher Pix, cartão ou dinheiro. Se for Pix, o botão de pagamento aparece depois que você confirma o pedido.');
+        buttons(footer());
+        return true;
+      }
+      return false;
+    }
+    function showSuggestions(products,quantity,wantsToOrder) {
+      say('Encontrei estas opções no cardápio. Qual delas você quis dizer?');
+      buttons(footer(products.map(product=>[productDetails(product),()=>{
+        if (wantsToOrder&&available(product)) {
+          pendingChoices=[{entries:[product],qty:quantity||1,message:''}];
+          return continueAdding();
+        }
+        return describe(product,false);
+      }])));
+    }
+
     async function handle(text) {
-      say(text,true);
       if (retryPending) {
         say('Toque em Verificar envio para consultar a tentativa anterior.');
         return;
       }
-      const normalized=normalize(text);
+      const normalized=conversational(text);
+      const wantsToOrder=orderIntent(normalized);
+      const asks=inquiryIntent(normalized)&&!wantsToOrder;
       if (/\b(falar com (a equipe|alguem|uma pessoa)|atendente|atendimento humano)\b/.test(normalized)) return handoff();
       if (/\b(acompanhar|cade meu pedido|status do pedido|saiu para entrega)\b/.test(normalized)) return onTrack(receipt,draft.phone);
       if (receipt) {
         if (normalized==='novo pedido') {savePix(null);return reset();}
         return say('Seu pedido #'+receipt.order_number+' já foi registrado. Você pode acompanhar ou começar outro pedido pelos botões.');
       }
-      if (step==='verify_extra'||step==='product_choice') {
+      if (/\b(mudar (meu|os) dados|corrigir dados)\b/.test(normalized)&&draft.items.length) return editDetails();
+      if (/^(ver (meu|o) pedido|ver resumo|quanto deu|quanto ficou( tudo)?|qual (e )?o total)$/.test(normalized)&&draft.items.length) return review(false);
+      if (step==='confirm'&&/^(sim|confirmo|confirmar|pode enviar|pode mandar)$/.test(normalized)) {
+        say('Pra registrar, toque no botão Confirmar pedido.');
+        return;
+      }
+      const requestMenu=/^(cardapio|menu|(?:ver|manda|mandar|mostra|mostrar|me manda) (?:o )?cardapio)\b/.test(normalized);
+      const faq=/\b(alergia|alergico|alergica|celiaco|celiaca|contaminacao cruzada|quanto tempo|qual o prazo|demora quanto|previsao de entrega|tempo de entrega|onde fica|como chegar|localizacao da loja|taxa|frete|entregam no|entregam na|fazem entrega em|que horas|qual o endereco|aberto|fechado|funcionando)\b/.test(normalized) ||
+        /^(aceita|aceitam|recebe|recebem|quais|como|pode|da pra)\b.*\b(pagamento|pagar|pix|cartao|dinheiro)\b/.test(normalized);
+      const question=asks||requestMenu||faq||checkingFee;
+      if (!question&&!wantsToOrder&&step==='product_choice') {
+        const choices=focusProduct.entries.filter(product=>includes(text,product.name));
+        if (choices.length===1) return chooseProduct(choices[0]);
+        say('Qual item da lista você quis dizer? Pode tocar no nome ou escrever o nome completo.');
+        return;
+      }
+      if (!question&&step==='verify_extra') {
         say('Escolha uma das opções acima pra eu continuar.');
         return;
       }
-      if (step==='combo_drink') {
+      if (!question&&step==='combo_drink') {
         const options=window.CaseiraoComboDrinks.options(catalog,focusProduct.product.id);
         const match=options.filter(option=>option.available&&(normalize(option.name)===normalized||includes(text,option.name)));
         if (match.length===1) return chooseDrink(match[0]);
         return askDrink(options);
       }
-      if (/\b(mudar (meu|os) dados|corrigir dados)\b/.test(normalized)&&draft.items.length) return editDetails();
-      if (normalized==='ver meu pedido'||normalized==='ver resumo') return review(false);
-      if (step==='confirm'&&/^(sim|confirmo|confirmar|pode enviar|pode mandar)$/.test(normalized)) {
-        say('Pra registrar, toque no botão Confirmar pedido.');
-        return;
-      }
-      const checkoutQuestion=/^(quanto (custa|e)|qual (o preco|o valor|o horario)|quais (sao|os|as)|tem |o que vem|cardapio|ver cardapio|menu)/.test(normalized);
-      if (mode==='checkout'&&step!=='confirm'&&!checkoutQuestion) {
-        if (step==='name' && !/^[\p{L}\s.'-]+$/u.test(text)) {
-          await latest();
-          pickupDetails(text);
-          if (!draft.name) {
-            const first=text.split(',')[0].trim();
-            if (/^[\p{L}][\p{L} .'-]{1,87}$/u.test(first)) draft.name=first;
-          }
-          if (draft.name) return proceed();
+      if (mode==='checkout'&&step!=='confirm'&&!question&&!wantsToOrder) {
+        await latest();
+        pickupDetails(text);
+        if (step==='name'&&!draft.name&&text.includes(',')) {
+          const first=text.split(',')[0].trim();
+          if (/^[\p{L}][\p{L} .'-]{1,87}$/u.test(first)&&!/^rua\b|^avenida\b/i.test(first)) draft.name=first;
         }
-        return answerField(text);
+        const filled={type:draft.type,name:draft.name,phone:draft.phone,neighborhood:draft.address.neighborhood_id,
+          street:draft.address.street,number:draft.address.number,reference:draft.address.reference,table:draft.table,payment:draft.payment,email:draft.email};
+        return filled[step]!==undefined&&filled[step]!=='' ? proceed() : answerField(text);
       }
-      await latest(true);
-      if (/\b(aberto|fechado|funcionando|horario|que horas)\b/.test(normalized) && !/\b(quero|pedido)\b/.test(normalized)) {
+      await latest();
+      if (checkingFee&&(requestMenu||wantsToOrder)) checkingFee=false;
+      if (storeQuestion(normalized)) return;
+      if (/\b(aberto|fechado|funcionando|horario|que horas)\b/.test(normalized)&&!wantsToOrder) {
         const hours=[catalog.settings.open_time,catalog.settings.close_time].map(value=>String(value||'').slice(0,5));
         say((catalog.settings.store_open?'O Caseirão está aberto agora.':'O Caseirão está fechado agora.')+
           (hours.every(Boolean)?' Horário informado: '+hours.join(' às ')+'.':''));
@@ -544,52 +704,94 @@
         say(promos.length?promos.map(productDetails).join('\n'):'O cardápio está sem produtos em promoção agora.');
         return buttons(footer([['Ver cardápio',()=>showMenu()],['Fazer pedido',()=>beginOrder()]]));
       }
-      if (normalized==='cardapio'||normalized==='menu'||/^(ver|manda|mostrar) (o )?cardapio\b/.test(normalized)) return showMenu();
+      if (requestMenu) return showMenu();
       if (/^(finalizar|fechar|so isso|e so|terminar)( meu| o)?( pedido)?$/.test(normalized)) return proceed();
-      const exact=matchingProducts(text,catalog.products);
-      const aliases=exact.length?[]:matchingProducts(text,catalog.products,true);
-      const matches=exact.length?exact:aliases;
-      const inquiry=/\b(quanto|preco|valor|tem|ingrediente|ingredientes|o que vem|adicionais|disponivel)\b/.test(normalized)&&
-        !/\b(quero|manda|coloca|adiciona)\b/.test(normalized);
-      if (matches.length&&inquiry) {
-        for(const product of matches.flatMap(match=>match.entries).slice(0,8)) describe(product,includes(text,'adicionais'));
-        return;
+
+      const clauses=text.split(/[!?]+\s*|\.\s+(?=[\p{L}])/u).filter(part=>part.trim());
+      const adding=[];
+      const describing=new Map();
+      for (const clause of clauses) {
+        const context=conversational(clause);
+        const names=matchingProducts(clause,catalog.products);
+        const matches=names.length?names:matchingProducts(clause,catalog.products,true);
+        const clauseQuestion=inquiryIntent(context)&&!orderIntent(context);
+        if (clauseQuestion) {
+          for(const match of matches) for(const product of match.entries) describing.set(product.id,product);
+          continue;
+        }
+        if (asks&&!wantsToOrder) continue;
+        for (const match of matches) {
+          const segment=matches.length===1?clause:
+            clause.split(/\s+e\s+|,|;/i).find(part=>match.entries.some(product=>includes(part,product.name)||includes(part,alias(product.name))))||clause;
+          adding.push({...match,message:segment});
+        }
       }
-      if (matches.length) {
+      const contextual=/\b(esse|essa|desse|dessa|dele|dela|deste|desta)\b/.test(normalized)
+        ?catalog.products.find(product=>product.id===productContext):null;
+      if (!adding.length&&!describing.size&&contextual) {
+        if (asks) describing.set(contextual.id,contextual);
+        else if (wantsToOrder) {
+          const token=normalized.match(/\b(um|uma|dois|duas|tres|\d{1,2})\s+(?:desse|dessa|dele|dela|deste|desta)\b/)?.[1];
+          adding.push({entries:[contextual],qty:Math.max(1,Math.min(30,Number(numberWords[token]||token||1))),message:text});
+        }
+      }
+      if (describing.size) {
+        const products=[...describing.values()].slice(0,6);
+        for(const product of products) describe(product,includes(text,'adicionais'));
+        if (products.length>1) {
+          productContext=null;
+          buttons(footer(products.filter(available).map(product=>['Adicionar '+product.name,()=>addProduct(product,1,'')])));
+        }
+        if (!adding.length) return;
+      }
+      if (adding.length) {
         if (/^nao (quero|coloca|manda)\b|^tirar\b|^remov/.test(normalized)) {
           say('Vou mostrar o seu pedido para você escolher qual item quer tirar.');
           return review(false);
         }
         pickupDetails(text);
+        if (adding.length===1&&adding[0].qty===1&&suggestedQuantity&&!/\b(um|uma|\d+)\b/.test(normalized)) {
+          adding[0].qty=suggestedQuantity;
+        }
+        suggestedQuantity=0;
+        if (adding.length===1&&adding[0].entries.length===1) productContext=adding[0].entries[0].id;
         mode='items'; step='';
         finishRequested=Boolean(draft.type);
-        pendingChoices=matches.map((match,index)=>({...match,message:matches.length===1?text:
-          text.split(/\s+e\s+|,|;/i).find(part=>match.entries.some(product=>includes(part,product.name)||includes(part,alias(product.name))))||
-          (index===0?text.split(/[,;]/)[0]:'')}));
+        pendingChoices=adding;
         return continueAdding();
       }
       const categories=[...new Set(catalog.products.map(product=>product.category||'Outros'))];
       const category=categories.find(item=>normalize(item)===normalized||
         /\b(quais|mostre|ver|tem)\b/.test(normalized)&&includes(text,item));
       if (category) return showCategory(category);
-      if (/\b(fazer|pedir|pedido|comprar|quero)\b/.test(normalized)) {
+      const quantity=orderQuantity(normalized);
+      if (quantity&&(wantsToOrder||/^(?:\w+ )+lanches?$/.test(normalized))) {
+        suggestedQuantity=quantity;
+        mode='items';step='';
+        say(quantity===1?'Qual lanche você gostaria de pedir?':'Quais são os '+quantity+' lanches? Pode escrever os nomes ou tocar em Ver cardápio.');
+        return buttons(footer([['Ver cardápio',()=>showMenu()]]));
+      }
+      if (draft.items.length&&!question&&typeFrom(text)) {
+        draft.type=typeFrom(text);
+        pickupDetails(text);
+        return proceed();
+      }
+      const suggestions=suggestedProducts(text,catalog.products);
+      if (suggestions.length) return showSuggestions(suggestions,suggestedQuantity,wantsToOrder||mode==='items');
+      if (wantsToOrder||/\b(pedir|comprar|pedido)\b/.test(normalized)) {
         if (draft.items.length && typeFrom(text)) {
           pickupDetails(text);
           return proceed();
         }
-        if (/^(quero (fazer )?um pedido|fazer pedido|quero pedir|pedido|pedir)$/.test(normalized)) return beginOrder();
-        say('Não achei esse nome no cardápio. Pode escrever como aparece lá ou escolher uma categoria.');
+        if (/\b(fazer um pedido|fazer pedido|quero pedir|gostaria de pedir)\b/.test(normalized)||normalized==='pedido') return beginOrder();
+        say('Não encontrei um item com esse nome. Você pode me dizer outro nome ou escolher no cardápio.');
         return buttons(footer([['Ver cardápio',()=>showMenu()]]));
       }
       if (/^(oi|ola|opa|e ai|boa noite|bom dia|boa tarde)$/.test(normalized)) {
         say('Oi! Posso mostrar o cardápio ou ajudar a fazer seu pedido.');
-        return buttons(nav());
+        return buttons(draft.items.length?footer([['Continuar pedido',()=>proceed()]]):nav());
       }
-      const suggestions=catalog.products.filter(product=>normalize(product.name).includes(normalized)).slice(0,6);
-      if (normalized.length>=3&&suggestions.length) {
-        say('Encontrei estas opções. Qual delas você quer ver?');
-        return buttons(footer(suggestions.map(product=>[productDetails(product),()=>describe(product,false)])));
-      }
+      if (/^(obrigado|obrigada|valeu|show|beleza)$/.test(normalized)) return say('De nada! Se precisar de mais alguma coisa, é só falar.');
       say('Posso consultar o cardápio, montar seu pedido ou chamar a equipe. Qual você prefere?');
       buttons(draft.items.length?footer([['Ver cardápio',()=>showMenu()]]):nav());
     }
@@ -598,6 +800,7 @@
       Object.assign(draft,{items:[],address:{},requestId:crypto.randomUUID()});
       history.length=0; log.replaceChildren();
       mode='home';step='';receipt=null;quote=null;focusProduct=null;pendingChoices=[];finishRequested=false;
+      suggestedQuantity=0;productContext=null;checkingFee=false;
       const previous=restorePending();
       retryPending=Boolean(previous?.payload?.client_request_id);
       if (retryPending) {
@@ -617,8 +820,8 @@
       const text=input.value.trim();
       if (!text||busy) return;
       input.value='';
-      feedback.textContent='';
-      void run(()=>handle(text));
+      say(text,true);
+      void run(()=>handle(text),Math.min(1050,560+text.length*4));
     }
     reset();
     return {submit,reset};
