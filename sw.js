@@ -1,6 +1,6 @@
 'use strict';
 
-const CACHE = 'caseirao-delivery-20261122-chat-valores-v1';
+const CACHE = 'caseirao-delivery-20261122-chat-catalogo-v2';
 const APP_SHELL = ['./js/order-assistant.js','./js/customer-support.js','./css/customer-support.css','./css/balcao-carrossel.css','./css/balcao-cardapio.css','./js/balcao-carrossel.js','./js/combo-refrigerantes.js','./css/combo-refrigerantes.css','./','./index.html','./manifest.webmanifest','./icon.svg','./css/app.css','./js/app.js','./js/caseirao-card.js','./css/caseirao-card.css','./privacidade.html'];
 
 function normalizedCacheKey(request) {
