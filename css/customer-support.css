@@ -42,3 +42,17 @@
 @keyframes queueMotorbike{0%{transform:translateX(-19px);opacity:.35}65%,100%{transform:translateX(6px);opacity:1}}
 @keyframes queuePulse{0%,100%{box-shadow:0 0 0 0 #13725d35}65%{box-shadow:0 0 0 6px #13725d00}}
 @media(prefers-reduced-motion:reduce){.queueBike,.queueDot.next{animation:none}}
+
+#customerSupportDialog [hidden]{display:none!important}
+#orderAssistantLog{height:clamp(88px,36dvh,330px)}
+#orderAssistantChoices{
+  display:flex;flex-wrap:wrap;gap:6px;max-height:clamp(48px,20dvh,132px);
+  overflow:auto;padding:7px 16px;border-top:1px solid #e4dfd2;background:#fffdf7;
+}
+#orderAssistantChoices:empty{padding:0;border-top:0}
+#orderAssistantChoices .assistantChoice{
+  padding:7px 10px;min-height:35px;border:1px solid #b6ccc4;
+  border-radius:7px;background:#edf6f1;color:#0b403d;
+  font:inherit;font-size:.84rem;font-weight:750;cursor:pointer;text-align:left;
+}
+#customerSupportDialog[aria-busy=true] #orderAssistantChoices{opacity:.65}
