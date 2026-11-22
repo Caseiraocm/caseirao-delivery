@@ -39,7 +39,7 @@ window.caseiraoCustomerSupport = (() => {
       const bubble = document.createElement('div');
       bubble.className = row.actor === 'customer' ? 'supportBubble outgoing' : 'supportBubble';
       const sender = document.createElement('strong');
-      sender.textContent = row.actor === 'customer' ? 'Você' : 'Caseirão';
+      sender.textContent = row.actor === 'customer' ? 'Você' : 'Atendente do Caseirão';
       const body = document.createElement('p');
       body.textContent = row.body;
       bubble.append(sender, body);
