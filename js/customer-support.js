@@ -98,10 +98,11 @@ window.caseiraoCustomerSupport = (() => {
     const credentials = order ? {tracking_code:order.code,phone:order.phone} : {guest_token:getGuestToken()};
     conversation = {request, credentials, latest:null, openTracking};
     const current = conversation;
-    title.textContent = order ? 'Atendimento · Pedido #' + order.number : 'Atendimento Caseirão';
+    title.textContent = order?.number ? 'Atendimento · Pedido #' + order.number : 'Atendimento Caseirão';
     messages.textContent = 'Carregando conversa…';
     feedback.textContent = '';
     input.value = starter;
+    if (starter) feedback.textContent = 'Toque em Enviar para compartilhar sua mensagem com a equipe.';
     button.disabled = false;
     if (!dialog.open) dialog.showModal();
     void sync(current);
@@ -128,7 +129,10 @@ window.caseiraoCustomerSupport = (() => {
         await services.onPix(...args);
         if (assistantActive&&dialog.open) dialog.close();
       },
-      onHuman:starter=>openHuman(request,null,starter,()=>{dialog.close();services.onTrack()}),
+      onHuman:(starter,order)=>{
+        const linked=order ? {code:order.tracking_code,phone:order.phone} : null;
+        openHuman(request,linked,starter,()=>{dialog.close();services.onTrack(order,order?.phone)});
+      },
     });
     dialog.showModal();
     assistantLog.scrollTop=assistantLog.scrollHeight;
