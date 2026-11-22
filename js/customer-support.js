@@ -10,6 +10,10 @@ window.caseiraoCustomerSupport = (() => {
   const feedback = dialog.querySelector('[role="status"]');
   let conversation;
   let guestToken;
+  let assistant;
+  let assistantActive=false;
+  const assistantLog=dialog.querySelector('#orderAssistantLog');
+  const assistantChoices=dialog.querySelector('#orderAssistantChoices');
 
   function getGuestToken() {
     const key = 'caseirao_chat_guest_v1';
@@ -77,30 +81,60 @@ window.caseiraoCustomerSupport = (() => {
     try { await current.reading; } finally { current.reading = null; }
   }
 
-  function open(request, order) {
-    if (dialog.open) return;
+  function openHuman(request, order, starter='') {
+    assistantActive=false;
+    assistantLog.hidden=true;
+    assistantChoices.hidden=true;
+    messages.hidden=false;
     const credentials = order ? {tracking_code:order.code,phone:order.phone} : {guest_token:getGuestToken()};
     conversation = {request, credentials, latest:null};
     const current = conversation;
     title.textContent = order ? 'Atendimento · Pedido #' + order.number : 'Atendimento Caseirão';
     messages.textContent = 'Carregando conversa…';
     feedback.textContent = '';
-    input.value = '';
+    input.value = starter;
     button.disabled = false;
-    dialog.showModal();
+    if (!dialog.open) dialog.showModal();
     void sync(current);
     current.timer = setInterval(() => {
       if (!document.hidden) void sync(current);
     }, 4500);
   }
 
+  function open(request, order, services) {
+    if (dialog.open) return;
+    if (order || !services) return openHuman(request,order);
+    assistantActive=true;
+    messages.hidden=true;
+    assistantLog.hidden=false;
+    assistantChoices.hidden=false;
+    title.textContent='Assistente do Caseirão';
+    input.value='';
+    feedback.textContent='';
+    button.disabled=false;
+    if (!assistant) assistant=window.caseiraoOrderAssistant.create({
+      host:dialog,log:assistantLog,form,input,feedback,actions:assistantChoices,request,...services,
+      onTrack:(receipt,phone)=>{dialog.close();services.onTrack(receipt,phone)},
+      onPix:async(...args)=>{
+        await services.onPix(...args);
+        if (assistantActive&&dialog.open) dialog.close();
+      },
+      onHuman:starter=>openHuman(request,null,starter),
+    });
+    dialog.showModal();
+    assistantLog.scrollTop=assistantLog.scrollHeight;
+  }
+
   dialog.querySelector('[data-chat-close]').addEventListener('click', () => dialog.close());
   dialog.addEventListener('close', () => {
+    if (dialog.open) return;
     clearInterval(conversation?.timer);
     conversation = null;
+    assistantActive=false;
   });
   form.addEventListener('submit', async event => {
     event.preventDefault();
+    if (assistantActive) return assistant?.submit(event);
     const current = conversation;
     const body = input.value.trim();
     if (!current || !body || current.sending) return;
