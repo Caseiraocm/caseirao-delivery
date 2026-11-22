@@ -1004,26 +1004,30 @@
       }])));
     }
 
-    function estimateProducts(matches,text) {
-      if (matches.length!==1 || matches[0].entries.length!==1) return false;
-      const {entries:[product],qty}=matches[0];
-      if (!available(product) || (product.stock_enabled&&qty>Number(product.stock_quantity))) return false;
-      const drinks=window.CaseiraoComboDrinks?.options(catalog,product.id)||[];
-      if (drinks.length) return false;
-      const {extras,note}=itemCustomizations(text);
-      const {matches:addons,unknown}=requestedExtras(extras,linkedAddons(product).filter(available));
-      if (unknown.length || addons.length>10 || (qty===1&&!addons.length)) return false;
-      const rows=[{product:String(product.id),quantity:qty,options:addons.map(addon=>String(addon.id)),removals:[]}];
+    function estimateProducts(text) {
+      const segments=orderSegments(text,catalog.products);
+      if (segments.length>12) return false;
+      const rows=[],notes=[];
+      let addSingle;
+      for (const segment of segments) {
+        const matches=matchingProducts(segment,catalog.products);
+        if (matches.length!==1 || matches[0].entries.length!==1) return false;
+        const {entries:[product],qty}=matches[0];
+        if (window.CaseiraoComboDrinks?.options(catalog,product.id).length) return false;
+        const {extras,note}=itemCustomizations(segment);
+        const {matches:addons,unknown}=requestedExtras(extras,linkedAddons(product).filter(available));
+        if (unknown.length || addons.length>10) return false;
+        if (segments.length===1&&qty===1&&!addons.length&&!note) return false;
+        rows.push({product:String(product.id),quantity:qty,options:addons.map(addon=>String(addon.id)),removals:[]});
+        notes.push(note);
+        if (segments.length===1&&draft.items.length) addSingle=()=>addProduct(product,qty,segment);
+      }
       const resolve=()=>{
         const lines=resolveAiLines(rows,text);
-        if (lines) lines[0].customizations.note=note;
+        lines?.forEach((line,index)=>{line.customizations.note=notes[index];});
         return lines;
       };
-      quoteOrderLines(resolve);
-      if (draft.items.length) {
-        buttons(footer([['Adicionar ao pedido',()=>addProduct(product,qty,text)]]));
-      }
-      return true;
+      return quoteOrderLines(resolve,addSingle);
     }
 
     function aiContext(message,hasOrder) {
@@ -1081,7 +1085,7 @@
         unknown.length||matches.length>10||
         (drinks.length&&matches.filter(item=>drinks.includes(item)).length!==1));
     }
-    function quoteOrderLines(resolve) {
+    function quoteOrderLines(resolve,addSingle) {
       lastEstimate=null;
       const lines=resolve();
       if (!lines) return false;
@@ -1105,22 +1109,32 @@
         if (note) displayed.push('Observação: '+note);
       }
       say([...displayed,'Subtotal da simulação: '+brl(total)+' antes da taxa de entrega.'].join('\n'));
-      if (!receipt&&!draft.items.length&&!hasPendingItemChoice()) {
+      if (!receipt&&!hasPendingItemChoice()) {
         lastEstimate=resolve;
-        buttons(footer([['Pedir esta simulação',()=>startCheckout('')]]));
+        const choices=[['Pedir esta simulação',()=>startCheckout('',true)]];
+        if (addSingle) choices.push(['Adicionar ao pedido',addSingle]);
+        buttons(footer(choices));
       }
       return true;
     }
-    async function startCheckout(text) {
+    async function startCheckout(text,useEstimate=false,replaceCart=false) {
       if (hasPendingItemChoice()||(!draft.items.length&&!lastEstimate)) return proceed(true);
+      if (useEstimate&&lastEstimate&&draft.items.length&&!replaceCart) {
+        say('Já tem itens no seu carrinho. Quer trocar pelos itens da simulação ou continuar com o carrinho atual?');
+        return buttons([
+          ['Usar itens da simulação',()=>startCheckout(text,true,true)],
+          ['Continuar com meu carrinho',()=>startCheckout(text)],
+        ]);
+      }
       await latest(true);
-      if (!draft.items.length) {
+      if (lastEstimate&&(useEstimate||!draft.items.length)) {
         const lines=lastEstimate();
         if (!lines||estimateProblem(lines)) {
           lastEstimate=null;
           say('Um item ou adicional da simulação mudou. Peça uma nova simulação para conferir as opções.');
           return buttons(footer());
         }
+        draft.items.length=0;
         pendingChoices=lines;
         mode='items';
         step='';
@@ -1313,7 +1327,10 @@
         say('Pra registrar, toque no botão Confirmar pedido.');
         return;
       }
-      if (!receipt&&checkoutRequest(text)) return startCheckout(text);
+      if (!receipt&&checkoutRequest(text)) {
+        const useEstimate=/\b(?:essa|esta) simulacao\b|\b(?:esse|este|aquele) pedido\b/.test(normalized);
+        return startCheckout(text,useEstimate);
+      }
       const requestMenu=/^(cardapio|menu|(?:ver|manda|mandar|mostra|mostrar|me manda) (?:o )?cardapio)\b/.test(normalized);
       const faq=/\b(alergia|alergico|alergica|celiaco|celiaca|contaminacao cruzada|quanto tempo|qual o prazo|demora quanto|previsao de entrega|tempo de entrega|onde fica|como chegar|localizacao da loja|horario|que horas|qual o endereco|aberto|fechado|funcionando)\b/.test(normalized) ||
         deliveryQuestion.test(normalized) ||
@@ -1350,6 +1367,9 @@
       }
       await latest();
       if (checkingFee&&(requestMenu||wantsToOrder)) checkingFee=false;
+      const asksForEstimate=/^(?:quero saber )?(?:quanto (?:que )?(?:fica|ficaria|custa|custaria|sai|sairia|da|daria|e)|(?:qual (?:e|seria) )?o (?:preco|valor))\b/.test(normalized);
+      if (!receipt&&mode!=='checkout'&&!hasPendingItemChoice()&&!checkingFee&&!faq&&!catalogInquiry&&
+          asksForEstimate&&!/\bou\b/.test(normalized)&&estimateProducts(text)) return;
       if ((receipt||mode!=='checkout')&&!hasPendingItemChoice()&&!checkingFee&&!(editIntent&&draft.items.length)&&await useAi(text,wantsToOrder)) return;
       if (receipt) {
         if (/\b(aberto|fechado|funcionando|horario|que horas)\b/.test(normalized)) return hours();
@@ -1382,7 +1402,6 @@
         const priceInquiry=/\b(quanto|valor|preco|custa)\b/.test(context);
         const clauseQuestion=(inquiryIntent(context)&&!orderIntent(context)&&!addingExtras)||priceInquiry||asks;
         if (clauseQuestion) {
-          if (clauses.length===1&&priceInquiry&&estimateProducts(matches,clause)) return;
           for(const match of matches) for(const product of match.entries) describing.set(product.id,product);
           continue;
         }
