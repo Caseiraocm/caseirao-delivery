@@ -274,16 +274,22 @@
   border: 0;
   padding: 11px 1px;
   background: var(--chat-panel);
-  color: var(--chat-text);
-  -webkit-text-fill-color: var(--chat-text);
-  caret-color: var(--chat-text);
+  /* Override the menu-wide light field styles in app.css. */
+  color-scheme: dark !important;
+  color: var(--chat-text) !important;
+  -webkit-text-fill-color: var(--chat-text) !important;
+  caret-color: var(--chat-text) !important;
   font-size: 1rem;
   line-height: 22px;
 }
 #customerSupportDialog:has(#orderAssistantLog:not([hidden])) textarea::placeholder {
-  color: var(--chat-muted);
-  -webkit-text-fill-color: currentColor;
-  opacity: 1;
+  color: var(--chat-muted) !important;
+  -webkit-text-fill-color: var(--chat-muted) !important;
+  opacity: 1 !important;
+}
+#customerSupportDialog:has(#orderAssistantLog:not([hidden])) textarea:focus-visible {
+  outline: 2px solid var(--chat-accent) !important;
+  outline-offset: -2px;
 }
 #customerSupportDialog:has(#orderAssistantLog:not([hidden])) form button {
   display: grid;
