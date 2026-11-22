@@ -7,6 +7,8 @@
     .replace(/\b(qto|qt|qnt)\b/g,'quanto').replace(/\b(vcs|vces)\b/g,'voces')
     .replace(/\b(pra|pro|pr|p) (?:a |o )?(entrega|retirada)\b/g,'para $1')
     .replace(/\b(zap|wpp|zapzap)\b/g,'whatsapp');
+  const greetingPattern = /^(?:(?:oi|olá|ola|opa|e aí|e ai|oie+)\s*[,!.–—-]*\s*)?(boa\s+noite|bom\s+dia|boa\s+tarde|oi|olá|ola|opa|e aí|e ai|oie+)(?=$|[^\p{L}\p{N}])/iu;
+  const deliveryQuestion = /\b(taxa|frete|entrega (?:para|em|no bairro|na rua)|entregam (?:em|no|na|para|pra)|faz(?:em)? entrega|tem delivery)\b/;
   const words = value => ' ' + normalize(value) + ' ';
   const includes = (text, term) => !!normalize(term) && words(text).includes(words(term));
   const brl = cents => (cents / 100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
@@ -106,6 +108,7 @@
     let productContext=null;
     let checkingFee=false;
     let typingTurn=null;
+    let replyGreeting='';
     let retryPending=false;
     const timestamps = {catalog:0};
     const nav = () => [
@@ -121,14 +124,19 @@
       return element;
     }
     function say(text,customer=false) {
-      if (!customer) typingTurn?.remove();
+      if (!customer) {
+        typingTurn?.remove();
+        if (replyGreeting) text=replyGreeting+' '+text;
+        replyGreeting='';
+      }
       history.push({text,customer});
       const bubble=node('div','',customer?'supportBubble outgoing':'supportBubble');
       bubble.append(node('strong',customer?'Você':'Assistente do Caseirão'),node('p',text));
       log.append(bubble);
       log.scrollTop=log.scrollHeight;
     }
-    function buttons(choices=[]) {
+    function buttons(choices=[],layout='') {
+      actions.dataset.layout=layout;
       actions.replaceChildren(...choices.map(([label,action])=>{
         const button=node('button',label,'assistantChoice');
         button.type='button';
@@ -159,6 +167,7 @@
       finally {
         removeTyping();
         typingTurn=null;
+        replyGreeting='';
         if (submitButton) submitButton.disabled=false;
         choices.forEach(button=>button.disabled=false);
         busy=false;
@@ -431,11 +440,49 @@
       }
       return proceed();
     }
+    function showOrderCard(items,details,total) {
+      typingTurn?.remove();
+      const card=node('section','','assistantOrder');
+      const heading=node('h3','Seu pedido');
+      card.append(heading);
+      const list=node('ul','','assistantOrderItems');
+      for (const {product,line,options} of items) {
+        const row=node('li','','assistantOrderItem');
+        if (product.image_url) {
+          const photo=node('img','','assistantOrderPhoto');
+          photo.alt='';
+          photo.addEventListener('error',()=>photo.remove(),{once:true});
+          photo.src=product.image_url;
+          row.append(photo);
+        }
+        const description=node('div');
+        description.append(node('strong',line.qty+'× '+product.name));
+        for (const option of [...options,line.note].filter(Boolean)) {
+          description.append(node('p',option));
+        }
+        row.append(description);
+        list.append(row);
+      }
+      const orderDetails=node('dl','','assistantOrderDetails');
+      for (const [label,value] of details) {
+        const row=node('div');
+        row.append(node('dt',label),node('dd',value));
+        orderDetails.append(row);
+      }
+      const totalRow=node('div','','assistantOrderTotal');
+      totalRow.append(node('span','Total'),node('strong',brl(total)));
+      card.append(list,orderDetails,totalRow);
+      log.querySelector('.assistantOrder')?.remove();
+      log.append(card);
+      log.scrollTop=log.scrollHeight;
+    }
+
     async function review(showConfirm=true) {
       if (receipt||retryPending) return;
       if (!draft.items.length) return beginOrder();
       await latest(showConfirm&&mode==='checkout');
       const lines=[];
+      const items=[];
       const unit=[];
       const unavailable=[];
       let subtotal=0;
@@ -455,6 +502,8 @@
         }
         const value=price(product)+addons.reduce((sum,addon)=>sum+cents(addon.price),0);
         unit.push(value); subtotal+=value*line.qty;
+        const options=addons.map(addon=>selectedDrink?.id===addon.id ? selectedDrink.name : addon.name);
+        items.push({product,line,options});
         lines.push(line.qty+'× '+product.name+(addons.length?' + '+addons.map(addon=>addon.name).join(', '):'')+
           (line.note?' ('+line.note+')':'')+' · '+brl(value*line.qty));
       });
@@ -491,18 +540,37 @@
         say('O valor para troco precisa cobrir o total de '+brl(total)+'.');
         return proceed();
       }
-      const details=[types[draft.type]+' · '+draft.name,'Telefone: '+draft.phone];
-      if (hood&&draft.type==='delivery') details.push(draft.address.street+', '+draft.address.number+' · '+hood.name+(draft.address.reference?' · '+draft.address.reference:''),'Taxa de entrega: '+brl(fee));
-      if (draft.type==='local') details.push('Mesa '+draft.table);
       const eta=draft.type==='delivery'
         ? (catalog.settings.peak_mode?catalog.settings.peak_delivery_eta:catalog.settings.delivery_eta)
         : (catalog.settings.peak_mode?catalog.settings.peak_pickup_eta:catalog.settings.pickup_eta);
-      if (eta) details.push('Previsão: '+eta);
-      details.push('Pagamento: '+draft.payment+(draft.change?' · Troco para '+draft.change:''),'Total: '+brl(total));
+      const details=[
+        [types[draft.type],draft.type==='local'?'Mesa '+draft.table:(eta||'')],
+        ['Pagamento',draft.payment+(draft.change?' · Troco para '+draft.change:'')],
+        ['Cliente',draft.name+' · '+draft.phone],
+      ];
+      if (draft.type==='delivery') {
+        const {street,number,reference}=draft.address;
+        details.splice(1,0,
+          ['Endereço',street+', '+number+' · '+hood.name+(reference?' · '+reference:'')],
+          ['Taxa de entrega',brl(fee)]);
+      }
       quote={total_cents:total,unit_cents:unit};
       step='confirm';
-      say('Confere seu pedido antes de confirmar.\n'+lines.join('\n')+'\n'+details.join('\n'));
-      buttons([['Confirmar pedido',()=>confirm()],['Corrigir dados',()=>editDetails()],['Adicionar mais',()=>beginOrder()],...edits,['Falar com a equipe',()=>handoff()]]);
+      if (replyGreeting) {
+        const greeting=replyGreeting;
+        replyGreeting='';
+        say(greeting+' Confere o resumo do pedido.');
+      }
+      showOrderCard(items,details,total);
+      const showReviewActions=()=>buttons([
+        ['Confirmar pedido',()=>confirm()],
+        ['Editar pedido',()=>buttons([
+          ['Corrigir dados',()=>editDetails()],['Adicionar mais',()=>beginOrder()],...edits,
+          ['Voltar ao resumo',()=>showReviewActions()],['Falar com a equipe',()=>handoff()],
+        ])],
+        ['Falar com a equipe',()=>handoff()],
+      ],'review');
+      showReviewActions();
     }
     function editDetails() {
       for (const key of ['type','name','phone','email','payment','change','table']) delete draft[key];
@@ -586,15 +654,17 @@
         buttons(footer());
         return true;
       }
-      if (checkingFee||/\b(taxa|frete|entrega para|entregam no|entregam na|entrega no bairro|fazem entrega em)\b/.test(normalized)&&!orderIntent(normalized)) {
+      if (checkingFee||deliveryQuestion.test(normalized)&&!orderIntent(normalized)) {
         const neighborhoods=catalog.neighborhoods.filter(hood=>includes(normalized,hood.name));
         if (neighborhoods.length) {
           checkingFee=false;
-          say(neighborhoods.map(hood=>hood.name+': taxa de '+brl(cents(hood.fee))+'.').join(' '));
+          say(neighborhoods.length===1
+            ? 'Entregamos em '+neighborhoods[0].name+'. A taxa é de '+brl(cents(neighborhoods[0].fee))+'.'
+            : neighborhoods.map(hood=>hood.name+': taxa de '+brl(cents(hood.fee))+'.').join(' '));
           buttons(footer());
         } else {
           checkingFee=true;
-          say('Qual é o bairro? Posso consultar os valores de entrega por região do cardápio.');
+          say('Qual é o seu bairro? Eu confiro a entrega pra você.');
           buttons(footer(catalog.neighborhoods.map(hood=>[hood.name,()=>{
             checkingFee=false;
             say('A taxa de entrega no bairro '+hood.name+' é '+brl(cents(hood.fee))+'.');
@@ -644,6 +714,22 @@
         say('Toque em Verificar envio para consultar a tentativa anterior.');
         return;
       }
+      const greeting=text.match(greetingPattern);
+      if (greeting) {
+        const greetingText=normalize(greeting[1]);
+        const salutation=['boa noite','bom dia','boa tarde'].includes(greetingText)
+          ? greetingText[0].toUpperCase()+greetingText.slice(1)+'!' : 'Oi!';
+        const rest=text.slice(greeting[0].length).replace(/^[^\p{L}\p{N}+]+/u,'').trim();
+        if (!rest || /^(tudo bem|tudo bom|como vai|como voce esta)$/.test(normalize(rest))) {
+          const answer=rest ? ' Tudo bem por aqui.' : '';
+          if (receipt) return say(salutation+answer+' Quer acompanhar seu pedido ou fazer outro?');
+          if (step||draft.items.length||checkingFee) return say(salutation+answer+' Vamos continuar de onde paramos?');
+          say(salutation+answer+' Quer ver o cardápio ou já sabe o que vai pedir?');
+          return buttons(nav());
+        }
+        text=rest;
+        replyGreeting=salutation;
+      }
       const normalized=conversational(text);
       const wantsToOrder=orderIntent(normalized);
       const asks=inquiryIntent(normalized)&&!wantsToOrder;
@@ -660,8 +746,9 @@
         return;
       }
       const requestMenu=/^(cardapio|menu|(?:ver|manda|mandar|mostra|mostrar|me manda) (?:o )?cardapio)\b/.test(normalized);
-      const faq=/\b(alergia|alergico|alergica|celiaco|celiaca|contaminacao cruzada|quanto tempo|qual o prazo|demora quanto|previsao de entrega|tempo de entrega|onde fica|como chegar|localizacao da loja|taxa|frete|entregam no|entregam na|fazem entrega em|que horas|qual o endereco|aberto|fechado|funcionando)\b/.test(normalized) ||
-        /^(aceita|aceitam|recebe|recebem|quais|como|pode|da pra)\b.*\b(pagamento|pagar|pix|cartao|dinheiro)\b/.test(normalized);
+      const faq=/\b(alergia|alergico|alergica|celiaco|celiaca|contaminacao cruzada|quanto tempo|qual o prazo|demora quanto|previsao de entrega|tempo de entrega|onde fica|como chegar|localizacao da loja|horario|que horas|qual o endereco|aberto|fechado|funcionando)\b/.test(normalized) ||
+        deliveryQuestion.test(normalized) ||
+        /^(?:voces )?(aceita|aceitam|recebe|recebem|quais|como|pode|da pra|tem)\b.*\b(pagamento|pagar|pix|cartao|dinheiro)\b/.test(normalized);
       const question=asks||requestMenu||faq||checkingFee;
       if (!question&&!wantsToOrder&&step==='product_choice') {
         const choices=focusProduct.entries.filter(product=>includes(text,product.name));
@@ -786,10 +873,6 @@
         if (/\b(fazer um pedido|fazer pedido|quero pedir|gostaria de pedir)\b/.test(normalized)||normalized==='pedido') return beginOrder();
         say('Não encontrei um item com esse nome. Você pode me dizer outro nome ou escolher no cardápio.');
         return buttons(footer([['Ver cardápio',()=>showMenu()]]));
-      }
-      if (/^(oi|ola|opa|e ai|boa noite|bom dia|boa tarde)$/.test(normalized)) {
-        say('Oi! Posso mostrar o cardápio ou ajudar a fazer seu pedido.');
-        return buttons(draft.items.length?footer([['Continuar pedido',()=>proceed()]]):nav());
       }
       if (/^(obrigado|obrigada|valeu|show|beleza)$/.test(normalized)) return say('De nada! Se precisar de mais alguma coisa, é só falar.');
       say('Posso consultar o cardápio, montar seu pedido ou chamar a equipe. Qual você prefere?');

@@ -108,7 +108,7 @@ window.caseiraoCustomerSupport = (() => {
     messages.hidden=true;
     assistantLog.hidden=false;
     assistantChoices.hidden=false;
-    title.textContent='Assistente do Caseirão';
+    title.textContent='Assistente de pedidos';
     input.value='';
     feedback.textContent='';
     button.disabled=false;
