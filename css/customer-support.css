@@ -267,17 +267,24 @@
   align-items: center;
 }
 #customerSupportDialog:has(#orderAssistantLog:not([hidden])) textarea {
+  box-sizing: border-box;
   height: 44px;
   min-height: 44px;
   resize: none;
   border: 0;
   padding: 11px 1px;
-  background: transparent;
+  background: var(--chat-panel);
   color: var(--chat-text);
+  -webkit-text-fill-color: var(--chat-text);
+  caret-color: var(--chat-text);
   font-size: 1rem;
   line-height: 22px;
 }
-#customerSupportDialog:has(#orderAssistantLog:not([hidden])) textarea::placeholder { color: var(--chat-muted); }
+#customerSupportDialog:has(#orderAssistantLog:not([hidden])) textarea::placeholder {
+  color: var(--chat-muted);
+  -webkit-text-fill-color: currentColor;
+  opacity: 1;
+}
 #customerSupportDialog:has(#orderAssistantLog:not([hidden])) form button {
   display: grid;
   place-items: center;
