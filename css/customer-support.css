@@ -44,28 +44,287 @@
 @media(prefers-reduced-motion:reduce){.queueBike,.queueDot.next{animation:none}}
 
 #customerSupportDialog [hidden]{display:none!important}
-#orderAssistantLog{height:clamp(88px,36dvh,330px)}
-#orderAssistantChoices{
-  display:flex;flex-wrap:wrap;gap:6px;max-height:clamp(48px,20dvh,132px);
-  overflow:auto;padding:7px 16px;border-top:1px solid #e4dfd2;background:#fffdf7;
-}
-#orderAssistantChoices:empty{padding:0;border-top:0}
-#orderAssistantChoices .assistantChoice{
-  padding:7px 10px;min-height:35px;border:1px solid #b6ccc4;
-  border-radius:7px;background:#edf6f1;color:#0b403d;
-  font:inherit;font-size:.84rem;font-weight:750;cursor:pointer;text-align:left;
-}
-#customerSupportDialog[aria-busy=true] #orderAssistantChoices{opacity:.65}
+#customerSupportDialog .assistantBrand,
+#customerSupportDialog form svg { display: none; }
 
-#orderAssistantLog .assistantTyping{
-  display:flex;align-items:center;gap:5px;align-self:flex-start;
-  background:#e9f3ee;color:#35504b;border-radius:11px;padding:8px 10px;
-  font-size:.76rem;
+#customerSupportDialog:has(#orderAssistantLog:not([hidden])) {
+  --chat-bg: #111011;
+  --chat-panel: #211d1e;
+  --chat-text: #fff3e7;
+  --chat-muted: #cfc0b7;
+  --chat-line: #4c4140;
+  --chat-accent: #ffad16;
+  display: none;
+  width: min(100% - 32px, 480px);
+  height: min(88dvh, 780px);
+  max-height: 88dvh;
+  color-scheme: dark;
+  background: var(--chat-bg);
+  color: var(--chat-text);
+  border: 1px solid var(--chat-line);
+  border-radius: 22px;
+  box-shadow: 0 24px 80px #000a;
 }
-.assistantTyping span{margin-inline-end:3px}
-.assistantTyping i{width:4px;height:4px;border-radius:50%;background:currentColor;animation:assistantTypingPulse 1.2s infinite alternate}
-.assistantTyping i:nth-of-type(2){animation-delay:.2s}
-.assistantTyping i:nth-of-type(3){animation-delay:.4s}
-@keyframes assistantTypingPulse{from{opacity:.32}to{opacity:1}}
-@media(prefers-reduced-motion:reduce){.assistantTyping i{animation:none}}
-#customerSupportDialog [type=submit]:disabled,#orderAssistantChoices .assistantChoice:disabled{cursor:wait;opacity:.65}
+
+#customerSupportDialog[open]:has(#orderAssistantLog:not([hidden])) {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto auto;
+}
+
+#customerSupportDialog:has(#orderAssistantLog:not([hidden]))::backdrop { background: #090606b3; }
+
+#customerSupportDialog:has(#orderAssistantLog:not([hidden])) header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 10px;
+  padding: 15px 18px;
+  border-color: var(--chat-line);
+}
+
+#customerSupportDialog:has(#orderAssistantLog:not([hidden])) .assistantBrand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  grid-area: 1 / 1 / span 2 / 2;
+  align-self: start;
+}
+
+.assistantMark {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 49px;
+  border-right: 1px solid var(--chat-line);
+  padding-right: 12px;
+  box-sizing: border-box;
+  color: var(--chat-accent);
+  font: italic bold 2.25rem Georgia, serif;
+}
+
+.assistantBrandName {
+  align-self: start;
+  color: var(--chat-text);
+  font-size: clamp(1.12rem, 5vw, 1.4rem);
+  font-weight: 820;
+  line-height: 1.14;
+}
+
+#customerSupportDialog:has(#orderAssistantLog:not([hidden])) h2 {
+  grid-area: 2 / 1;
+  margin: 0 0 0 55px;
+  color: var(--chat-muted);
+  font-size: .86rem;
+  font-weight: 500;
+  align-self: center;
+  line-height: 1.25;
+}
+
+#customerSupportDialog:has(#orderAssistantLog:not([hidden])) [data-chat-close] {
+  grid-area: 1 / 2 / span 2 / 3;
+  min-width: 44px;
+  min-height: 44px;
+  font-size: 1.85rem;
+  line-height: 1;
+}
+
+#orderAssistantLog {
+  height: auto;
+  min-height: 0;
+  overscroll-behavior: contain;
+  gap: 12px;
+  padding: 16px 18px;
+}
+
+#orderAssistantLog > * { flex-shrink: 0; }
+#orderAssistantLog .supportBubble {
+  background: #2d2728;
+  color: var(--chat-text);
+  max-width: 87%;
+  border-radius: 15px 15px 15px 4px;
+  padding: 9px 13px;
+  font-size: .96rem;
+  line-height: 1.42;
+}
+#orderAssistantLog .supportBubble.outgoing {
+  background: var(--chat-accent);
+  color: #191107;
+  border-radius: 15px 15px 4px 15px;
+}
+#orderAssistantLog .supportBubble strong {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+#orderAssistantLog .supportBubble p { margin: 0; }
+
+.assistantOrder {
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid #382f30;
+  background: var(--chat-panel);
+  overflow-wrap: anywhere;
+}
+.assistantOrder h3 { margin: 0 0 12px; font-size: 1.22rem; }
+.assistantOrderItems { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.assistantOrderItem { display: flex; gap: 12px; align-items: flex-start; }
+.assistantOrderItem strong { font-size: 1rem; }
+.assistantOrderItem p { margin: 3px 0 0; font-size: .88rem; color: var(--chat-muted); }
+.assistantOrderPhoto { flex: none; width: 72px; height: 72px; object-fit: cover; border-radius: 10px; }
+.assistantOrderDetails {
+  margin: 12px 0 0;
+  padding: 10px 0;
+  display: grid;
+  gap: 6px;
+  border-block: 1px solid var(--chat-line);
+  font-size: .86rem;
+}
+.assistantOrderDetails div { display: grid; grid-template-columns: minmax(72px, auto) 1fr; gap: 8px; }
+.assistantOrderDetails dt { font-weight: 650; }
+.assistantOrderDetails dd { margin: 0; color: var(--chat-muted); }
+.assistantOrderTotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  padding-top: 10px;
+  font-weight: 750;
+}
+.assistantOrderTotal strong { font-size: 1.25rem; }
+
+#orderAssistantChoices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 18px;
+  max-height: min(21dvh, 132px);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+#orderAssistantChoices:empty { display: none; }
+#orderAssistantChoices .assistantChoice {
+  min-height: 38px;
+  padding: 6px 11px;
+  border: 1px solid var(--chat-line);
+  border-radius: 9px;
+  background: var(--chat-panel);
+  color: var(--chat-text);
+  font: inherit;
+  font-size: .84rem;
+  font-weight: 650;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+#orderAssistantChoices[data-layout=review] {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  max-height: none;
+  padding-block: 2px 5px;
+}
+#orderAssistantChoices[data-layout=review] .assistantChoice {
+  background: transparent;
+  border-color: transparent;
+}
+#orderAssistantChoices[data-layout=review] .assistantChoice:first-child {
+  grid-column: 1 / -1;
+  min-height: 45px;
+  background: var(--chat-accent);
+  color: #191107;
+  font-size: 1rem;
+  font-weight: 800;
+}
+#orderAssistantChoices[data-layout=review] .assistantChoice:last-child {
+  border-left: 1px solid var(--chat-line);
+  border-radius: 0 9px 9px 0;
+}
+
+#orderAssistantLog .assistantTyping {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  align-self: flex-start;
+  background: #2d2728;
+  color: var(--chat-muted);
+  border-radius: 12px;
+  padding: 7px 10px;
+  font-size: .76rem;
+}
+.assistantTyping span { margin-inline-end: 3px; }
+.assistantTyping i { width: 4px; height: 4px; border-radius: 50%; background: currentColor; animation: assistantTypingPulse 1.2s infinite alternate; }
+.assistantTyping i:nth-of-type(2) { animation-delay: .2s; }
+.assistantTyping i:nth-of-type(3) { animation-delay: .4s; }
+@keyframes assistantTypingPulse { from { opacity: .32; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .assistantTyping i { animation: none; } }
+
+#customerSupportDialog:has(#orderAssistantLog:not([hidden])) form {
+  margin: 4px 18px 12px;
+  padding: 0 3px 0 11px;
+  border: 1px solid var(--chat-line);
+  border-radius: 19px;
+  background: var(--chat-panel);
+  align-items: center;
+}
+#customerSupportDialog:has(#orderAssistantLog:not([hidden])) textarea {
+  height: 44px;
+  min-height: 44px;
+  resize: none;
+  border: 0;
+  padding: 11px 1px;
+  background: transparent;
+  color: var(--chat-text);
+  font-size: 1rem;
+  line-height: 22px;
+}
+#customerSupportDialog:has(#orderAssistantLog:not([hidden])) textarea::placeholder { color: var(--chat-muted); }
+#customerSupportDialog:has(#orderAssistantLog:not([hidden])) form button {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: transparent;
+  color: var(--chat-accent);
+}
+#customerSupportDialog:has(#orderAssistantLog:not([hidden])) form button span { display: none; }
+#customerSupportDialog:has(#orderAssistantLog:not([hidden])) form svg {
+  display: block;
+  width: 23px;
+  height: 23px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.65;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+#customerSupportDialog:has(#orderAssistantLog:not([hidden])) [role=status] {
+  color: var(--chat-accent);
+  min-height: 0;
+  margin: -6px 18px 8px;
+}
+#customerSupportDialog:has(#orderAssistantLog:not([hidden])) [role=status]:empty { display: none; }
+#customerSupportDialog:has(#orderAssistantLog:not([hidden])) :focus-visible {
+  outline: 2px solid var(--chat-accent);
+  outline-offset: -2px;
+}
+#orderAssistantChoices[data-layout=review] .assistantChoice:first-child:focus-visible {
+  outline-color: #191107;
+  outline-offset: -4px;
+}
+#customerSupportDialog [type=submit]:disabled,
+#orderAssistantChoices .assistantChoice:disabled { cursor: wait; opacity: .65; }
+
+@media (max-width: 640px) {
+  #customerSupportDialog:has(#orderAssistantLog:not([hidden])) {
+    margin: 0;
+    width: 100%;
+    height: 100dvh;
+    max-width: 100%;
+    max-height: 100dvh;
+    border: 0;
+    border-radius: 0;
+    padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+  }
+}
