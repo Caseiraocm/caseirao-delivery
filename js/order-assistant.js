@@ -218,9 +218,16 @@
       }
       return catalog;
     }
-    function footer(extra=[]) {
+    function hasPendingItemChoice() {
+      return ['verify_extra','combo_drink','product_choice'].includes(step);
+    }
+    function footer(extra=[],canFinalize=true) {
       const menu=extra.some(([label])=>label==='Ver cardápio'||label==='Outras categorias')?[]:[['Ver cardápio',()=>showMenu()]];
-      return [...extra,...menu,...(mode==='checkout'&&catalog?.settings.store_open&&draft.items.length?[['Continuar pedido',()=>proceed()]]:[]),...(draft.items.length?[['Ver meu pedido',()=>review(false,Boolean(step))],['Adicionar mais',()=>beginOrder()]]:[]),['Falar com a equipe',()=>handoff()]];
+      const checkout=canFinalize&&draft.items.length&&!hasPendingItemChoice()
+        ? [[mode==='checkout'&&step?'Continuar pedido':'Finalizar pedido',()=>proceed(true)]]
+        : [];
+      const cart=draft.items.length?[['Ver meu pedido',()=>review(false,Boolean(step))],['Adicionar mais',()=>beginOrder()]]:[];
+      return [...checkout,...extra,...menu,...cart,['Falar com a equipe',()=>handoff()]];
     }
     function handoff() {
       if (retryPending) {
@@ -470,7 +477,7 @@
       if (note) summary.push('Observação: '+note);
       say('Anotei '+summary.join('\n')+'.');
       mode='items'; step='';
-      buttons(footer(catalog.settings.store_open?[['Finalizar pedido',()=>proceed()]]:[]));
+      buttons(footer());
       return true;
     }
     function askDrink(options) {
@@ -508,7 +515,7 @@
         if (!addProduct(entries[0],qty,message) && step) return;
       }
       if (finishRequested && draft.items.length) return proceed();
-      buttons(footer(catalog.settings.store_open?[['Finalizar pedido',()=>proceed()]]:[]));
+      buttons(footer());
     }
     function chooseProduct(product) {
       const {qty,message}=focusProduct;
@@ -520,19 +527,20 @@
       say(title);
       buttons([...choices,['Ver meu pedido',()=>review(false,true)],['Falar com a equipe',()=>handoff()]]);
     }
-    function proceed() {
+    function proceed(refresh=false) {
       if (receipt) return;
       if (retryPending) return confirm();
+      if (hasPendingItemChoice()) return say('Escolha a opção pendente do item antes de finalizar o pedido.');
       if (!draft.items.length) return beginOrder();
-      return checkStoreAndProceed();
+      return checkStoreAndProceed(refresh);
     }
-    async function checkStoreAndProceed() {
-      await latest();
-      if (!catalog.settings.store_open) {
-        say('O Caseirão está fechado para novos pedidos agora. Você pode consultar os itens e os valores que anotamos.');
-        buttons(footer());
-        return;
-      }
+    function showClosedCheckout() {
+      say('O Caseirão está fechado para novos pedidos agora. Seus itens continuam no carrinho. Toque no botão novamente quando a loja abrir.');
+      buttons(footer());
+    }
+    async function checkStoreAndProceed(refresh) {
+      await latest(refresh);
+      if (!catalog.settings.store_open) return showClosedCheckout();
       mode='checkout';
       if (!draft.type) {
         step='type';
@@ -706,7 +714,7 @@
       const total=subtotal+fee;
       const edits=draft.items.map((line,index)=>['Remover '+line.name,()=>{draft.items.splice(index,1);return review(false)}]);
       if (unavailable.length) {
-        if (!keepActions) buttons(footer(edits));
+        if (!keepActions) buttons(footer(edits,false));
         say(lines.join('\n')+'\nRemova ou troque os itens indisponíveis para continuar.');
         return;
       }
@@ -717,21 +725,17 @@
         else totals.push('Total do pedido: '+brl(total));
         if (!catalog.settings.store_open) totals.push('A loja está fechada para confirmar pedidos agora.');
         say(lines.join('\n\n')+'\n\n'+totals.join('\n'));
-        if (!keepActions) buttons(footer([...(catalog.settings.store_open?[['Finalizar pedido',()=>proceed()]]:[]),...edits]));
+        if (!keepActions) buttons(footer(edits));
         return;
       }
-      if (!catalog.settings.store_open) {
-        say('O Caseirão está fechado para pedidos agora. Você pode consultar o cardápio ou falar com a equipe.');
-        buttons([['Ver cardápio',()=>showMenu()],['Falar com a equipe',()=>handoff()]]);
-        return;
-      }
+      if (!catalog.settings.store_open) return showClosedCheckout();
       if (draft.type==='delivery'&&!hood) {
         delete draft.address.neighborhood_id;
         return proceed();
       }
       if (subtotal<cents(catalog.settings.min_order)) {
         say('O pedido mínimo é de '+brl(cents(catalog.settings.min_order))+'. Seu subtotal está em '+brl(subtotal)+'.');
-        buttons(footer([['Ver cardápio',()=>showMenu()]]));
+        buttons(footer([],false));
         return;
       }
       if (draft.payment==='Dinheiro'&&draft.change&&cents(draft.change.replace(',','.'))<total) {
@@ -998,7 +1002,7 @@
       }
       if (/\b(mudar (meu|os) dados|corrigir dados)\b/.test(normalized)&&draft.items.length) return editDetails();
       if (orderPrice.test(normalized)||orderSummary.test(normalized)) {
-        if (step==='verify_extra'||step==='combo_drink'||step==='product_choice') {
+        if (hasPendingItemChoice()) {
           if (draft.items.length) await review(false,true);
           say('A opção pendente acima ainda precisa ser escolhida para entrar no pedido.');
           return;
@@ -1017,6 +1021,7 @@
         say('Pra registrar, toque no botão Confirmar pedido.');
         return;
       }
+      if (/^(?:(?:quero|vou|pode|vamos) )?(?:(?:finalizar|fechar|terminar)(?: (?:meu|o))?(?: pedido)?|so isso|e so)(?: por favor)?$/.test(normalized)) return proceed(true);
       const requestMenu=/^(cardapio|menu|(?:ver|manda|mandar|mostra|mostrar|me manda) (?:o )?cardapio)\b/.test(normalized);
       const faq=/\b(alergia|alergico|alergica|celiaco|celiaca|contaminacao cruzada|quanto tempo|qual o prazo|demora quanto|previsao de entrega|tempo de entrega|onde fica|como chegar|localizacao da loja|horario|que horas|qual o endereco|aberto|fechado|funcionando)\b/.test(normalized) ||
         deliveryQuestion.test(normalized) ||
@@ -1071,7 +1076,6 @@
         return buttons(footer([['Ver cardápio',()=>showMenu()],['Fazer pedido',()=>beginOrder()]]));
       }
       if (requestMenu) return showMenu();
-      if (/^(finalizar|fechar|so isso|e so|terminar)( meu| o)?( pedido)?$/.test(normalized)) return proceed();
 
       const clauses=text.split(/[!?]+\s*|\.\s+(?=[\p{L}])/u).filter(part=>part.trim());
       const adding=[];
