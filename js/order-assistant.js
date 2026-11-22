@@ -9,6 +9,8 @@
     .replace(/\b(zap|wpp|zapzap)\b/g,'whatsapp');
   const greetingPattern = /^(?:(?:oi|olá|ola|opa|e aí|e ai|oie+)\s*[,!.–—-]*\s*)?(boa\s+noite|bom\s+dia|boa\s+tarde|oi|olá|ola|opa|e aí|e ai|oie+)(?=$|[^\p{L}\p{N}])/iu;
   const deliveryQuestion = /\b(taxa|frete|entrega (?:para|em|no bairro|na rua)|entregam (?:em|no|na|para|pra)|faz(?:em)? entrega|tem delivery)\b/;
+  const orderPrice = /^(?:e |entao )?(?:(?:me (?:diz|fala) )?(?:qual (?:e )?)?(?:o )?(?:valor(?: total| final)?|preco(?: total| final)?|total(?: final)?|subtotal|soma)(?: (?:d[oe] (?:meu |esse )?(?:pedido|carrinho)|d[eo]le|de tudo|com tudo|a pagar))?|quanto(?: (?:e|custa|fica|ficou|deu|da|sai|vai dar|(?:eu )?(?:vou pagar|tenho que pagar|pago)|ta|esta))?(?: (?:no total|ao todo|tudo|o pedido|meu pedido|isso|com tudo))?)(?: (?:ai|por favor))?$/;
+  const orderSummary = /^(?:e )?(?:ver (?:meu|o) pedido|ver resumo|resumo(?: do pedido)?|o que (?:eu )?pedi(?: ate agora)?|o que tem no (?:meu )?(?:pedido|carrinho)|como (?:ficou|ta|esta) (?:meu|o) pedido|quais (?:sao )?os itens(?: do pedido)?)(?: por favor)?$/;
   const trackingQuestion = /\b(acompanhar|(?:cade|onde (?:ta|esta)) (?:o |meu )?pedido|status (?:do (?:meu )?)?pedido|saiu (?:(?:para|pra) (?:a )?entrega|em rota)|(?:meu|o) pedido (?:ja )?(?:ta|esta|ficou) (?:em preparo|pronto|em rota))\b/;
   const trackingCodeQuestion = /\bcodigo (?:do (?:meu )?pedido|pedido|(?:de|pra|para) acompanhar|de rastreio)\b|\b(?:qual|perdi|esqueci|manda) (?:e )?(?:o |meu )?codigo$/;
   const words = value => ' ' + normalize(value) + ' ';
@@ -52,15 +54,16 @@
     return qty>0&&qty<=30?qty:0;
   };
   const orderIntent = text => /\b(quero(?! saber)|queria(?! saber)|gostaria de (pedir|comprar|fazer)|me (ve|manda|da)|manda|coloca|bota|adiciona|vou (querer|pedir)|mais (um|uma|dois|duas|\d+))\b/.test(text);
-  const inquiryIntent = text => /\b(quanto|preco|valor|tem|ingrediente|ingredientes|o que vem|vem com|adicionais|disponivel|esgotado|mostre|saber|queria ver)\b/.test(text);
-  const alias = name => normalize(name).replace(/\bcoca cola\b/g,'coca').replace(/\b((?:500|350|600) ?ml|1 ?l(?:itro)?|lata)\b/g,'').replace(/\s+/g,' ').trim();
+  const inquiryIntent = text => /\b(quanto|preco|valor|custa|tem|leva|ingrediente|ingredientes|o que vem|vem com|composicao|adicionais|disponivel|esgotado|mostre|saber|queria ver|diferenca|compare|comparar)\b/.test(text);
+  const alias = name => normalize(name).replace(/\bcoca cola\b/g,'coca').replace(/\bpe (?:para|pra) fora\b/g,'pe pra fora').replace(/\b((?:500|350|600) ?ml|1 ?l(?:itro)?|lata)\b/g,'').replace(/\s+/g,' ').trim();
+  const menuName = name => normalize(name).replace(/\bpe para fora\b/g,'pe pra fora');
 
   function matchingProducts(text, products, useAliases = false) {
-    let rest = words(useAliases ? alias(text) : text);
+    let rest = words(useAliases ? alias(text) : menuName(text));
     const matches = [];
     const names = new Map();
     for (const product of products) {
-      const name = useAliases ? alias(product.name) : normalize(product.name);
+      const name = useAliases ? alias(product.name) : menuName(product.name);
       if (!name) continue;
       const entries = names.get(name) || [];
       entries.push(product);
@@ -68,14 +71,31 @@
     }
     const candidates = [...names].sort(([a],[b])=>b.length-a.length);
     for (const [name,entries] of candidates) {
-      const match = rest.indexOf(' '+name+' ');
-      if (match<0) continue;
-      const preceding = rest.slice(0,match).trim().split(' ').at(-1);
-      const qty = Math.max(1, Math.min(30,Number(numberWords[preceding] || (/^\d+$/.test(preceding) ? preceding : 1))));
-      matches.push({entries,qty,index:match,length:name.length});
-      rest = rest.slice(0,match+1)+' '.repeat(name.length)+rest.slice(match+1+name.length);
+      let match=rest.indexOf(' '+name+' ');
+      while (match>=0) {
+        const preceding = rest.slice(0,match).trim().split(' ').at(-1);
+        const qty = Math.max(1, Math.min(30,Number(numberWords[preceding] || (/^\d+$/.test(preceding) ? preceding : 1))));
+        matches.push({entries,qty,index:match,length:name.length});
+        rest = rest.slice(0,match+1)+' '.repeat(name.length)+rest.slice(match+1+name.length);
+        match=rest.indexOf(' '+name+' ',match+1);
+      }
     }
     return matches.sort((a,b)=>a.index-b.index);
+  }
+
+  function orderSegments(text,products) {
+    const pieces=text.split(/(\s+e\s+|[,;]\s*)/i);
+    const segments=[pieces[0]];
+    for (let index=1;index<pieces.length;index+=2) {
+      const part=pieces[index+1];
+      const normalized=menuName(part);
+      const match=matchingProducts(part,products)[0];
+      const prefix=match?normalized.slice(0,match.index).trim():'';
+      const startsWithItem=match&&/^(?:(?:mais|tambem|outro|outra|um|uma|dois|duas|tres|quatro|cinco|seis|sete|oito|nove|dez|\d{1,2})\s*)*$/.test(prefix);
+      if (startsWithItem) segments.push(part);
+      else segments[segments.length-1]+=pieces[index]+part;
+    }
+    return segments;
   }
 
   function similarToken(left,right) {
@@ -109,6 +129,7 @@
     let suggestedQuantity=0;
     let productContext=null;
     let checkingFee=false;
+    let editScope=null;
     let typingTurn=null;
     let replyGreeting='';
     let retryPending=false;
@@ -199,7 +220,7 @@
     }
     function footer(extra=[]) {
       const menu=extra.some(([label])=>label==='Ver cardápio'||label==='Outras categorias')?[]:[['Ver cardápio',()=>showMenu()]];
-      return [...extra,...menu,...(mode==='checkout'&&step!=='confirm'?[['Continuar pedido',()=>proceed()]]:[]),...(draft.items.length?[['Ver meu pedido',()=>review()],['Adicionar mais',()=>beginOrder()]]:[]),['Falar com a equipe',()=>handoff()]];
+      return [...extra,...menu,...(mode==='checkout'&&catalog?.settings.store_open&&draft.items.length?[['Continuar pedido',()=>proceed()]]:[]),...(draft.items.length?[['Ver meu pedido',()=>review(false,Boolean(step))],['Adicionar mais',()=>beginOrder()]]:[]),['Falar com a equipe',()=>handoff()]];
     }
     function handoff() {
       if (retryPending) {
@@ -238,12 +259,19 @@
     }
     function describe(product, addonsOnly) {
       productContext=product.id;
-      const addons=linkedAddons(product).filter(available);
+      const drinks=window.CaseiraoComboDrinks?.options(catalog,product.id)||[];
+      const addons=linkedAddons(product).filter(addon=>available(addon)&&!drinks.some(drink=>drink.id===addon.id));
       const lines=[productDetails(product)];
       if (!addonsOnly && (product.description||product.desc)) lines.push(product.description||product.desc);
-      if (addonsOnly || addons.length) lines.push(addons.length ? 'Opções: '+addons.map(addon=>addon.name+' · '+brl(cents(addon.price))).join(', ') : 'Esse item está sem adicionais disponíveis.');
+      if (addonsOnly || addons.length) lines.push(addons.length ? 'Adicionais disponíveis: '+addons.map(addon=>addon.name+' · '+brl(cents(addon.price))).join(', ') : 'Esse item está sem adicionais disponíveis.');
+      if (drinks.length) lines.push('Bebidas do combo: '+(drinks.filter(drink=>drink.available).map(drink=>drink.name+(cents(drink.addon?.price)>0?' · +'+brl(cents(drink.addon.price)):'' )).join(', ')||'esgotadas no momento.'));
       say(lines.join('\n'));
       buttons(footer(available(product)?[['Adicionar '+product.name,()=>addProduct(product,1,'')]]:[]));
+    }
+    function listProducts(products, message, empty) {
+      say(products.length?message+'\n'+products.map(productDetails).join('\n'):empty);
+      buttons(footer(products.slice(0,8).map(product=>['Ver '+product.name,()=>describe(product,false)])));
+      return true;
     }
     async function beginOrder() {
       if (receipt) return say('O pedido #'+receipt.order_number+' já foi registrado. Toque em Novo pedido pra começar outro.');
@@ -297,6 +325,88 @@
     function addLine(product,qty,note,addons) {
       draft.items.push({product_id:product.id,name:product.name,qty,note,addon_ids:addons.map(addon=>addon.id)});
     }
+    function editOrder(normalized) {
+      const change=normalized.match(/^(?:(?:pode|consegue|quero) )?(tira(?:r)?|retira(?:r)?|remove(?:r)?|deixa(?:r)?|troca(?:r)?|coloca(?:r)?|bota(?:r)?|adiciona(?:r)?) (.+)$/);
+      if (!change || !draft.items.length) return false;
+      const [,verb,request]=change;
+      const remove=/^(tir|retir|remov)/.test(verb);
+      const setQuantity=/^deix/.test(verb);
+      const replace=/^troc/.test(verb);
+      const exact=matchingProducts(request,catalog.products);
+      const matches=exact.length?exact:matchingProducts(request,catalog.products,true);
+      const target=matches.at(0)?.entries;
+      const inCart=draft.items.map((line,index)=>({line,index}));
+      const candidates=target?inCart.filter(({line})=>target.some(product=>product.id===line.product_id)):inCart;
+      const scope=request.match(/\b(?:(?:de|em|no|na) )?(?:so |apenas )?(um|uma|dois|duas|tres|\d{1,2}) (?:so|apenas|deles|delas)\b|\b(?:de|em) (?:so |apenas )?(um|uma|dois|duas|tres|\d{1,2})(?: |$)/);
+      const scopeToken=scope?.[1]||scope?.[2];
+      const amount=Number(numberWords[scopeToken]||scopeToken||0);
+      const subject=request.replace(/^(?:o |a |os |as )/,'');
+      const addonText=subject.split(/\s+(?:de|do|da|em|no|na|dos|das)\s+(?=(?:so |apenas )?(?:um|uma|dois|duas|tres|\d{1,2})\b|(?:o |a )?(?:meu |esse |essa )?(?:lanche|pedido|hamburguer|combo|todos|ambos)\b)/)[0];
+      const beforeProduct=target?request.slice(0,matches[0].index).trim():'';
+      const addonName=target ? beforeProduct.replace(/\s+(?:de|do|da|em|no|na|dos|das)\s*$/,'').replace(/^(?:o |a |os |as )/,'').trim() : addonText;
+      const choices=candidates.flatMap(({line,index})=>{
+        const product=catalog.products.find(item=>item.id===line.product_id);
+        if (!product) return [];
+        const options=linkedAddons(product).filter(addon=>!window.CaseiraoComboDrinks?.includes(addon.id)&&
+          (remove?line.addon_ids.includes(addon.id):available(addon)&&!line.addon_ids.includes(addon.id)));
+        const {matches:extras}=requestedExtras([addonName],options);
+        return extras.length===1?[{line,index,addon:extras[0]}]:[];
+      });
+      const update=async action=>{
+        action();
+        quote=null;
+        if (step==='confirm') step='';
+        if (!draft.items.length) {
+          say('Seu pedido ficou vazio. O que você quer adicionar?');
+          return beginOrder();
+        }
+        return review(false);
+      };
+      if (!replace&&!setQuantity&&choices.length) {
+        const apply=({line,index,addon},qty)=>update(()=>{
+          editScope=null;
+          const addon_ids=remove?line.addon_ids.filter(id=>id!==addon.id):[...line.addon_ids,addon.id];
+          const edited={...line,qty,addon_ids};
+          if (qty===line.qty) draft.items[index]=edited;
+          else draft.items.splice(index,1,{...line,qty:line.qty-qty},edited);
+        });
+        const applyChoice=choice=>{
+          const {line,addon}=choice;
+          if (amount>line.qty) return say('Só há '+line.qty+' unidade(s) nessa opção. Quantas você quer alterar?');
+          if (amount && amount<line.qty && draft.items.length>=30) return say('Seu pedido atingiu o limite de itens. Posso chamar a equipe para ajudar.');
+          if (!remove&&line.addon_ids.length>=10) return say('Esse item já atingiu o limite de adicionais.');
+          if (amount||line.qty===1||/\b(todos|todas|ambos|ambas)\b/.test(request)) return apply(choice,amount||line.qty);
+          say('Você quer '+(remove?'tirar ':'colocar ')+addon.name+' em um só ou em todos os '+line.qty+' '+line.name+'?');
+          editScope={one:()=>draft.items.length<30?apply(choice,1):say('Seu pedido atingiu o limite de itens.'),all:()=>apply(choice,line.qty)};
+          buttons([['Em um só',editScope.one],['Em todos',editScope.all],['Falar com a equipe',()=>handoff()]]);
+        };
+        if (choices.length===1) return applyChoice(choices[0])||true;
+        say('Em qual item você quer alterar esse adicional?');
+        buttons([...choices.map(choice=>[lineLabel(choice.line),()=>applyChoice(choice)]),['Falar com a equipe',()=>handoff()]]);
+        return true;
+      }
+      if (!(remove||replace||setQuantity)) return false;
+      const quantityToken=request.match(/^(?:so |apenas )?(um|uma|dois|duas|tres|quatro|cinco|\d{1,2})\b/)?.[1];
+      const quantity=Number(numberWords[quantityToken]||quantityToken||0);
+      const identifiesProduct=target&&/^(?:(?:o|a|os|as|so|apenas|um|uma|dois|duas|tres|quatro|cinco|\d{1,2})\s*)*$/.test(beforeProduct);
+      const referencesItem=identifiesProduct||/^(?:(?:o |a |esse |essa )?(?:ultimo|ultima|lanche|combo|hamburguer|item))$/.test(request)||setQuantity&&quantity&&!target;
+      if (!referencesItem||replace||!candidates.length||setQuantity&&(!quantity||quantity>30)) {
+        say(replace?'Posso remover o item antigo e adicionar o novo em seguida. Qual você quer remover?':'Me diga qual item do pedido você quer alterar.');
+        return review(false);
+      }
+      const edit=({line,index})=>{
+        const qty=setQuantity?quantity:quantity?Math.max(0,line.qty-quantity):0;
+        return update(()=>qty?draft.items[index]={...line,qty}:draft.items.splice(index,1));
+      };
+      if (candidates.length===1 || /^o? ?ultim[oa]$/.test(request)) return edit(candidates.at(-1));
+      say('Qual destas linhas você quer alterar?');
+      buttons([...candidates.map(candidate=>[lineLabel(candidate.line),()=>edit(candidate)]),['Falar com a equipe',()=>handoff()]]);
+      return true;
+    }
+    function lineLabel(line) {
+      const extras=line.addon_ids.map(id=>catalog.addons.find(option=>option.id===id)?.name).filter(Boolean);
+      return line.qty+'× '+line.name+(extras.length?' com '+extras.join(', '):'')+(line.note?' · '+line.note:'');
+    }
     function addProduct(product,qty,message,customizations) {
       if (receipt||retryPending) return false;
       if (draft.items.length>=30) {
@@ -309,6 +419,17 @@
         return false;
       }
       const drinks=window.CaseiraoComboDrinks?.options(catalog,product.id) || [];
+      const scopedExtra=message.match(/\b(?:em|no|na)\s+(?:s[oó]\s+)?(um|uma|dois|duas|tr[eê]s|[1-9])(?:\s+(?:s[oó]|apenas|deles|delas))?\s*[.!?]*$/iu);
+      if (qty>1&&scopedExtra&&itemCustomizations(message.slice(0,scopedExtra.index)).extras.length) {
+        const scopedQty=Number(numberWords[normalize(scopedExtra[1])]||scopedExtra[1]);
+        if (scopedQty<qty && draft.items.length<29) {
+          const customized=message.slice(0,scopedExtra.index);
+          const {note}=itemCustomizations(customized);
+          pendingChoices.unshift({entries:[product],qty:qty-scopedQty,message:note});
+          qty=scopedQty;
+          message=customized;
+        }
+      }
       const mixedNotes=message.match(/(?:[,;]|\be)\s*(um|uma|dois|duas|tr[eê]s|[1-9])\s+(sem\s+[\p{L}\s-]+?)(?=[.,;!?]|\s+(?:pra|para)\s|$)/iu);
       if (mixedNotes&&qty>1) {
         const annotatedQty=Number(numberWords[normalize(mixedNotes[1])]||mixedNotes[1]);
@@ -345,10 +466,11 @@
       addLine(product,qty,note,addons);
       const summary=[qty+'× '+product.name+' · '+brl(price(product)*qty)];
       for (const addon of addons) summary.push('+ '+qty+'× '+addon.name+' · '+brl(cents(addon.price)*qty));
+      if (addons.length) summary.push('Subtotal destes itens: '+brl(qty*(price(product)+addons.reduce((sum,addon)=>sum+cents(addon.price),0))));
       if (note) summary.push('Observação: '+note);
       say('Anotei '+summary.join('\n')+'.');
       mode='items'; step='';
-      buttons(footer([['Finalizar pedido',()=>proceed()]]));
+      buttons(footer(catalog.settings.store_open?[['Finalizar pedido',()=>proceed()]]:[]));
       return true;
     }
     function askDrink(options) {
@@ -386,7 +508,7 @@
         if (!addProduct(entries[0],qty,message) && step) return;
       }
       if (finishRequested && draft.items.length) return proceed();
-      buttons(footer([['Finalizar pedido',()=>proceed()]]));
+      buttons(footer(catalog.settings.store_open?[['Finalizar pedido',()=>proceed()]]:[]));
     }
     function chooseProduct(product) {
       const {qty,message}=focusProduct;
@@ -396,12 +518,21 @@
     }
     function prompt(title,choices=[]) {
       say(title);
-      buttons([...choices,['Ver meu pedido',()=>review(false)],['Falar com a equipe',()=>handoff()]]);
+      buttons([...choices,['Ver meu pedido',()=>review(false,true)],['Falar com a equipe',()=>handoff()]]);
     }
     function proceed() {
       if (receipt) return;
       if (retryPending) return confirm();
       if (!draft.items.length) return beginOrder();
+      return checkStoreAndProceed();
+    }
+    async function checkStoreAndProceed() {
+      await latest();
+      if (!catalog.settings.store_open) {
+        say('O Caseirão está fechado para novos pedidos agora. Você pode consultar os itens e os valores que anotamos.');
+        buttons(footer());
+        return;
+      }
       mode='checkout';
       if (!draft.type) {
         step='type';
@@ -583,8 +714,10 @@
         const totals=['Subtotal dos itens: '+brl(subtotal)];
         if (draft.type==='delivery'&&hood) totals.push('Taxa de entrega: '+brl(fee),'Total com entrega: '+brl(total));
         else if (!draft.type||draft.type==='delivery') totals.push('A taxa de entrega, se houver, depende do bairro.');
+        else totals.push('Total do pedido: '+brl(total));
+        if (!catalog.settings.store_open) totals.push('A loja está fechada para confirmar pedidos agora.');
         say(lines.join('\n\n')+'\n\n'+totals.join('\n'));
-        if (!keepActions) buttons(footer([['Finalizar pedido',()=>proceed()],...edits]));
+        if (!keepActions) buttons(footer([...(catalog.settings.store_open?[['Finalizar pedido',()=>proceed()]]:[]),...edits]));
         return;
       }
       if (!catalog.settings.store_open) {
@@ -728,7 +861,9 @@
             ? 'Entregamos em '+neighborhoods[0].name+'. A taxa é de '+brl(cents(neighborhoods[0].fee))+'.'
             : neighborhoods.map(hood=>hood.name+': taxa de '+brl(cents(hood.fee))+'.').join(' '));
           buttons(footer());
-        } else {
+        } else if (checkingFee && !deliveryQuestion.test(normalized) && !/\b(?:quanto|taxa|frete|cardapio|horario|pagamento|ingredientes|adicionais|entrega)\b/.test(normalized)) {
+          say('Não encontrei esse bairro na lista de entrega. Pode escolher um bairro abaixo ou falar com a equipe.');
+        } else if (!checkingFee || deliveryQuestion.test(normalized)) {
           checkingFee=true;
           say('Qual é o seu bairro? Eu confiro a entrega pra você.');
           buttons(footer(catalog.neighborhoods.map(hood=>[hood.name,()=>{
@@ -736,18 +871,7 @@
             say('A taxa de entrega no bairro '+hood.name+' é '+brl(cents(hood.fee))+'.');
             buttons(footer());
           }])));
-        }
-        return true;
-      }
-      const budget=normalized.match(/\b(?:ate|menos de|no maximo) (?:r )?(\d{1,3})(?: (\d{2}))?\b/);
-      if (budget&&/\b(lanche|lanches|hamburguer|hamburgueres|combo|combos|opcoes|tem)\b/.test(normalized)&&!orderIntent(normalized)) {
-        const category=/\bcombos?\b/.test(normalized)?'combo':'hamburguer';
-        const limit=Number(budget[1])*100+Number(budget[2]||0);
-        const results=catalog.products.filter(product=>available(product)&&price(product)<=limit&&normalize(product.category).includes(category))
-          .sort((a,b)=>price(a)-price(b)).slice(0,5);
-        say(results.length?'Aqui vão opções de até '+brl(limit)+' no cardápio, antes da entrega:\n'+results.map(productDetails).join('\n'):
-          'Não encontrei uma opção disponível nessa faixa no cardápio.');
-        buttons(footer(results.map(product=>['Ver '+product.name,()=>describe(product,false)])));
+        } else return false;
         return true;
       }
       if (/\b(quanto tempo|qual o prazo|demora quanto|previsao de entrega|tempo de entrega)\b/.test(normalized)) {
@@ -764,15 +888,76 @@
       }
       return false;
     }
-    function showSuggestions(products,quantity,wantsToOrder) {
+    function catalogQuestion(normalized) {
+      const products=catalog.products.filter(available);
+      const named=matchingProducts(normalized,catalog.products).length||matchingProducts(normalized,catalog.products,true).length;
+      if (named) return false;
+      const categories=[...new Set(catalog.products.map(product=>product.category).filter(Boolean))];
+      const category=categories.find(item=>includes(normalized,item)||includes(normalized,normalize(item).replace(/s$/,'')));
+      const inCategory=product=>{
+        const group=normalize(product.category);
+        if (category) return product.category===category;
+        if (/\bcombos?\b/.test(normalized)) return /\bcombos?\b/.test(group);
+        if (/\b(?:lanches?|hamburguer(?:es)?|burgers?)\b/.test(normalized)) return /lanche|hamburguer|burger|sanduiche/.test(group);
+        return true;
+      };
+      const budget=normalized.match(/\b(ate|menos de|no maximo) (?:r )?(\d{1,4})(?: (\d{2}))?\b/);
+      if (budget) {
+        const limit=Number(budget[2])*100+Number(budget[3]||0);
+        const results=products.filter(product=>inCategory(product)&&(budget[1]==='menos de'?price(product)<limit:price(product)<=limit));
+        results.sort((a,b)=>price(a)-price(b));
+        return listProducts(results,'Opções '+(budget[1]==='menos de'?'abaixo de ':'de até ')+brl(limit)+', antes da entrega:',
+          'Não encontrei uma opção disponível nessa faixa do cardápio.');
+      }
+      if (/\b(?:mais barato|mais barata|mais em conta|menor preco|mais baratos|mais baratas|recomenda|indicaria|sugere)\b/.test(normalized)) {
+        const results=products.filter(inCategory).sort((a,b)=>price(a)-price(b)).slice(0,4);
+        return listProducts(results,'Algumas das opções mais em conta agora:','Essa parte do cardápio está sem itens disponíveis agora.');
+      }
+      const ingredient=normalized.match(/^(?:(?:quais|qual|que) (?:os |as )?(?:itens|lanches|hamburgueres|combos) (?:que )?(?:tem|levam|vem com)|(?:tem|voces tem) (?:algum |alguma )?(?:lanche|hamburguer|combo|opcao) com|(?:quero ver|mostra|me mostra) (?:os |as )?(?:lanches|combos|opcoes) com) (.+?)(?: por favor)?$/)?.[1];
+      if (ingredient) {
+        const results=products.filter(product=>inCategory(product)&&includes(product.description||product.desc,ingredient));
+        return listProducts(results,'O cardápio menciona '+ingredient+' nestes itens:',
+          'Não encontrei '+ingredient+' nas descrições desses itens. A equipe pode confirmar a composição.');
+      }
+      if (category && (normalize(category)===normalized || /\b(?:quais|qual|ver|mostrar|mostra|tem|manda|lista|opcoes|cardapio)\b/.test(normalized))) {
+        return showCategory(category);
+      }
+      if (/^(?:(?:quais|qual) (?:sao )?(?:os |as )?|(?:tem|ver|listar|mostrar) )?(?:opcoes de )?(?:adicionais|extras)(?: disponiveis)?$/.test(normalized)) {
+        const relevant=products.find(product=>product.id===productContext)||
+          (draft.items.length===1?products.find(product=>product.id===draft.items[0].product_id):null);
+        if (relevant) {describe(relevant,true);return true;}
+        say('Os adicionais e os preços variam por item. De qual lanche ou combo você quer ver as opções?');
+        buttons(footer());
+        return true;
+      }
+      return false;
+    }
+    function showSuggestions(products,quantity,wantsToOrder,message) {
       say('Encontrei estas opções no cardápio. Qual delas você quis dizer?');
       buttons(footer(products.map(product=>[productDetails(product),()=>{
         if (wantsToOrder&&available(product)) {
-          pendingChoices=[{entries:[product],qty:quantity||1,message:''}];
+          pendingChoices=[{entries:[product],qty:quantity||1,message}];
           return continueAdding();
         }
         return describe(product,false);
       }])));
+    }
+
+    function estimateProducts(matches,text) {
+      if (matches.length!==1 || matches[0].entries.length!==1) return false;
+      const {entries:[product],qty}=matches[0];
+      if (!available(product) || (product.stock_enabled&&qty>Number(product.stock_quantity))) return false;
+      const drinks=window.CaseiraoComboDrinks?.options(catalog,product.id)||[];
+      if (drinks.length) return false;
+      const {extras}=itemCustomizations(text);
+      const {matches:addons,unknown}=requestedExtras(extras,linkedAddons(product).filter(available));
+      if (unknown.length || (qty===1&&!addons.length)) return false;
+      const lines=[qty+'× '+product.name+' · '+brl(price(product)*qty)];
+      for (const addon of addons) lines.push('+ '+qty+'× '+addon.name+' · '+brl(cents(addon.price)*qty));
+      const total=qty*(price(product)+addons.reduce((sum,addon)=>sum+cents(addon.price),0));
+      say([...lines,'Subtotal da simulação: '+brl(total)+' antes da taxa de entrega.'].join('\n'));
+      buttons(footer([['Adicionar ao pedido',()=>addProduct(product,qty,text)]]));
+      return true;
     }
 
     async function handle(text) {
@@ -797,8 +982,14 @@
         replyGreeting=salutation;
       }
       const normalized=conversational(text);
-      const wantsToOrder=orderIntent(normalized);
-      const asks=inquiryIntent(normalized)&&!wantsToOrder;
+      if (editScope) {
+        if (/^(?:em )?(?:so |apenas )?(?:um|uma|1)(?: so| apenas| deles| delas)?$/.test(normalized)) return editScope.one();
+        if (/^(?:em )?(?:todos|todas|os dois|as duas|ambos|ambas)$/.test(normalized)) return editScope.all();
+        if (!orderPrice.test(normalized)&&!orderSummary.test(normalized)) editScope=null;
+      }
+      const wantsToOrder=orderIntent(normalized)&&!/^(?:me (?:manda|da|ve) |manda |quero |queria )?(?:saber|ver|comparar|o preco|o valor|os ingredientes|os adicionais)\b/.test(normalized);
+      const addingExtras=/\bcom (?:os |uns )?adicionais de\b/.test(normalized)&&!/\b(?:quanto|valor|preco|custa|quais|opcoes)\b/.test(normalized);
+      const asks=inquiryIntent(normalized)&&!wantsToOrder&&!addingExtras;
       if (/\b(falar com (a equipe|alguem|uma pessoa)|atendente|atendimento humano)\b/.test(normalized)) return handoff();
       if (trackingQuestion.test(normalize(text)) || trackingCodeQuestion.test(normalized)) return offerTracking();
       if (receipt) {
@@ -806,13 +997,14 @@
         return say('Seu pedido #'+receipt.order_number+' já foi registrado. Você pode acompanhar ou começar outro pedido pelos botões.');
       }
       if (/\b(mudar (meu|os) dados|corrigir dados)\b/.test(normalized)&&draft.items.length) return editDetails();
-      const orderPrice=/^(?:(?:qual (?:e )?)?(?:(?:o )?(?:valor|preco|total|subtotal)(?: d[oe] (?:meu |esse )?pedido| d[eo]le)?|(?:quanto (?:custa|fica|ficou|deu|vai dar|ta|esta))(?: (?:tudo|o pedido|meu pedido|isso))?|quanto|quanto e)(?: por favor)?)$/;
-      if (orderPrice.test(normalized)) {
+      if (orderPrice.test(normalized)||orderSummary.test(normalized)) {
         if (step==='verify_extra'||step==='combo_drink'||step==='product_choice') {
-          say('Falta confirmar a opção acima para eu calcular o valor desse item.');
+          if (draft.items.length) await review(false,true);
+          say('A opção pendente acima ainda precisa ser escolhida para entrar no pedido.');
           return;
         }
-        if (draft.items.length) return review(false,Boolean(step));
+        if (draft.items.length) return review(false,Boolean(step||editScope));
+        if (orderSummary.test(normalized)) return say('Seu pedido está vazio. Pode escrever o nome de um item para começar.');
         if (productContext!==null) {
           await latest();
           const product=catalog.products.find(item=>item.id===productContext);
@@ -821,7 +1013,6 @@
         say('Qual item do cardápio você quer consultar?');
         return;
       }
-      if (/^(ver (meu|o) pedido|ver resumo)$/.test(normalized)&&draft.items.length) return review(false,step==='confirm');
       if (step==='confirm'&&/^(sim|confirmo|confirmar|pode enviar|pode mandar)$/.test(normalized)) {
         say('Pra registrar, toque no botão Confirmar pedido.');
         return;
@@ -830,7 +1021,9 @@
       const faq=/\b(alergia|alergico|alergica|celiaco|celiaca|contaminacao cruzada|quanto tempo|qual o prazo|demora quanto|previsao de entrega|tempo de entrega|onde fica|como chegar|localizacao da loja|horario|que horas|qual o endereco|aberto|fechado|funcionando)\b/.test(normalized) ||
         deliveryQuestion.test(normalized) ||
         /^(?:voces )?(aceita|aceitam|recebe|recebem|quais|como|pode|da pra|tem)\b.*\b(pagamento|pagar|pix|cartao|dinheiro)\b/.test(normalized);
-      const question=asks||requestMenu||faq||checkingFee;
+      const catalogInquiry=/\b(?:ate|menos de|no maximo|mais barat[oa]s?|mais em conta|recomenda|indicaria|sugere|compare|diferenca)\b/.test(normalized);
+      const editIntent=/^(?:(?:pode|consegue|quero) )?(?:tirar?|retirar?|remover?|deixar?|trocar?|colocar?|botar?|adicionar?)\b/.test(normalized);
+      const question=asks||requestMenu||faq||checkingFee||catalogInquiry;
       if (!question&&!wantsToOrder&&step==='product_choice') {
         const choices=focusProduct.entries.filter(product=>includes(text,product.name));
         if (choices.length===1) return chooseProduct(choices[0]);
@@ -847,7 +1040,7 @@
         if (match.length===1) return chooseDrink(match[0]);
         return askDrink(options);
       }
-      if (mode==='checkout'&&step!=='confirm'&&!question&&!wantsToOrder) {
+      if (mode==='checkout'&&step!=='confirm'&&!question&&!wantsToOrder&&!editIntent) {
         await latest();
         pickupDetails(text);
         if (step==='name'&&!draft.name&&text.includes(',')) {
@@ -860,6 +1053,11 @@
       }
       await latest();
       if (checkingFee&&(requestMenu||wantsToOrder)) checkingFee=false;
+      if (editIntent) {
+        const edited=editOrder(normalized);
+        if (edited) return edited;
+      }
+      if (catalogQuestion(normalized)) return;
       if (storeQuestion(normalized)) return;
       if (/\b(aberto|fechado|funcionando|horario|que horas)\b/.test(normalized)&&!wantsToOrder) {
         const hours=[catalog.settings.open_time,catalog.settings.close_time].map(value=>String(value||'').slice(0,5));
@@ -882,16 +1080,18 @@
         const context=conversational(clause);
         const names=matchingProducts(clause,catalog.products);
         const matches=names.length?names:matchingProducts(clause,catalog.products,true);
-        const clauseQuestion=inquiryIntent(context)&&!orderIntent(context);
+        const priceInquiry=/\b(quanto|valor|preco|custa)\b/.test(context);
+        const clauseQuestion=(inquiryIntent(context)&&!orderIntent(context)&&!addingExtras)||priceInquiry||asks;
         if (clauseQuestion) {
+          if (clauses.length===1&&priceInquiry&&estimateProducts(matches,clause)) return;
           for(const match of matches) for(const product of match.entries) describing.set(product.id,product);
           continue;
         }
         if (asks&&!wantsToOrder) continue;
-        for (const match of matches) {
-          const segment=matches.length===1?clause:
-            clause.split(/\s+e\s+|,|;/i).find(part=>match.entries.some(product=>includes(part,product.name)||includes(part,alias(product.name))))||clause;
-          adding.push({...match,message:segment});
+        const segments=matches.length>1?orderSegments(clause,catalog.products):[clause];
+        for (const segment of segments) {
+          const match=matchingProducts(segment,catalog.products)[0]||matchingProducts(segment,catalog.products,true)[0];
+          if (match) adding.push({...match,message:segment});
         }
       }
       const contextual=/\b(esse|essa|desse|dessa|dele|dela|deste|desta)\b/.test(normalized)
@@ -945,7 +1145,8 @@
         return proceed();
       }
       const suggestions=suggestedProducts(text,catalog.products);
-      if (suggestions.length) return showSuggestions(suggestions,suggestedQuantity,wantsToOrder||mode==='items');
+      const leadingQuantity=normalized.match(/^(?:(?:eu )?quero |me ve |manda )?(um|uma|dois|duas|tres|quatro|cinco|\d{1,2})\b/)?.[1];
+      if (suggestions.length) return showSuggestions(suggestions,Math.min(30,Number(numberWords[leadingQuantity]||leadingQuantity||suggestedQuantity||1)),!question&&(wantsToOrder||mode==='items'),text);
       if (wantsToOrder||/\b(pedir|comprar|pedido)\b/.test(normalized)) {
         if (draft.items.length && typeFrom(text)) {
           pickupDetails(text);
@@ -956,7 +1157,9 @@
         return buttons(footer([['Ver cardápio',()=>showMenu()]]));
       }
       if (/^(obrigado|obrigada|valeu|show|beleza)$/.test(normalized)) return say('De nada! Se precisar de mais alguma coisa, é só falar.');
-      say('Posso consultar o cardápio, montar seu pedido ou chamar a equipe. Qual você prefere?');
+      say(draft.items.length
+        ?'Seu pedido continua anotado aqui. Pode pedir o total, dizer o que quer mudar ou chamar a equipe.'
+        :'Pode me dizer o nome de um lanche ou perguntar, por exemplo, “quais combos têm hoje?” ou “quanto é a taxa de entrega?”.');
       buttons(draft.items.length?footer([['Ver cardápio',()=>showMenu()]]):nav());
     }
     function reset() {
@@ -964,7 +1167,7 @@
       Object.assign(draft,{items:[],address:{},requestId:crypto.randomUUID()});
       history.length=0; log.replaceChildren();
       mode='home';step='';receipt=null;quote=null;focusProduct=null;pendingChoices=[];finishRequested=false;
-      suggestedQuantity=0;productContext=null;checkingFee=false;
+      suggestedQuantity=0;productContext=null;checkingFee=false;editScope=null;
       const previous=restorePending();
       retryPending=Boolean(previous?.payload?.client_request_id);
       if (retryPending) {
