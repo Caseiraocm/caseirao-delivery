@@ -1,0 +1,44 @@
+#menuSupport,.trackSupport{display:inline-flex;justify-content:center;align-items:center;gap:8px;padding:10px 15px;border:1px solid #0b403d;border-radius:10px;background:#0b403d;color:#fff;font:inherit;font-weight:750;cursor:pointer}
+#menuSupport svg,.trackSupport svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7}
+#menuSupport{margin-inline-start:auto}
+.trackSupport{width:100%;margin-top:12px}
+@media(max-width:700px){
+  body.cardapioBalcao:has(#menuSupport){padding-bottom:calc(60px + env(safe-area-inset-bottom))}
+  body.cardapioBalcao:has(#menuSupport):has(#cartBtn:not([data-empty])){padding-bottom:calc(112px + env(safe-area-inset-bottom))}
+  #menuSupport{position:fixed;inset:auto 12px calc(8px + env(safe-area-inset-bottom));z-index:22;min-height:44px;box-shadow:0 3px 16px #0b403d35}
+  body:has(#cartBtn:not([data-empty])) #menuSupport{bottom:calc(61px + env(safe-area-inset-bottom))}
+  body.modal-open #menuSupport{visibility:hidden}
+}
+#customerSupportDialog{width:min(100% - 24px,500px);max-height:85dvh;box-sizing:border-box;padding:0;border:1px solid #d9d8ce;border-radius:17px;background:#fffdf7;color:#192321;box-shadow:0 20px 70px #182e2a4f}
+#customerSupportDialog::backdrop{background:#15292588}
+#customerSupportDialog header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid #ddd9cd}
+#customerSupportDialog h2{margin:0;font-size:1.1rem}
+#customerSupportDialog [data-chat-close]{font:inherit;font-size:1.45rem;background:none;border:0;color:inherit;cursor:pointer}
+.customerSupportMessages{display:flex;flex-direction:column;gap:10px;overflow:auto;height:min(42dvh,360px);padding:14px 16px}
+.supportBubble{align-self:flex-start;background:#dceee8;border-radius:12px;padding:9px 12px;max-width:85%;overflow-wrap:anywhere}
+.supportBubble.outgoing{align-self:flex-end;background:#f5e8c3}
+.supportBubble strong{display:block;font-size:.74rem;color:#35504b}
+.supportBubble p{margin:3px 0 0;white-space:pre-wrap}
+.supportEmpty{color:#53635d}
+#customerSupportDialog form{display:flex;align-items:flex-end;gap:8px;padding:10px 16px 0;border-top:1px solid #ddd9cd}
+#customerSupportDialog textarea{flex:1;min-width:0;max-height:8em;resize:vertical;border:1px solid #a6aaa0;border-radius:8px;padding:10px;font:inherit}
+#customerSupportDialog form button{padding:10px 14px;border:0;border-radius:8px;background:#0b403d;color:#fff;font:inherit;font-weight:700;cursor:pointer}
+#customerSupportDialog [role=status]{min-height:1.45em;margin:4px 16px 8px;color:#65401a;font-size:.83rem}
+@media(max-width:640px){
+  #customerSupportDialog{margin:auto 0 0;width:100%;max-width:100%;border-radius:19px 19px 0 0;padding-bottom:env(safe-area-inset-bottom)}
+}
+.customerQueue{margin:10px 0 0;border:1px solid #c39b50;border-radius:13px;background:#fff7e7;text-align:center;padding:12px 10px;color:#183b35}
+.customerQueue small{display:block}
+.customerQueue strong{display:block;margin:3px 0;font-size:clamp(1.06rem,4vw,1.42rem);line-height:1.22}
+.customerQueue p{margin:7px 0 0;font-size:.8rem;color:#4d5752}
+.queueStops{margin:12px auto 3px;display:flex;align-items:center;justify-content:center;max-width:330px;padding-top:7px}
+.queueDot{display:grid;width:32px;height:34px;flex:0 0 32px;place-items:center;color:#185348;font-weight:800}
+.queueDot svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.queueDot.done{color:#5d765e}
+.queueDot.next{color:#fff;background:#13725d;border-radius:50%;animation:queuePulse 2.6s ease-out infinite}
+.queueLine{height:2px;min-width:2px;flex:1 1 27px;max-width:32px;background:#c3ab73}
+.queueNextStep{position:relative}
+.queueBike{position:absolute;z-index:1;left:0;top:-17px;font-size:16px;animation:queueMotorbike 2.6s ease-out infinite}
+@keyframes queueMotorbike{0%{transform:translateX(-19px);opacity:.35}65%,100%{transform:translateX(6px);opacity:1}}
+@keyframes queuePulse{0%,100%{box-shadow:0 0 0 0 #13725d35}65%{box-shadow:0 0 0 6px #13725d00}}
+@media(prefers-reduced-motion:reduce){.queueBike,.queueDot.next{animation:none}}
