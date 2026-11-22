@@ -9,6 +9,8 @@
     .replace(/\b(zap|wpp|zapzap)\b/g,'whatsapp');
   const greetingPattern = /^(?:(?:oi|olá|ola|opa|e aí|e ai|oie+)\s*[,!.–—-]*\s*)?(boa\s+noite|bom\s+dia|boa\s+tarde|oi|olá|ola|opa|e aí|e ai|oie+)(?=$|[^\p{L}\p{N}])/iu;
   const deliveryQuestion = /\b(taxa|frete|entrega (?:para|em|no bairro|na rua)|entregam (?:em|no|na|para|pra)|faz(?:em)? entrega|tem delivery)\b/;
+  const trackingQuestion = /\b(acompanhar|(?:cade|onde (?:ta|esta)) (?:o |meu )?pedido|status (?:do (?:meu )?)?pedido|saiu (?:(?:para|pra) (?:a )?entrega|em rota)|(?:meu|o) pedido (?:ja )?(?:ta|esta|ficou) (?:em preparo|pronto|em rota))\b/;
+  const trackingCodeQuestion = /\bcodigo (?:do (?:meu )?pedido|pedido|(?:de|pra|para) acompanhar|de rastreio)\b|\b(?:qual|perdi|esqueci|manda) (?:e )?(?:o |meu )?codigo$/;
   const words = value => ' ' + normalize(value) + ' ';
   const includes = (text, term) => !!normalize(term) && words(text).includes(words(term));
   const brl = cents => (cents / 100).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
@@ -133,6 +135,20 @@
       const bubble=node('div','',customer?'supportBubble outgoing':'supportBubble');
       bubble.append(node('strong',customer?'Você':'Assistente do Caseirão'),node('p',text));
       log.append(bubble);
+      log.scrollTop=log.scrollHeight;
+      return bubble;
+    }
+    function offerTracking() {
+      const trackedReceipt=receipt;
+      const trackedPhone=trackedReceipt ? draft.phone : undefined;
+      const text = trackedReceipt
+        ? 'O código do pedido #'+trackedReceipt.order_number+' é '+trackedReceipt.tracking_code+'. Toque abaixo para ver o status.'
+        : 'Toque abaixo para ver o status do seu pedido. Se os dados não estiverem salvos neste aparelho, use o código do pedido e o WhatsApp da compra.';
+      const bubble=say(text);
+      const button=node('button','Acompanhar pedido','supportTrackingButton');
+      button.type='button';
+      button.onclick=()=>onTrack(trackedReceipt,trackedPhone);
+      bubble.append(button);
       log.scrollTop=log.scrollHeight;
     }
     function buttons(choices=[],layout='') {
@@ -734,7 +750,7 @@
       const wantsToOrder=orderIntent(normalized);
       const asks=inquiryIntent(normalized)&&!wantsToOrder;
       if (/\b(falar com (a equipe|alguem|uma pessoa)|atendente|atendimento humano)\b/.test(normalized)) return handoff();
-      if (/\b(acompanhar|cade meu pedido|status do pedido|saiu para entrega)\b/.test(normalized)) return onTrack(receipt,draft.phone);
+      if (trackingQuestion.test(normalize(text)) || trackingCodeQuestion.test(normalized)) return offerTracking();
       if (receipt) {
         if (normalized==='novo pedido') {savePix(null);return reset();}
         return say('Seu pedido #'+receipt.order_number+' já foi registrado. Você pode acompanhar ou começar outro pedido pelos botões.');

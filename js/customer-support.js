@@ -14,6 +14,7 @@ window.caseiraoCustomerSupport = (() => {
   let assistantActive=false;
   const assistantLog=dialog.querySelector('#orderAssistantLog');
   const assistantChoices=dialog.querySelector('#orderAssistantChoices');
+  const trackingMessage = 'Para ver o status, abra Acompanhar pedido no cardápio do Caseirão.';
 
   function getGuestToken() {
     const key = 'caseirao_chat_guest_v1';
@@ -47,6 +48,14 @@ window.caseiraoCustomerSupport = (() => {
       const body = document.createElement('p');
       body.textContent = row.body;
       bubble.append(sender, body);
+      if (row.actor === 'staff' && row.body === trackingMessage && current.openTracking) {
+        const track = document.createElement('button');
+        track.type = 'button';
+        track.className = 'supportTrackingButton';
+        track.textContent = 'Acompanhar pedido';
+        track.onclick = current.openTracking;
+        bubble.append(track);
+      }
       return bubble;
     }));
     if (atBottom) messages.scrollTop = messages.scrollHeight;
@@ -81,13 +90,13 @@ window.caseiraoCustomerSupport = (() => {
     try { await current.reading; } finally { current.reading = null; }
   }
 
-  function openHuman(request, order, starter='') {
+  function openHuman(request, order, starter='', openTracking) {
     assistantActive=false;
     assistantLog.hidden=true;
     assistantChoices.hidden=true;
     messages.hidden=false;
     const credentials = order ? {tracking_code:order.code,phone:order.phone} : {guest_token:getGuestToken()};
-    conversation = {request, credentials, latest:null};
+    conversation = {request, credentials, latest:null, openTracking};
     const current = conversation;
     title.textContent = order ? 'Atendimento · Pedido #' + order.number : 'Atendimento Caseirão';
     messages.textContent = 'Carregando conversa…';
@@ -103,7 +112,7 @@ window.caseiraoCustomerSupport = (() => {
 
   function open(request, order, services) {
     if (dialog.open) return;
-    if (order || !services) return openHuman(request,order);
+    if (order || !services) return openHuman(request,order,'',order ? ()=>dialog.close() : undefined);
     assistantActive=true;
     messages.hidden=true;
     assistantLog.hidden=false;
@@ -119,7 +128,7 @@ window.caseiraoCustomerSupport = (() => {
         await services.onPix(...args);
         if (assistantActive&&dialog.open) dialog.close();
       },
-      onHuman:starter=>openHuman(request,null,starter),
+      onHuman:starter=>openHuman(request,null,starter,()=>{dialog.close();services.onTrack()}),
     });
     dialog.showModal();
     assistantLog.scrollTop=assistantLog.scrollHeight;
