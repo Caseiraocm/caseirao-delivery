@@ -57,6 +57,8 @@
     return qty>0&&qty<=30?qty:0;
   };
   const orderIntent = text => /\b(quero(?! saber)|queria(?! saber)|gostaria de (pedir|comprar|fazer)|me (ve|manda|da|separa|arruma|prepara|faz)|manda|separa|coloca|bota|adiciona|vou (querer|pedir|levar|de)|mais (um|uma|dois|duas|\d+))\b/.test(text);
+  const checkoutRequest = text => text.split(/[.!?;\n]+/).some(part =>
+    /^(?:pronto (?:gostei )?|entao )?(?:(?:eu )?(?:quero|vou|pode|vamos) )?(?:finalizar|fechar|terminar)(?: (?:(?:meu|o|esse|este|esse meu|este meu|aquele) )?pedido\b|(?: por favor)?$)|^(?:so isso|e so)(?: por favor)?$/.test(conversational(part)));
   const inquiryIntent = text => /\b(quanto|preco|valor|custa|tem|leva|ingrediente|ingredientes|o que vem|vem com|composicao|adicionais|disponivel|esgotado|mostre|saber|queria ver|diferenca|compare|comparar)\b/.test(text);
   const alias = name => normalize(name).replace(/\bcoca cola\b/g,'coca').replace(/\bpe (?:para|pra) fora\b/g,'pe pra fora').replace(/\b((?:500|350|600) ?ml|1 ?l(?:itro)?|lata)\b/g,'').replace(/\s+/g,' ').trim();
   const menuName = name => normalize(name).replace(/\bpe para fora\b/g,'pe pra fora');
@@ -137,6 +139,7 @@
     let replyGreeting='';
     let retryPending=false;
     let recentMenuMessage='';
+    let lastEstimate=null;
     const timestamps = {catalog:0};
     const nav = () => [
       ['Fazer pedido',()=>beginOrder()],['Ver cardápio',()=>showMenu()],
@@ -329,6 +332,7 @@
       if (receipt) return say('O pedido #'+receipt.order_number+' já foi registrado. Toque em Novo pedido pra começar outro.');
       if (retryPending) return;
       await latest();
+      lastEstimate=null;
       mode='items';
       step='';
       say(draft.items.length?'O que mais você quer adicionar?':'O que você quer pedir? Pode mandar o nome do lanche, a quantidade e observações, como “dois Pé pra Fora sem cebola”.');
@@ -375,6 +379,7 @@
       return {matches,unknown};
     }
     function addLine(product,qty,note,addons) {
+      lastEstimate=null;
       draft.items.push({product_id:product.id,name:product.name,qty,note,addon_ids:addons.map(addon=>addon.id)});
     }
     function editOrder(normalized) {
@@ -1005,14 +1010,19 @@
       if (!available(product) || (product.stock_enabled&&qty>Number(product.stock_quantity))) return false;
       const drinks=window.CaseiraoComboDrinks?.options(catalog,product.id)||[];
       if (drinks.length) return false;
-      const {extras}=itemCustomizations(text);
+      const {extras,note}=itemCustomizations(text);
       const {matches:addons,unknown}=requestedExtras(extras,linkedAddons(product).filter(available));
-      if (unknown.length || (qty===1&&!addons.length)) return false;
-      const lines=[qty+'× '+product.name+' · '+brl(price(product)*qty)];
-      for (const addon of addons) lines.push('+ '+qty+'× '+addon.name+' · '+brl(cents(addon.price)*qty));
-      const total=qty*(price(product)+addons.reduce((sum,addon)=>sum+cents(addon.price),0));
-      say([...lines,'Subtotal da simulação: '+brl(total)+' antes da taxa de entrega.'].join('\n'));
-      buttons(footer([['Adicionar ao pedido',()=>addProduct(product,qty,text)]]));
+      if (unknown.length || addons.length>10 || (qty===1&&!addons.length)) return false;
+      const rows=[{product:String(product.id),quantity:qty,options:addons.map(addon=>String(addon.id)),removals:[]}];
+      const resolve=()=>{
+        const lines=resolveAiLines(rows,text);
+        if (lines) lines[0].customizations.note=note;
+        return lines;
+      };
+      quoteOrderLines(resolve);
+      if (draft.items.length) {
+        buttons(footer([['Adicionar ao pedido',()=>addProduct(product,qty,text)]]));
+      }
       return true;
     }
 
@@ -1063,18 +1073,28 @@
       }
       return parsed;
     }
-    function quoteAiLines(lines) {
-      const displayed=[];
-      let total=0;
+    function estimateProblem(lines) {
       const quantities=new Map();
       for (const {entries:[product],qty} of lines) quantities.set(product.id,(quantities.get(product.id)||0)+qty);
-      for (const {entries:[product],qty,customizations:{note,matches,unknown,drinks}} of lines) {
-        if (!available(product)||(product.stock_enabled&&quantities.get(product.id)>Number(product.stock_quantity))) {
-          return say('Não há unidades suficientes de '+product.name+' para essa combinação agora.');
-        }
-        if (unknown.length||drinks.length&&matches.filter(item=>drinks.includes(item)).length!==1) {
-          return describe(product,true);
-        }
+      return lines.find(({entries:[product],customizations:{matches,unknown,drinks}})=>
+        !available(product)||(product.stock_enabled&&quantities.get(product.id)>Number(product.stock_quantity))||
+        unknown.length||matches.length>10||
+        (drinks.length&&matches.filter(item=>drinks.includes(item)).length!==1));
+    }
+    function quoteOrderLines(resolve) {
+      lastEstimate=null;
+      const lines=resolve();
+      if (!lines) return false;
+      const problem=estimateProblem(lines);
+      if (problem) {
+        const product=problem.entries[0];
+        say('Preciso conferir a disponibilidade de '+product.name+' e das opções escolhidas.');
+        describe(product,true);
+        return true;
+      }
+      const displayed=[];
+      let total=0;
+      for (const {entries:[product],qty,customizations:{note,matches}} of lines) {
         displayed.push(qty+'× '+product.name+' · '+brl(qty*price(product)));
         total+=qty*price(product);
         for (const option of matches) {
@@ -1085,6 +1105,32 @@
         if (note) displayed.push('Observação: '+note);
       }
       say([...displayed,'Subtotal da simulação: '+brl(total)+' antes da taxa de entrega.'].join('\n'));
+      if (!receipt&&!draft.items.length&&!hasPendingItemChoice()) {
+        lastEstimate=resolve;
+        buttons(footer([['Pedir esta simulação',()=>startCheckout('')]]));
+      }
+      return true;
+    }
+    async function startCheckout(text) {
+      if (hasPendingItemChoice()||(!draft.items.length&&!lastEstimate)) return proceed(true);
+      await latest(true);
+      if (!draft.items.length) {
+        const lines=lastEstimate();
+        if (!lines||estimateProblem(lines)) {
+          lastEstimate=null;
+          say('Um item ou adicional da simulação mudou. Peça uma nova simulação para conferir as opções.');
+          return buttons(footer());
+        }
+        pendingChoices=lines;
+        mode='items';
+        step='';
+      }
+      pickupDetails(text);
+      if (pendingChoices.length) {
+        finishRequested=true;
+        return continueAdding();
+      }
+      return proceed();
     }
     function hours() {
       const times=[catalog.settings.open_time,catalog.settings.close_time].map(value=>String(value||'').slice(0,5));
@@ -1130,9 +1176,7 @@
             break;
           }
           case 'quote': {
-            const lines=resolveAiLines(action.lines,text);
-            if (!lines) continue;
-            quoteAiLines(lines);
+            if (!quoteOrderLines(()=>resolveAiLines(action.lines,text))) continue;
             break;
           }
           case 'products': {
@@ -1269,7 +1313,7 @@
         say('Pra registrar, toque no botão Confirmar pedido.');
         return;
       }
-      if (!receipt&&/^(?:(?:quero|vou|pode|vamos) )?(?:(?:finalizar|fechar|terminar)(?: (?:meu|o))?(?: pedido)?|so isso|e so)(?: por favor)?$/.test(normalized)) return proceed(true);
+      if (!receipt&&checkoutRequest(text)) return startCheckout(text);
       const requestMenu=/^(cardapio|menu|(?:ver|manda|mandar|mostra|mostrar|me manda) (?:o )?cardapio)\b/.test(normalized);
       const faq=/\b(alergia|alergico|alergica|celiaco|celiaca|contaminacao cruzada|quanto tempo|qual o prazo|demora quanto|previsao de entrega|tempo de entrega|onde fica|como chegar|localizacao da loja|horario|que horas|qual o endereco|aberto|fechado|funcionando)\b/.test(normalized) ||
         deliveryQuestion.test(normalized) ||
@@ -1424,6 +1468,7 @@
       mode='home';step='';receipt=null;quote=null;focusProduct=null;pendingChoices=[];finishRequested=false;
       suggestedQuantity=0;productContext=null;checkingFee=false;editScope=null;
       recentMenuMessage='';
+      lastEstimate=null;
       const previous=restorePending();
       retryPending=Boolean(previous?.payload?.client_request_id);
       if (retryPending) {
