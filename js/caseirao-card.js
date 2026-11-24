@@ -13,12 +13,146 @@
     token=value;
     try { if(value)sessionStorage.setItem(marker,value); else sessionStorage.removeItem(marker); } catch {}
   }
+  const cardEndpoint='https://jhvtjhjzlljqfzdccrxc.supabase.co/functions/v1/caseirao-card';
   let openedByLink=false;
+  let requestedDue='';
+  async function requestCard(payload){
+    const result=await fetch(cardEndpoint,{
+      method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+    return {result,card:await result.json()};
+  }
+
   const fragment=location.hash.slice(1);
   if(fragment.startsWith('cartao-caseirao=')){
     const code=fragment.slice('cartao-caseirao='.length).trim().toLowerCase();
     if(tokenPattern.test(code)){remember(code);openedByLink=true;}
     history.replaceState(history.state,'',location.pathname+location.search);
+  }
+
+  const reminder=fragment.match(/^fatura-caseirao=(\d{4}-\d{2}-\d{2})$/);
+  if(reminder){
+    requestedDue=reminder[1];
+    openedByLink=true;
+    history.replaceState(history.state,'',location.pathname+location.search);
+  }
+
+  function addPixButton(row,bill,refresh,dialog){
+    const start=document.createElement('button');
+    start.type='button';
+    start.className='caseiraoCardAccess caseiraoCardPixAction';
+    start.textContent='Pagar com Pix';
+    const panel=document.createElement('div');
+    panel.className='caseiraoCardPixPanel';
+    panel.hidden=true;
+    row.append(start,panel);
+    start.onclick=()=>{
+      panel.hidden=!panel.hidden;
+      if(panel.childElementCount)return;
+      const form=document.createElement('form');
+      form.innerHTML='<label>E-mail para gerar o Pix<input required name="email" type="email" autocomplete="email" maxlength="254"></label><button class="caseiraoCardAccess" type="submit">Gerar Pix</button>';
+      const status=document.createElement('p');
+      status.setAttribute('role','status');
+      const codePanel=document.createElement('div');
+      panel.append(form,codePanel,status);
+      const submit=form.querySelector('button');
+      const email=form.elements.namedItem('email');
+      const session=token;
+      let timer;
+      let checking=false;
+
+      async function pixRequest(action,fields){
+        const {result,card}=await requestCard({action,payload:{token:session,due:bill.due,...fields}});
+        if(!result.ok)throw new Error(card.error||'Não foi possível consultar o Pix agora.');
+        return card;
+      }
+      function showState(state){
+        if(state==='pending'){
+          status.textContent='Aguardando a confirmação do Mercado Pago.';
+          return;
+        }
+        clearTimeout(timer);
+        codePanel.replaceChildren();
+        form.hidden=state!=='closed';
+        status.textContent=state==='paid'?'Pix confirmado. Fatura paga.':state==='closed'?
+          'Este Pix encerrou. Gere um novo código para pagar a fatura.':
+          'Pagamento em conferência. Fale com o Caseirão antes de pagar novamente.';
+        if(state==='paid')refresh();
+      }
+      function showCode(pix){
+        codePanel.replaceChildren();
+        const amount=document.createElement('p');
+        amount.textContent='Valor do Pix: '+money(pix.amount);
+        codePanel.append(amount);
+        if(pix.qr_code_base64&&/^[A-Za-z0-9+/=]+$/.test(pix.qr_code_base64)){
+          const qr=document.createElement('img');
+          qr.src='data:image/png;base64,'+pix.qr_code_base64;
+          qr.alt='QR Code Pix da fatura';
+          qr.width=180;
+          qr.height=180;
+          codePanel.append(qr);
+        }
+        const copyField=document.createElement('input');
+        copyField.value=pix.qr_code;
+        copyField.readOnly=true;
+        copyField.setAttribute('aria-label','Código Pix Copia e Cola');
+        const copy=document.createElement('button');
+        copy.type='button';
+        copy.className='caseiraoCardAccess';
+        copy.textContent='Copiar código Pix';
+        copy.onclick=async()=>{
+          try{await navigator.clipboard.writeText(copyField.value);copy.textContent='Código copiado';}
+          catch{copyField.select();copy.textContent='Copie o código selecionado';}
+        };
+        const check=document.createElement('button');
+        check.type='button';
+        check.className='caseiraoCardSignout';
+        check.textContent='Verificar pagamento';
+        const instructions=document.createElement('p');
+        instructions.textContent='Cole o código na opção Pix Copia e Cola do app do seu banco ou escaneie o QR Code.';
+        codePanel.append(copyField,copy,instructions,check);
+        const poll=async()=>{
+          clearTimeout(timer);
+          if(checking||!dialog.open||!check.isConnected||token!==session)return;
+          checking=true;
+          check.disabled=true;
+          try{
+            const next=await pixRequest('customer_pix_status',{id:pix.id});
+            if(!check.isConnected||token!==session)return;
+            showState(next.state);
+            if(next.state!=='pending')return;
+          }catch{
+            status.textContent='A confirmação ainda não está disponível. Vamos tentar novamente.';
+          }finally{
+            checking=false;
+            check.disabled=false;
+          }
+          timer=setTimeout(poll,15000);
+        };
+        check.onclick=poll;
+        timer=setTimeout(poll,15000);
+      }
+
+      form.onsubmit=async event=>{
+        event.preventDefault();
+        submit.disabled=true;
+        status.textContent='Consultando o Mercado Pago…';
+        try{
+          const pix=await pixRequest('customer_pix',{email:email.value.trim()});
+          if(!form.isConnected||token!==session)return;
+          showState(pix.state);
+          if(pix.state==='pending'&&!pix.qr_code){
+            status.textContent='Pix em processamento. Tente consultar daqui a pouco.';
+          }else if(pix.state==='pending'){
+            form.hidden=true;
+            showCode(pix);
+          }
+        }catch(error){status.textContent=error.message;}
+        finally{submit.disabled=false;}
+      };
+      email.focus();
+    };
   }
 
   function setupAccount(dialog){
@@ -40,11 +174,7 @@
       submit.disabled=signout.disabled=true;
       feedback.textContent='Consultando…';
       try {
-        const result=await fetch('https://jhvtjhjzlljqfzdccrxc.supabase.co/functions/v1/caseirao-card',{
-          method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify(payload)
-        });
-        const card=await result.json();
+        const {result,card}=await requestCard(payload);
         if(!result.ok){
           if(result.status===401&&!usingCode&&token===code){
             remember('');
@@ -87,12 +217,16 @@
         }
         for(const [key,bill] of invoices){
           const paid=settled.get(key);
-          const row=document.createElement('p');
+          const row=document.createElement('div');
+          const summary=document.createElement('p');
           const status=paid?'Paga':bill.due<card.today?'Vencida':'Em aberto';
           const total=paid?paid.amount:bill.amount;
           const interest=Math.max(0,total-bill.principal);
-          row.textContent=`${status} · ${due(bill.due)} · ${money(total)} (juros ${money(interest)}) · pedidos ${bill.orders.join(', ')}`;
+          summary.textContent=`${status} · ${due(bill.due)} · ${money(total)} (juros ${money(interest)}) · pedidos ${bill.orders.join(', ')}`;
+          row.append(summary);
+          if(!paid&&bill.due<=card.today)addPixButton(row,bill,()=>load(credential),dialog);
           content.append(row);
+          if(bill.due===requestedDue)requestAnimationFrame(()=>row.scrollIntoView({block:'nearest'}));
         }
         if(!invoices.size){
           const empty=document.createElement('p');empty.textContent='Nenhuma fatura registrada.';content.append(empty);
@@ -101,7 +235,7 @@
         if(cancelled.length){
           const item=document.createElement('p');item.textContent='Compras estornadas · '+cancelled.map(charge=>'#'+charge.order_number).join(', ');content.append(item);
         }
-        feedback.textContent='Pague a fatura com o Caseirão em dinheiro, maquininha ou Pix. Consulte a loja para quitação antecipada.';
+        feedback.textContent='O Pix online fica disponível a partir do vencimento. Para quitar antes, fale com o Caseirão.';
       }catch(error){
         if(!form.hidden)pilotNotice.hidden=false;
         feedback.textContent=error.message;
@@ -181,7 +315,7 @@
   dialog.querySelector('[data-card-close]').onclick=()=>dialog.close();
   const refreshAccount=setupAccount(dialog);
   const show=()=>{if(!dialog.open){dialog.showModal();refreshAccount();}};
-  document.getElementById('caseiraoCardHome').onclick=show;
+  document.getElementById('caseiraoCardHome')?.addEventListener('click',show);
   if(openedByLink)show();
 
   function describe(quote,breakdown,panel){
