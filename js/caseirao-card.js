@@ -188,39 +188,55 @@
     const ratio=quote.total/quote.principal;
     const monthly=(ratio**(30/quote.days)-1)*100;
     const yearly=(ratio**(365/quote.days)-1)*100;
+    const header=document.createElement('div');
+    header.className='caseiraoQuoteHeader';
+    const cardIcon=document.createElement('span');
+    cardIcon.className='caseiraoQuoteCardIcon';
+    cardIcon.setAttribute('aria-hidden','true');
     const heading=document.createElement('h3');
-    heading.textContent='Confira sua compra no Cartão Caseirão';
+    heading.textContent='Cartão Caseirão';
+    header.append(cardIcon,heading);
+
+    const highlights=document.createElement('dl');
+    highlights.className='caseiraoQuoteHighlights';
     const amounts=document.createElement('dl');
-    function line(label,amount,emphasis=false){
+    amounts.className='caseiraoQuoteAmounts';
+    function line(list,label,amount,className=''){
       const row=document.createElement('div');
-      if(emphasis)row.className='caseiraoCardAmountTotal';
+      if(className)row.className=className;
       const name=document.createElement('dt');
       name.textContent=label;
       const value=document.createElement('dd');
       value.textContent=amount;
       row.append(name,value);
-      amounts.append(row);
+      list.append(row);
     }
+    line(highlights,'Total a pagar na fatura',money(quote.total),'caseiraoQuoteTotal');
+    line(highlights,'Vencimento',due(quote.due_date),'caseiraoQuoteDue');
+
     if(Number.isSafeInteger(breakdown?.products)){
-      line('Produtos',money(breakdown.products));
-      if(breakdown.delivery>0)line('Entrega',money(breakdown.delivery));
-      if(breakdown.discount>0)line('Descontos','− '+money(breakdown.discount));
+      line(amounts,'Produtos',money(breakdown.products));
+      if(breakdown.delivery>0)line(amounts,'Entrega',money(breakdown.delivery));
+      if(breakdown.discount>0)line(amounts,'Descontos','− '+money(breakdown.discount));
     }
-    line('Total à vista',money(quote.principal));
-    line(`Juros por ${quote.days} ${quote.days===1?'dia':'dias'}`,money(quote.interest));
-    line('Total a pagar na fatura',money(quote.total),true);
-    line('Vencimento',due(quote.due_date));
-    panel.replaceChildren(heading,amounts);
+    line(amounts,'Total à vista',money(quote.principal));
+    line(amounts,`Juros por ${quote.days} ${quote.days===1?'dia':'dias'}`,money(quote.interest));
+    line(amounts,'Limite após a compra',money(quote.remaining));
+
+    const rates=document.createElement('p');
+    rates.className='caseiraoQuoteRates';
+    rates.textContent=`Juros efetivos ${percent.format(monthly)}% ao mês · CET ${percent.format(yearly)}% ao ano`;
+    const terms=document.createElement('div');
+    terms.className='caseiraoQuoteTerms';
     for(const text of [
-      `Limite após a compra ${money(quote.remaining)}`,
-      `Juros efetivos ${percent.format(monthly)}% ao mês · CET ${percent.format(yearly)}% ao ano`,
       'Credor: O Caseirão Burger · Av. Monsenhor Mateus, 340, Campo Maior–PI · caseiraopedidos.api.br',
       'Pagamento integral no vencimento. Antecipação reduz proporcionalmente os juros. Em atraso, novas compras ficam bloqueadas.'
     ]){
       const row=document.createElement('p');
       row.textContent=text;
-      panel.append(row);
+      terms.append(row);
     }
+    panel.replaceChildren(header,highlights,amounts,rates,terms);
     panel.hidden=false;
   }
 
