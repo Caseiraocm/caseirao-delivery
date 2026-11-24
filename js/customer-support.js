@@ -10,6 +10,7 @@ window.caseiraoCustomerSupport = (() => {
   const feedback = dialog.querySelector('[role="status"]');
   const options = dialog.querySelector('#customerSupportOptions');
   const menuButton = document.querySelector('#menuSupport');
+  const closeButton = dialog.querySelector('[data-chat-close]');
   let conversation;
   let menuEntry;
   let guestToken;
@@ -154,7 +155,7 @@ window.caseiraoCustomerSupport = (() => {
     if (order || !services) return openHuman(request,order,'',order ? ()=>dialog.close() : undefined);
     if (!options) return openAssistant(request, services);
     menuEntry = {request, services};
-    menuButton?.classList.remove('showSupportInvite');
+    dismissInvite();
     assistantActive = false;
     messages.hidden = true;
     assistantLog.hidden = true;
@@ -174,10 +175,17 @@ window.caseiraoCustomerSupport = (() => {
     menuEntry = null;
     if (mode === 'assistant') openAssistant(request, services);
     else openHuman(request);
-    dialog.querySelector('[data-chat-close]').focus();
+    closeButton.focus();
   });
 
-  dialog.querySelector('[data-chat-close]').addEventListener('click', () => dialog.close());
+  closeButton.addEventListener('click', () => dialog.close());
+  dialog.addEventListener('click', event => {
+    if (!options || options.hidden || event.target !== dialog || event.detail === 0) return;
+    const {left, top, right, bottom} = dialog.getBoundingClientRect();
+    if (event.clientX < left || event.clientX > right || event.clientY < top || event.clientY > bottom) {
+      dialog.close();
+    }
+  });
   dialog.addEventListener('close', () => {
     if (dialog.open) return;
     clearInterval(conversation?.timer);
@@ -205,15 +213,25 @@ window.caseiraoCustomerSupport = (() => {
     }
   });
 
-  const inviteKey = 'caseirao_chat_float_seen_v1';
-  let showInvite = true;
-  try { showInvite = sessionStorage.getItem(inviteKey) !== '1'; } catch {}
-  if (showInvite && menuButton?.querySelector('.supportInvite')) {
-    menuButton.classList.add('showSupportInvite');
-    try { sessionStorage.setItem(inviteKey, '1'); } catch {}
+  let inviteTimer;
+
+  function dismissInvite() {
+    clearTimeout(inviteTimer);
+    menuButton?.classList.remove('showSupportInvite');
+    window.removeEventListener('scroll', dismissInvite);
   }
 
   if (menuButton) {
+    const inviteKey = 'caseirao_chat_float_seen_v2';
+    let firstVisit = true;
+    try { firstVisit = sessionStorage.getItem(inviteKey) !== '1'; } catch {}
+    if (firstVisit) {
+      menuButton.classList.add('showSupportInvite');
+      inviteTimer = setTimeout(dismissInvite, 4000);
+      window.addEventListener('scroll', dismissInvite, {passive:true});
+      try { sessionStorage.setItem(inviteKey, '1'); } catch {}
+    }
+
     const mobileButton = window.matchMedia('(max-width:700px)');
     let gesture;
     let suppressClick = false;
@@ -232,8 +250,9 @@ window.caseiraoCustomerSupport = (() => {
       const dy = event.clientY - gesture.y;
       if (!gesture.moved && Math.hypot(dx, dy) < 9) return;
       gesture.moved = true;
-      menuButton.classList.remove('showSupportInvite');
+      dismissInvite();
       const maxX = Math.max(12, window.innerWidth - menuButton.offsetWidth - 12);
+      menuButton.dataset.supportSide = 'right';
       menuButton.style.setProperty('--support-x', Math.min(maxX, Math.max(12, gesture.left + dx)) + 'px');
       menuButton.style.setProperty('--support-y', gesture.top + dy + 'px');
       menuButton.classList.add('isSupportDragging');
@@ -243,8 +262,13 @@ window.caseiraoCustomerSupport = (() => {
       if (gesture?.id !== event.pointerId) return;
       if (gesture.moved) {
         const {left, top, width} = menuButton.getBoundingClientRect();
-        menuButton.dataset.supportSide = left + width / 2 < window.innerWidth / 2 ? 'left' : 'right';
-        menuButton.style.setProperty('--support-y', top + 'px');
+        if (event.type === 'pointerup' && event.clientY >= window.innerHeight - 64) {
+          delete menuButton.dataset.supportSide;
+          menuButton.style.removeProperty('--support-y');
+        } else {
+          menuButton.dataset.supportSide = left + width / 2 < window.innerWidth / 2 ? 'left' : 'right';
+          menuButton.style.setProperty('--support-y', top + 'px');
+        }
         menuButton.style.removeProperty('--support-x');
         menuButton.classList.remove('isSupportDragging');
         suppressClick = true;
