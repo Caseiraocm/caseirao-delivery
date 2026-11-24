@@ -1,16 +1,17 @@
-Caseirão Burger — Cartão Caseirão Grafite
+CASEIRÃO BURGER — CONVITE NO CARDÁPIO
 
-No repositório caseirao-delivery, substitua somente estes dois arquivos,
-mantendo as pastas:
-  css/caseirao-card.css
-  js/caseirao-card.js
+Publique os quatro arquivos abaixo no repositório Caseiraocm/caseirao-delivery.
+Mantenha o caminho de cada arquivo. O LEIA-ME é só para consulta.
 
-Para atualizar a versão dos arquivos no navegador, no index.html existente
-troque o valor de ?v= apenas nas referências a caseirao-card.js e
-caseirao-card.css para 20261123-cartao-grafite-v1. Se o cardápio usa
-o service worker, atualize também o nome da constante CACHE no sw.js
-existente mantendo o prefixo caseirao-delivery-. Por exemplo:
-caseirao-delivery-20261123-cartao-grafite-v1.
+  index.html
+  sw.js
+  css/customer-support.css
+  js/customer-support.js
 
-Depois que o GitHub Pages publicar, reabra o cardápio conectado à internet
-e selecione o Cartão Caseirão no checkout para conferir o resumo.
+Depois que o GitHub Pages atualizar, feche e reabra o cardápio.
+O balão aparece na primeira abertura da sessão, por cerca de sete segundos.
+Para rever o efeito após um teste, abra o cardápio em uma nova sessão anônima.
+
+Ao tocar em Falar com o Caseirão, o cliente escolhe Fazer pedido com o
+assistente ou Falar com a equipe. As duas opções usam os fluxos atuais.
+Ao entrar pelo acompanhamento, o atendimento continua ligado ao pedido.
