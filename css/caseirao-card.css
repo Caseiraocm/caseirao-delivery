@@ -1,10 +1,108 @@
-#caseiraoCardQuote { margin:8px 0; padding:10px 14px; border:1px solid #ebce73; border-radius:10px; background:#fff7da; color:#38301e; font-size:13px; }
-#caseiraoCardQuote p { margin:5px 0; }
-#caseiraoCardQuote h3 { margin:4px 0 10px; color:inherit; font-size:16px; }
-#caseiraoCardQuote dl { margin:0 0 8px; }
-#caseiraoCardQuote dl > div { display:flex; justify-content:space-between; align-items:baseline; gap:8px; padding:5px 0; }
-#caseiraoCardQuote dd { margin:0; font-weight:700; text-align:right; }
-#caseiraoCardQuote .caseiraoCardAmountTotal { margin:5px 0; padding:8px 0; border-top:1px solid #d8b876; border-bottom:1px solid #d8b876; font-size:16px; font-weight:800; }
+#caseiraoCardQuote {
+  --quote-ink: #f8f9fa;
+  --quote-muted: #d6dbe0;
+  --quote-amber: #ffbd50;
+  margin: 10px 0;
+  padding: clamp(14px, 3vw, 24px);
+  border: 1px solid #424a54;
+  border-radius: 18px;
+  background: linear-gradient(155deg, #373e47, #242a31 55%, #20252c);
+  color: var(--quote-ink);
+  box-shadow: 0 8px 20px #1d232b24;
+  font-size: 14px;
+  line-height: 1.45;
+}
+#caseiraoCardQuote .caseiraoQuoteHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #69727c;
+}
+#caseiraoCardQuote .caseiraoQuoteCardIcon {
+  position: relative;
+  flex: 0 0 29px;
+  height: 20px;
+  border: 2px solid var(--quote-amber);
+  border-radius: 5px;
+}
+#caseiraoCardQuote .caseiraoQuoteCardIcon::before {
+  position: absolute;
+  inset: 4px 0 auto;
+  border-top: 2px solid var(--quote-amber);
+  content: "";
+}
+#caseiraoCardQuote h3 {
+  margin: 0;
+  color: var(--quote-ink);
+  font-size: 19px;
+  font-weight: 750;
+  line-height: 1.2;
+}
+#caseiraoCardQuote .caseiraoQuoteHighlights {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 24px;
+  margin: 16px 0;
+}
+#caseiraoCardQuote .caseiraoQuoteTotal { flex: 1 1 180px; min-width: 0; }
+#caseiraoCardQuote .caseiraoQuoteDue {
+  flex: 1 1 146px;
+  padding: 8px 12px;
+  border: 1px solid #75808b;
+  border-radius: 11px;
+  background: #ffffff0d;
+}
+#caseiraoCardQuote dt { color: var(--quote-muted); }
+#caseiraoCardQuote dd {
+  margin: 0;
+  color: var(--quote-ink);
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+#caseiraoCardQuote .caseiraoQuoteTotal dd {
+  font-size: clamp(28px, 7vw, 43px);
+  line-height: 1.12;
+  letter-spacing: -.035em;
+}
+#caseiraoCardQuote .caseiraoQuoteDue dt {
+  color: var(--quote-amber);
+  font-weight: 700;
+}
+#caseiraoCardQuote .caseiraoQuoteDue dd { font-size: 18px; }
+#caseiraoCardQuote .caseiraoQuoteAmounts {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+}
+#caseiraoCardQuote .caseiraoQuoteAmounts > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, max-content);
+  align-items: baseline;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: #ffffff12;
+}
+#caseiraoCardQuote .caseiraoQuoteAmounts dd { text-align: right; }
+#caseiraoCardQuote .caseiraoQuoteRates {
+  margin: 14px 0 0;
+  padding: 8px 10px;
+  border-inline-start: 3px solid var(--quote-amber);
+  border-radius: 3px 8px 8px 3px;
+  background: #ffffff0d;
+  color: var(--quote-ink);
+  font-size: 13px;
+}
+#caseiraoCardQuote .caseiraoQuoteTerms {
+  margin-top: 10px;
+  color: var(--quote-muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+#caseiraoCardQuote .caseiraoQuoteTerms p { margin: 5px 0 0; }
 
 dialog.caseiraoCardDialog {
   --card-ink: #1d2824;
