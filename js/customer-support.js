@@ -8,7 +8,10 @@ window.caseiraoCustomerSupport = (() => {
   const input = form.elements.message;
   const button = form.querySelector('button');
   const feedback = dialog.querySelector('[role="status"]');
+  const options = dialog.querySelector('#customerSupportOptions');
+  const menuButton = document.querySelector('#menuSupport');
   let conversation;
+  let menuEntry;
   let guestToken;
   let assistant;
   let assistantActive=false;
@@ -90,7 +93,14 @@ window.caseiraoCustomerSupport = (() => {
     try { await current.reading; } finally { current.reading = null; }
   }
 
+  function showComposer() {
+    if (options) options.hidden = true;
+    form.hidden = false;
+    feedback.hidden = false;
+  }
+
   function openHuman(request, order, starter='', openTracking) {
+    showComposer();
     assistantActive=false;
     assistantLog.hidden=true;
     assistantChoices.hidden=true;
@@ -111,9 +121,8 @@ window.caseiraoCustomerSupport = (() => {
     }, 4500);
   }
 
-  function open(request, order, services) {
-    if (dialog.open) return;
-    if (order || !services) return openHuman(request,order,'',order ? ()=>dialog.close() : undefined);
+  function openAssistant(request, services) {
+    showComposer();
     assistantActive=true;
     messages.hidden=true;
     assistantLog.hidden=false;
@@ -134,15 +143,46 @@ window.caseiraoCustomerSupport = (() => {
         openHuman(request,linked,starter,()=>{dialog.close();services.onTrack(order,order?.phone)});
       },
     });
-    dialog.showModal();
+    if (!dialog.open) dialog.showModal();
     assistantLog.scrollTop=assistantLog.scrollHeight;
   }
+
+  function open(request, order, services) {
+    if (dialog.open) return;
+    clearInterval(conversation?.timer);
+    conversation = null;
+    if (order || !services) return openHuman(request,order,'',order ? ()=>dialog.close() : undefined);
+    if (!options) return openAssistant(request, services);
+    menuEntry = {request, services};
+    menuButton?.classList.remove('showSupportInvite');
+    assistantActive = false;
+    messages.hidden = true;
+    assistantLog.hidden = true;
+    assistantChoices.hidden = true;
+    form.hidden = true;
+    feedback.hidden = true;
+    options.hidden = false;
+    title.textContent = 'Falar com o Caseirão';
+    dialog.showModal();
+    options.querySelector('[data-support-mode="assistant"]').focus();
+  }
+
+  options?.addEventListener('click', event => {
+    const mode = event.target.closest('[data-support-mode]')?.dataset.supportMode;
+    if (!mode || !menuEntry) return;
+    const {request, services} = menuEntry;
+    menuEntry = null;
+    if (mode === 'assistant') openAssistant(request, services);
+    else openHuman(request);
+    dialog.querySelector('[data-chat-close]').focus();
+  });
 
   dialog.querySelector('[data-chat-close]').addEventListener('click', () => dialog.close());
   dialog.addEventListener('close', () => {
     if (dialog.open) return;
     clearInterval(conversation?.timer);
     conversation = null;
+    menuEntry = null;
     assistantActive=false;
   });
   form.addEventListener('submit', async event => {
@@ -164,6 +204,14 @@ window.caseiraoCustomerSupport = (() => {
       }
     }
   });
+
+  const inviteKey = 'caseirao_chat_invite_seen_v1';
+  let showInvite = true;
+  try { showInvite = sessionStorage.getItem(inviteKey) !== '1'; } catch {}
+  if (showInvite && menuButton?.querySelector('.supportInvite')) {
+    menuButton.classList.add('showSupportInvite');
+    try { sessionStorage.setItem(inviteKey, '1'); } catch {}
+  }
 
   function queueHtml(queue) {
     if (!queue) return '';
