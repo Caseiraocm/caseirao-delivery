@@ -1,7 +1,7 @@
-CASEIRÃO BURGER — CONVITE NO CARDÁPIO
+CASEIRÃO BURGER — BOTÃO DE CHAT FLUTUANTE
 
-Publique os quatro arquivos abaixo no repositório Caseiraocm/caseirao-delivery.
-Mantenha o caminho de cada arquivo. O LEIA-ME é só para consulta.
+Publique os quatro arquivos abaixo no repositório Caseiraocm/caseirao-delivery,
+mantendo o caminho de cada arquivo. O LEIA-ME é só para consulta.
 
   index.html
   sw.js
@@ -9,9 +9,9 @@ Mantenha o caminho de cada arquivo. O LEIA-ME é só para consulta.
   js/customer-support.js
 
 Depois que o GitHub Pages atualizar, feche e reabra o cardápio.
-O balão aparece na primeira abertura da sessão, por cerca de sete segundos.
-Para rever o efeito após um teste, abra o cardápio em uma nova sessão anônima.
+No celular, o chat aparece como um ícone amarelo na lateral direita.
+Arraste para mudar a altura ou estacionar na outra lateral. A área inferior
+fica livre para o carrinho. Um toque abre as duas opções de atendimento.
 
-Ao tocar em Falar com o Caseirão, o cliente escolhe Fazer pedido com o
-assistente ou Falar com a equipe. As duas opções usam os fluxos atuais.
-Ao entrar pelo acompanhamento, o atendimento continua ligado ao pedido.
+Na primeira abertura da sessão, aparece o convite "Peça pelo chat".
+Para rever a animação, abra uma nova sessão anônima.
