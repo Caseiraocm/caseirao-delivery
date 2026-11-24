@@ -27,23 +27,37 @@
     return response;
   };
 
+  const rewards = cfg => cfg.rewards ?? (cfg.reward ? [{ ...cfg.reward, goal:cfg.goal }] : []);
+  const canRedeem = (cfg, reward) => cfg.active && reward.available && cfg.balance >= reward.goal;
+
   function updateCheckout(net) {
     const box = document.querySelector('#pointsCheckout');
-    if (!box || !config?.active) return;
+    if (!box || !config) return;
+    box.hidden = !config.active;
+    if (!config.active) {
+      selected = null;
+      return;
+    }
     const count = Math.floor(Math.max(0, Math.round(net() * 100)) / config.step_cents);
-    box.hidden = false;
     box.querySelector('p').textContent = count
       ? 'Este pedido pode render ' + points(count) + '.'
       : 'A cada ' + money(config.step_cents) + ' em produtos você ganha 1 ponto.';
-    const button = box.querySelector('button');
-    const reward = config.reward;
-    const canRedeem = reward?.available && config.balance >= config.goal;
-    if (selected && (!canRedeem || selected.goal !== config.goal || selected.reward !== reward.id)) selected = null;
-    button.hidden = !canRedeem;
-    button.textContent = selected ? 'Remover ' + reward.name + ' de brinde' : 'Resgatar ' + (reward?.name || 'brinde');
-    button.onclick = () => {
-      selected = selected ? null : { goal:config.goal, reward:reward.id };
-      updateCheckout(net);
+    const eligible = rewards(config).filter(reward => canRedeem(config, reward));
+    if (selected && !eligible.some(reward => reward.id === selected.reward && reward.goal === selected.goal)) {
+      selected = null;
+    }
+    const choice = box.querySelector('select');
+    const options = JSON.stringify(eligible.map(({ id, name, goal }) => [id, name, goal]));
+    if (choice.dataset.options !== options) {
+      choice.replaceChildren(new Option('Sem resgate', ''), ...eligible.map(reward =>
+        new Option(reward.name + ' · ' + points(reward.goal), reward.id)));
+      choice.dataset.options = options;
+    }
+    choice.value = selected?.reward || '';
+    choice.closest('label').hidden = eligible.length === 0;
+    choice.onchange = () => {
+      const reward = eligible.find(item => item.id === choice.value);
+      selected = reward ? { goal:reward.goal, reward:reward.id } : null;
     };
   }
 
@@ -54,7 +68,7 @@
       box.id = 'pointsCheckout';
       box.className = 'pointsCheckout';
       box.hidden = true;
-      box.innerHTML = '<p></p><button type="button" hidden></button>';
+      box.innerHTML = '<p></p><label hidden>Brinde da fidelidade<select></select></label>';
       send.closest('.checkoutFooter')?.before(box);
       if (!box.isConnected) send.before(box);
       updateCheckout(net);
@@ -92,16 +106,20 @@
               </div>
               <p data-remaining></p>
             </section>
-            <details class="pointsReward" hidden>
-              <summary>
-                <img alt="" width="84" height="84" hidden>
-                <span><strong data-reward></strong><span class="pointsGoal" data-goal></span></span>
-              </summary>
-              <div class="pointsRewardAction">
-                <p data-reward-status></p>
-                <button type="button" data-redeem hidden>Resgatar brinde</button>
-              </div>
-            </details>
+            <section aria-label="Brindes da fidelidade" data-rewards></section>
+            <template>
+              <details class="pointsReward">
+                <summary>
+                  <img alt="" width="84" height="84" hidden>
+                  <span><strong data-reward></strong><span class="pointsGoal" data-goal></span></span>
+                </summary>
+                <div class="pointsRewardAction">
+                  <p class="pointsDescription" data-description hidden></p>
+                  <p data-reward-status></p>
+                  <button type="button" data-redeem hidden>Resgatar brinde</button>
+                </div>
+              </details>
+            </template>
             <details class="pointsHistory" hidden>
               <summary>Histórico</summary>
               <p data-empty-history hidden>Seus pontos aparecem aqui quando o pedido for pago e concluído.</p>
@@ -128,46 +146,57 @@
           find('[data-balance]').textContent = cfg.balance.toLocaleString('pt-BR');
           find('[data-unit]').textContent = cfg.balance === 1 ? 'ponto' : 'pontos';
           find('.pointsBalance').hidden = false;
+          const available = rewards(cfg);
+          const target = available.find(reward => reward.available);
           const progress = find('progress');
-          const percent = Math.min(100, Math.floor(100 * cfg.balance / cfg.goal));
-          progress.max = cfg.goal;
-          progress.value = Math.min(cfg.balance, cfg.goal);
-          find('[data-percent]').textContent = percent + '%';
-          const missing = Math.max(0, cfg.goal - cfg.balance);
-          find('[data-remaining]').textContent = missing
-            ? (missing === 1 ? 'Falta ' : 'Faltam ') + points(missing) + ' para o brinde'
-            : 'Meta de pontos atingida!';
+          const progressNote = find('[data-remaining]');
+          progress.parentElement.hidden = progressNote.hidden = !target;
+          if (target) {
+            const missing = Math.max(0, target.goal - cfg.balance);
+            progress.max = target.goal;
+            progress.value = Math.min(cfg.balance, target.goal);
+            find('[data-percent]').textContent = Math.floor(progress.value * 100 / target.goal) + '%';
+            progressNote.textContent = missing
+              ? (missing === 1 ? 'Falta ' : 'Faltam ') + points(missing) + ' para resgatar ' + target.name + '.'
+              : 'Você já tem pontos para resgatar ' + target.name + '.';
+          }
           const rule = find('[data-rule]');
           rule.textContent = '1 ponto a cada ' + money(cfg.step_cents) + ' em produtos';
           rule.hidden = !cfg.active;
-          const reward = cfg.reward;
-          const section = find('.pointsReward');
-          section.hidden = !reward;
-          if (reward) {
-            find('[data-reward]').textContent = reward.name;
-            find('[data-goal]').textContent = points(cfg.goal);
-            const photo = section.querySelector('img');
-            photo.hidden = !reward.photo;
-            if (reward.photo) photo.src = reward.photo;
-            else photo.removeAttribute('src');
-            const redeem = find('[data-redeem]');
-            const canRedeem = cfg.active && reward.available && missing === 0;
-            redeem.hidden = !canRedeem;
+          const template = find('template');
+          find('[data-rewards]').replaceChildren(...available.map(reward => {
+            const section = template.content.firstElementChild.cloneNode(true);
+            const get = selector => section.querySelector(selector);
+            get('[data-reward]').textContent = reward.name;
+            get('[data-goal]').textContent = points(reward.goal);
+            const photo = get('img');
+            if (reward.photo) {
+              photo.hidden = false;
+              photo.addEventListener('error', () => { photo.hidden = true; });
+              photo.src = reward.photo;
+            }
+            const description = get('[data-description]');
+            description.textContent = reward.description || '';
+            description.hidden = !reward.description;
+            const eligible = canRedeem(cfg, reward);
+            const redeem = get('[data-redeem]');
+            redeem.hidden = !eligible;
             redeem.textContent = 'Resgatar ' + reward.name;
-            const rewardStatus = find('[data-reward-status]');
+            const rewardStatus = get('[data-reward-status]');
             rewardStatus.textContent = !cfg.active ? 'Os resgates estão pausados.'
               : !reward.available ? 'Brinde temporariamente indisponível.'
-              : !canRedeem ? 'Junte ' + points(cfg.goal) + ' para resgatar no seu pedido.' : '';
-            rewardStatus.hidden = canRedeem;
-            if (canRedeem) section.open = true;
+              : 'Junte ' + points(reward.goal) + ' para resgatar no seu pedido.';
+            rewardStatus.hidden = eligible;
+            section.open = eligible;
             redeem.onclick = () => {
-              selected = { goal:cfg.goal, reward:reward.id };
+              selected = { goal:reward.goal, reward:reward.id };
               dialog.close();
               if (document.querySelector('#cartBtn')?.hasAttribute('data-empty')) {
                 document.querySelector('#menuHeading')?.scrollIntoView({ block:'start' });
               } else openCart();
             };
-          }
+            return section;
+          }));
           find('.pointsHistory').hidden = false;
           find('[data-empty-history]').hidden = cfg.history.length > 0;
           find('ul').replaceChildren(...cfg.history.map(entry => {
@@ -181,7 +210,6 @@
         function announce(message) {
           find('[data-message]').textContent = message;
         }
-        find('.pointsReward img').addEventListener('error', event => { event.currentTarget.hidden = true; });
         function refresh() {
           status().then(show).catch(error => {
             if (dialog.open) announce(error.message);
