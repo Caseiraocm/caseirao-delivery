@@ -66,6 +66,7 @@ body.caseiraoPetroleo :focus-visible {
   background: var(--menu-panel) !important;
   border: 1px solid var(--menu-borda) !important;
 }
+.caseiraoPetroleo .top #trackBtn span { color: inherit !important; }
 .caseiraoPetroleo .quick .quickIcon,
 .caseiraoPetroleo :is(.locationArrow, .locationTrigger > span:first-child) {
   color: var(--menu-ambar) !important;
@@ -78,7 +79,9 @@ body.caseiraoPetroleo :focus-visible {
   border-color: var(--menu-borda) !important;
 }
 .caseiraoPetroleo :is(.locationTrigger strong, .menuHeading h2) { color: var(--menu-texto) !important; }
-.caseiraoPetroleo :is(.locationTrigger small, .siteFooter a) { color: var(--menu-muted) !important; }
+.caseiraoPetroleo :is(.locationTrigger small, .menuHeading small, .menuHeading > span, .siteFooter a) {
+  color: var(--menu-muted) !important;
+}
 .caseiraoPetroleo .contactLink { color: var(--menu-ambar) !important; }
 .caseiraoPetroleo .searchShell .search {
   background: transparent !important;
@@ -161,14 +164,16 @@ body.caseiraoPetroleo #cartLabel { white-space: normal !important; }
   background: var(--menu-fundo) !important;
   border-color: var(--menu-borda) !important;
 }
-.caseiraoPetroleo #modal .sheet :is(h2, h3, .field > label, .optionTitle b, .checkoutSectionTitle b,
-  .cartItemName, .cartEmpty b, .sumrow b, .checkoutFooter strong, .locationTitle, .locationAddress, .trackMetrics b, .trackOrderNumber, .trackStep strong) {
+.caseiraoPetroleo #modal .sheet :is(h2, h3, .field label, .optionTitle b, .checkoutSectionTitle b,
+  .cartItemName, .cartEmpty b, .sumrow b, .checkoutFooter strong, .storeLocationAddress,
+  .locationTitle, .locationAddress, .trackMetrics b, .trackOrderNumber, .trackStep strong) {
   color: var(--menu-texto) !important;
 }
 .caseiraoPetroleo #modal .sheet :is(.head small, .checkoutIntro, .checkoutSectionTitle span,
   .productDescription, .optionTitle small, .productNoPhoto, .cartItemMeta, .cartItemNote, .cartHint,
   .cartEmpty, .cashbackHelp, .scheduleChoice small, #pixEmailField small, .checkoutFooter small,
-  .promoPrices .old, .trackLead, .trackMetrics span, .trackActions, .trackStep small, .locationCopyFeedback, .trackingCodeCard small, .trackingCodeCard span) {
+  .promoPrices .old, .productDetailPrice small, .productQtyTop > span, .cartItemPrice small,
+  .trackLead, .trackMetrics span, .trackActions, .trackStep small, .locationCopyFeedback, .trackingCodeCard small, .trackingCodeCard span) {
   color: var(--menu-muted) !important;
 }
 .caseiraoPetroleo #modal .sheet :is(.productDetailPrice b, .cartItemPrice strong, .sumrow.total b,
@@ -179,7 +184,7 @@ body.caseiraoPetroleo #cartLabel { white-space: normal !important; }
   background: var(--menu-raised) !important;
 }
 .caseiraoPetroleo #modal .sheet :is(.checkoutExtra, #pixEmailField, .field:has(#change), .scheduleChoice,
-  .pickupLocation, .cashbackValue, .cartSummaryTop, .cartItem, .cartTotals, .cartEmpty,
+  .pickupLocation, .cashbackValue, .paymentChoices, .seg, .cartSummaryTop, .cartItem, .cartTotals, .cartEmpty,
   .premiumAddon, .promoCard, .sum, .trackingCodeCard, .trackCard, .trackForm, .pixOrderCard, .pixSteps) {
   color: var(--menu-texto) !important;
   background: var(--menu-panel) !important;
@@ -188,6 +193,10 @@ body.caseiraoPetroleo #cartLabel { white-space: normal !important; }
 }
 .caseiraoPetroleo #modal .sheet :is(.cartSummaryTop span, .cartSummaryTop strong, .sumrow, .promoName) {
   color: var(--menu-texto) !important;
+}
+.caseiraoPetroleo #modal .sheet :is(.pickupLocation a, .cashbackValue > span) { color: var(--menu-ambar) !important; }
+.caseiraoPetroleo #modal .sheet #caseiraoCardQuote :is(.caseiraoQuoteRates, .caseiraoQuoteTerms p) {
+  color: inherit !important;
 }
 .caseiraoPetroleo #modal .sheet :is(.cartItemNote, .cartEmptyIcon, .checkoutSectionTitle i) {
   background: var(--menu-raised) !important;
@@ -207,18 +216,19 @@ body.caseiraoPetroleo #cartLabel { white-space: normal !important; }
 }
 .caseiraoPetroleo #modal .sheet .trackMetrics { border-color: var(--menu-borda); }
 
-.caseiraoPetroleo #modal .sheet :is(.input, .select, .textarea, select[data-combo-drink]) {
+.caseiraoPetroleo #modal .sheet :is(input:not([type=checkbox], [type=radio]), select, textarea) {
   background: var(--menu-fundo) !important;
   border-color: var(--menu-borda) !important;
   color: var(--menu-texto) !important;
   -webkit-text-fill-color: var(--menu-texto) !important;
+  color-scheme: dark !important;
   caret-color: var(--menu-ambar);
 }
 .caseiraoPetroleo #modal .sheet select option {
   background: var(--menu-fundo) !important;
   color: var(--menu-texto) !important;
 }
-.caseiraoPetroleo #modal .sheet :is(.input, .textarea)::placeholder {
+.caseiraoPetroleo #modal .sheet :is(input, textarea)::placeholder {
   color: var(--menu-muted) !important;
   -webkit-text-fill-color: var(--menu-muted) !important;
   opacity: 1;
@@ -231,14 +241,16 @@ body.caseiraoPetroleo #cartLabel { white-space: normal !important; }
   box-shadow: 0 0 0 1000px var(--menu-fundo) inset !important;
   -webkit-text-fill-color: var(--menu-texto) !important;
 }
-.caseiraoPetroleo #modal .sheet :is(.primary, #send, .checkoutFooter #send, #applyCash, .promoAdd) {
+.caseiraoPetroleo #modal .sheet :is(.primary, #send, #applyCash, .promoAdd) {
   color: var(--menu-gold-ink) !important;
+  -webkit-text-fill-color: currentColor !important;
   background: var(--menu-ambar) !important;
   border-color: var(--menu-ambar) !important;
   box-shadow: none !important;
 }
 .caseiraoPetroleo #modal .sheet :is(.cartCheckout span, .cartCheckout b, #confirmAdd span) {
   color: inherit !important;
+  -webkit-text-fill-color: currentColor !important;
 }
 .caseiraoPetroleo #modal .sheet :is(.secondary, .x, .productClose, .cashbackRemove, .seg button, .paymentChoices button) {
   color: var(--menu-texto) !important;
@@ -281,9 +293,21 @@ body.caseiraoPetroleo #cartLabel { white-space: normal !important; }
 .caseiraoPetroleo #modal .sheet :is(.seg button, .paymentChoices button) :is(b, small) {
   max-width: calc(100% - 12px);
 }
-.caseiraoPetroleo #modal .sheet .premiumAddon { min-height: 48px; }
-.caseiraoPetroleo #modal .sheet .premiumAddon input { accent-color: var(--menu-ambar); }
+.caseiraoPetroleo #modal .sheet .premiumAddon {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+}
+.caseiraoPetroleo #modal .sheet .premiumAddon input {
+  margin: 0;
+  accent-color: var(--menu-ambar);
+  color-scheme: dark !important;
+}
 .caseiraoPetroleo #modal .sheet .premiumAddon .grow { min-width: 0; overflow-wrap: anywhere; }
+.caseiraoPetroleo #modal .sheet .premiumAddon .grow b { color: var(--menu-texto) !important; }
+.caseiraoPetroleo #modal .sheet .premiumAddon strong { white-space: nowrap; }
 
 .caseiraoPetroleo #modal .sheet :is(.productQtyControl, .cartQty) {
   display: inline-flex;
@@ -311,13 +335,14 @@ body.caseiraoPetroleo #cartLabel { white-space: normal !important; }
   min-height: 44px;
   color: var(--menu-error) !important;
 }
-.caseiraoPetroleo #modal .sheet :is(.notice, .caseiraoPixCheckoutNotice, .caseiraoPixAttention),
+.caseiraoPetroleo #modal .sheet :is(.notice, .operationHint, .caseiraoPixCheckoutNotice, .caseiraoPixAttention),
 .caseiraoPetroleo .automaticStoreNotice:not(.hidden) {
   color: #ffe6b5 !important;
   background: #382d1b !important;
   border: 1px solid #ba955b !important;
 }
-.caseiraoPetroleo #modal .sheet :is(.notice, .caseiraoPixCheckoutNotice, .caseiraoPixAttention) :is(b, strong, small, span) {
+.caseiraoPetroleo #modal .sheet :is(.notice, .operationHint, .caseiraoPixCheckoutNotice, .caseiraoPixAttention) :is(b, strong, small, span, p),
+.caseiraoPetroleo .automaticStoreNotice:not(.hidden) .automaticStoreCopy :is(b, small) {
   color: inherit !important;
 }
 .caseiraoPetroleo #modal .sheet .error,
@@ -332,16 +357,32 @@ body.caseiraoPetroleo #cartLabel { white-space: normal !important; }
   background: #184132 !important;
   border-color: #79ab93 !important;
 }
-.caseiraoPetroleo #modal .sheet :is(.pixQrWrap, .pixQrCard) {
+.caseiraoPetroleo #modal .sheet .pixQrCard {
   background: #fff !important;
   color: #142521 !important;
 }
 .caseiraoPetroleo #modal .sheet .pixQrCard img { background: #fff !important; }
-.caseiraoPetroleo #modal .sheet :is(.pixStatusCard, .pixStatusText, .pixOrderCard) :is(b, strong, small, span) {
-  color: inherit;
+.caseiraoPetroleo #modal .sheet .pixQrWrap { background: var(--menu-panel) !important; }
+.caseiraoPetroleo #modal .sheet .pixQrWrap small { color: var(--menu-muted) !important; }
+.caseiraoPetroleo #modal .sheet .pixStatusCard.waiting {
+  color: #ffe6b5 !important;
+  background: #382d1b !important;
+  border-color: #ba955b !important;
+}
+.caseiraoPetroleo #modal .sheet .pixStatusCard.confirmed {
+  color: #d3f9dc !important;
+  background: #184132 !important;
+  border-color: #79ab93 !important;
+}
+.caseiraoPetroleo #modal .sheet :is(.pixStatusText, .pixOrderCard) :is(b, strong, small, span) {
+  color: inherit !important;
+}
+.caseiraoPetroleo #modal .sheet .pixSteps b {
+  color: var(--menu-gold-ink);
+  background: var(--menu-ambar);
 }
 .caseiraoPetroleo :is(#products .primary, .bestAdd):disabled,
-.caseiraoPetroleo #modal .sheet :is(.primary, .promoAdd, .productQtyControl button, #send):disabled {
+.caseiraoPetroleo #modal .sheet :is(button, #send):disabled {
   color: #d5ddd4 !important;
   background: #364a43 !important;
   border-color: #83988d !important;
