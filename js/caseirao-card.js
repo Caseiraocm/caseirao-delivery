@@ -55,7 +55,8 @@
       const status=document.createElement('p');
       status.setAttribute('role','status');
       const codePanel=document.createElement('div');
-      panel.append(form,codePanel,status);
+      const quote=document.createElement('p');
+      panel.append(quote,form,codePanel,status);
       const submit=form.querySelector('button');
       const email=form.elements.namedItem('email');
       const session=token;
@@ -82,6 +83,7 @@
       }
       function showCode(pix){
         codePanel.replaceChildren();
+        quote.textContent='';
         const amount=document.createElement('p');
         amount.textContent='Valor do Pix: '+money(pix.amount);
         codePanel.append(amount);
@@ -151,7 +153,26 @@
         }catch(error){status.textContent=error.message;}
         finally{submit.disabled=false;}
       };
-      email.focus();
+      form.hidden=true;
+      status.textContent='Consultando o valor da fatura…';
+      pixRequest('customer_pix_quote',{}).then(estimate=>{
+        if(!panel.isConnected||token!==session)return;
+        if(estimate.state==='review'){
+          status.textContent='Pagamento em conferência. Fale com o Caseirão antes de pagar novamente.';
+          return;
+        }
+        if(!estimate.ready||estimate.amount<=0){
+          status.textContent='Esta fatura estará disponível para pagamento quando os pedidos estiverem finalizados.';
+          return;
+        }
+        status.textContent='';
+        quote.textContent='Valor para pagar agora: '+money(estimate.amount);
+        form.hidden=false;
+        if(!panel.hidden)email.focus();
+      }).catch(error=>{
+        status.textContent=error.message;
+        form.hidden=false;
+      });
     };
   }
 
@@ -222,9 +243,10 @@
           const status=paid?'Paga':bill.due<card.today?'Vencida':'Em aberto';
           const total=paid?paid.amount:bill.amount;
           const interest=Math.max(0,total-bill.principal);
-          summary.textContent=`${status} · ${due(bill.due)} · ${money(total)} (juros ${money(interest)}) · pedidos ${bill.orders.join(', ')}`;
+          const estimate=!paid&&bill.due>card.today?' no vencimento':'';
+          summary.textContent=`${status} · ${due(bill.due)} · ${money(total)}${estimate} (juros ${money(interest)}) · pedidos ${bill.orders.join(', ')}`;
           row.append(summary);
-          if(!paid&&bill.due<=card.today)addPixButton(row,bill,()=>load(credential),dialog);
+          if(!paid)addPixButton(row,bill,()=>load(credential),dialog);
           content.append(row);
           if(bill.due===requestedDue)requestAnimationFrame(()=>row.scrollIntoView({block:'nearest'}));
         }
@@ -235,7 +257,7 @@
         if(cancelled.length){
           const item=document.createElement('p');item.textContent='Compras estornadas · '+cancelled.map(charge=>'#'+charge.order_number).join(', ');content.append(item);
         }
-        feedback.textContent='O Pix online fica disponível a partir do vencimento. Para quitar antes, fale com o Caseirão.';
+        feedback.textContent='Você pode pagar por Pix antes, no dia ou depois do vencimento.';
       }catch(error){
         if(!form.hidden)pilotNotice.hidden=false;
         feedback.textContent=error.message;
