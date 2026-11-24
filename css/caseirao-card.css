@@ -251,3 +251,31 @@ dialog.caseiraoCardDialog {
   .caseiraoCardDialog .caseiraoCardBody { padding: 14px; gap: 12px; }
   .caseiraoCardDialog .caseiraoCardFields { grid-template-columns: minmax(0,1fr); gap: 8px; }
 }
+
+.caseiraoCardPixAction {
+  margin: .25rem 0 .75rem;
+}
+.caseiraoCardPixPanel:not([hidden]) {
+  display: grid;
+  gap: .65rem;
+  padding: .75rem;
+  border: 1px solid #676b74;
+  border-radius: .75rem;
+  margin-bottom: .75rem;
+}
+.caseiraoCardPixPanel form[hidden] {
+  display: none;
+}
+.caseiraoCardPixPanel input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.caseiraoCardPixPanel img {
+  display: block;
+  object-fit: contain;
+  max-width: 100%;
+  margin: .5rem auto;
+  padding: .5rem;
+  background: white;
+}
