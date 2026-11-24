@@ -1,0 +1,47 @@
+.caseiraoPoints {
+  color-scheme: dark; color: #fcf3df; background: #082522; border: 1px solid #719185;
+  border-radius: 20px; padding: clamp(14px,4vw,24px); width: min(540px,calc(100% - 20px));
+  max-height: 92dvh; overflow: auto; margin: auto;
+}
+.caseiraoPoints::backdrop { background: #00100ee0; }
+.caseiraoPoints [hidden], .pointsCheckout [hidden] { display: none !important; }
+.caseiraoPoints header { display: flex; align-items: center; gap: 14px; }
+.caseiraoPoints header img { width: 112px; height: auto; }
+.caseiraoPoints h2, .caseiraoPoints h3, .caseiraoPoints p { margin: 0; }
+.caseiraoPoints h2 { font: bold clamp(29px,7vw,44px)/1.1 Georgia,serif; margin: 12px 0 5px; }
+.caseiraoPoints h3 { font-size: 1.2rem; }
+.caseiraoPoints p, .caseiraoPoints small { color: #deeadf; line-height: 1.45; }
+.caseiraoPoints button, .pointsCheckout button {
+  color: #fcf3df; background: #153832; border: 1px solid #719185; border-radius: 10px;
+  padding: 9px 12px; min-height: 44px; font-weight: 700;
+}
+.caseiraoPoints button:disabled { opacity: 1; color: #fcf3df; }
+.caseiraoPoints button:focus-visible, .caseiraoPoints input:focus-visible, .caseiraoPoints summary:focus-visible {
+  outline: 2px solid #f6c46b; outline-offset: 3px;
+}
+.caseiraoPoints section { margin-top: 14px; background: #102e2a; border: 1px solid #719185; border-radius: 16px; }
+.caseiraoPoints .pointsBalance { border-color: #f6c46b; background: radial-gradient(ellipse at 80% 0%,#f6c46b28,transparent 70%),#102e2a; }
+.pointsBalance, .pointsHistory { padding: 14px; }
+.pointsBalance strong { color: #f6c46b; font: bold 4.5rem/1 Georgia,serif; }
+.pointsBalance progress { display: block; width: 100%; height: 15px; margin: 10px 0 6px; appearance: none; border: 0; border-radius: 20px; overflow: hidden; background: #58766a; }
+.pointsBalance progress::-webkit-progress-bar { background: #58766a; }
+.pointsBalance progress::-webkit-progress-value { background: #f6c46b; border-radius: 20px; transition: width .65s ease; }
+.pointsBalance progress::-moz-progress-bar { background: #f6c46b; }
+.pointsReward { overflow: hidden; }
+.pointsReward img { display: block; width: 100%; height: clamp(120px,37vw,195px); object-fit: cover; }
+.pointsReward div { padding: 12px 14px; }
+.pointsReward h3 { font: bold 1.8rem Georgia,serif; }
+.pointsReward [data-goal], .pointsHistory strong { color: #f6c46b; }
+.pointsReward button { width: 100%; margin-top: 8px; border-color: #f6c46b; }
+.caseiraoPoints .pointsInvite { width: 100%; margin-top: 14px; color: #142521; background: #f6c46b; border-color: #f6c46b; position: relative; isolation: isolate; overflow: hidden; }
+.pointsInvite::after { content: ""; position: absolute; z-index: -1; inset: 0; background: linear-gradient(110deg,transparent 38%,#fff6d9bf 50%,transparent 62%); transform: translateX(-100%); animation: points-glow 2.5s .5s 2; }
+@keyframes points-glow { 0%,22% { transform: translateX(-100%); } 60%,100% { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) { .pointsInvite::after { animation: none; } .pointsBalance progress::-webkit-progress-value { transition: none; } }
+.caseiraoPoints [data-rule] { margin: 5px 0; }
+.pointsHistory ul { list-style: none; margin: 5px 0 0; padding: 0; }
+.pointsHistory li { display: flex; justify-content: space-between; gap: 8px; padding: 6px 0; }
+.caseiraoPoints details, .caseiraoPoints [data-legacy] { margin-top: 12px; }
+.caseiraoPoints details input { display: block; width: 100%; padding: 8px; margin: 4px 0 8px; background: #102e2a; border: 1px solid #719185; color: #fcf3df; }
+.caseiraoPoints details small { display: block; margin-top: 6px; }
+.pointsCheckout { padding: 10px; margin: 8px 0; color: #fcf3df; background: #102e2a; border: 1px solid #719185; border-radius: 10px; }
+.pointsCheckout p { margin: 0 0 4px; }
