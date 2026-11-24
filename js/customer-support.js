@@ -205,12 +205,62 @@ window.caseiraoCustomerSupport = (() => {
     }
   });
 
-  const inviteKey = 'caseirao_chat_invite_seen_v1';
+  const inviteKey = 'caseirao_chat_float_seen_v1';
   let showInvite = true;
   try { showInvite = sessionStorage.getItem(inviteKey) !== '1'; } catch {}
   if (showInvite && menuButton?.querySelector('.supportInvite')) {
     menuButton.classList.add('showSupportInvite');
     try { sessionStorage.setItem(inviteKey, '1'); } catch {}
+  }
+
+  if (menuButton) {
+    const mobileButton = window.matchMedia('(max-width:700px)');
+    let gesture;
+    let suppressClick = false;
+
+    menuButton.addEventListener('pointerdown', event => {
+      if (!mobileButton.matches || !event.isPrimary || event.button !== 0) return;
+      const {left, top} = menuButton.getBoundingClientRect();
+      suppressClick = false;
+      gesture = {id:event.pointerId, x:event.clientX, y:event.clientY, left, top, moved:false};
+      menuButton.setPointerCapture(event.pointerId);
+    });
+
+    menuButton.addEventListener('pointermove', event => {
+      if (gesture?.id !== event.pointerId) return;
+      const dx = event.clientX - gesture.x;
+      const dy = event.clientY - gesture.y;
+      if (!gesture.moved && Math.hypot(dx, dy) < 9) return;
+      gesture.moved = true;
+      menuButton.classList.remove('showSupportInvite');
+      const maxX = Math.max(12, window.innerWidth - menuButton.offsetWidth - 12);
+      menuButton.style.setProperty('--support-x', Math.min(maxX, Math.max(12, gesture.left + dx)) + 'px');
+      menuButton.style.setProperty('--support-y', gesture.top + dy + 'px');
+      menuButton.classList.add('isSupportDragging');
+    });
+
+    function finishDrag(event) {
+      if (gesture?.id !== event.pointerId) return;
+      if (gesture.moved) {
+        const {left, top, width} = menuButton.getBoundingClientRect();
+        menuButton.dataset.supportSide = left + width / 2 < window.innerWidth / 2 ? 'left' : 'right';
+        menuButton.style.setProperty('--support-y', top + 'px');
+        menuButton.style.removeProperty('--support-x');
+        menuButton.classList.remove('isSupportDragging');
+        suppressClick = true;
+      }
+      gesture = null;
+    }
+
+    menuButton.addEventListener('pointerup', finishDrag);
+    menuButton.addEventListener('pointercancel', finishDrag);
+    menuButton.addEventListener('lostpointercapture', finishDrag);
+    menuButton.addEventListener('click', event => {
+      if (!suppressClick || event.detail === 0) return;
+      suppressClick = false;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }, true);
   }
 
   function queueHtml(queue) {
