@@ -34,7 +34,7 @@
 }
 .caseiraoPoints .pointsHeader img { width: 65px; height: auto; mix-blend-mode: lighten; }
 .caseiraoPoints .pointsHeader h2 { color: var(--points-text); font: 750 clamp(16px, 4.7vw, 20px)/1.15 system-ui, sans-serif; }
-.caseiraoPoints button, .pointsCheckout button {
+.caseiraoPoints button {
   color: #fff6e4;
   background: #153832;
   border: 1px solid #719185;
@@ -94,3 +94,15 @@
 .caseiraoPoints [data-rule] { margin-top: 5px; text-align: center; font-size: 12px; }
 .pointsCheckout { padding: 10px; margin: 8px 0; color: #fcf3df; background: #102e2a; border: 1px solid #719185; border-radius: 10px; }
 .pointsCheckout p { margin: 0 0 4px; }
+.pointsDescription { white-space: pre-line; overflow-wrap: anywhere; }
+.pointsCheckout label { display: grid; gap: 4px; margin-top: 8px; font-weight: 600; }
+.pointsCheckout select {
+  width: 100%;
+  min-height: 42px;
+  padding: 6px 10px;
+  border: 1px solid #719185;
+  border-radius: 8px;
+  background: #fff9ed;
+  color: #102e2a;
+  font: inherit;
+}
