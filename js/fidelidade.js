@@ -20,7 +20,7 @@
   const points = count => count + (count === 1 ? ' ponto' : ' pontos');
   const status = async () => {
     const current = code();
-    if (!current) throw new Error('Permita armazenamento do site para usar a fidelidade.');
+    if (!current) throw new Error('Permita armazenamento do site para usar o Clube Pontos.');
     const response = await call('caseirao-fidelidade', { action:'status', wallet:current });
     if (current !== code()) return status();
     config = response;
@@ -68,7 +68,7 @@
       box.id = 'pointsCheckout';
       box.className = 'pointsCheckout';
       box.hidden = true;
-      box.innerHTML = '<p></p><label hidden>Brinde da fidelidade<select></select></label>';
+      box.innerHTML = '<p></p><label hidden>Brinde do Clube Pontos<select></select></label>';
       send.closest('.checkoutFooter')?.before(box);
       if (!box.isConnected) send.before(box);
       updateCheckout(net);
@@ -84,7 +84,6 @@
       call = api;
       const entry = document.querySelector('#loyaltyBtn');
       if (!entry) return;
-      const openLegacy = entry.onclick;
       entry.onclick = () => {
         const dialog = document.createElement('dialog');
         dialog.className = 'caseiraoPoints';
@@ -93,7 +92,7 @@
           <header class="pointsHeader">
             <button type="button" data-exit aria-label="Voltar">←</button>
             <img src="./assets/caseirao-logo-petroleo.webp" alt="" width="221" height="145">
-            <h2 id="pointsTitle">Fidelidade Caseirão</h2>
+            <h2 id="pointsTitle">Clube Pontos</h2>
           </header>
           <div class="pointsContent">
             <p class="pointsNotice" data-message role="status">Consultando seus pontos…</p>
@@ -106,7 +105,7 @@
               </div>
               <p data-remaining></p>
             </section>
-            <section aria-label="Brindes da fidelidade" data-rewards></section>
+            <section aria-label="Brindes do Clube Pontos" data-rewards></section>
             <template>
               <details class="pointsReward">
                 <summary>
@@ -132,7 +131,6 @@
                 <small>Para usar seu saldo em outro aparelho, copie o código e cole no outro aparelho.</small>
                 <div><button type="button" data-copy>Copiar código</button><button type="button" data-load>Usar código</button></div>
               </div>
-              <button type="button" data-legacy>Brindes da campanha anterior</button>
             </details>
           </div>
           <footer class="pointsFooter">
@@ -230,7 +228,7 @@
           const input = find('input');
           const candidate = input.value.trim().toLowerCase();
           if (!/^[0-9a-f]{64}$/.test(candidate)) {
-            find('[data-message]').textContent = 'Confira o código de fidelidade.';
+            find('[data-message]').textContent = 'Confira o código do Clube Pontos.';
             return;
           }
           try { localStorage.setItem(key, candidate); } catch {
@@ -244,7 +242,6 @@
           find('[data-message]').textContent = 'Consultando seus pontos…';
           refresh();
         };
-        find('[data-legacy]').onclick = () => { dialog.close(); openLegacy?.call(entry); };
         dialog.addEventListener('close', () => dialog.remove(), { once:true });
         document.body.append(dialog);
         dialog.showModal();
