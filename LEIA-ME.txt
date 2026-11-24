@@ -1,17 +1,16 @@
-CASEIRÃO BURGER — BOTÃO DE CHAT FLUTUANTE
+CASEIRÃO BURGER — CHAT DO DELIVERY
 
-Publique os quatro arquivos abaixo no repositório Caseiraocm/caseirao-delivery,
-mantendo o caminho de cada arquivo. O LEIA-ME é só para consulta.
+Substitua estes quatro arquivos no repositório Caseiraocm/caseirao-delivery,
+mantendo o caminho de cada um. O LEIA-ME é só para consulta.
 
   index.html
   sw.js
   css/customer-support.css
   js/customer-support.js
 
-Depois que o GitHub Pages atualizar, feche e reabra o cardápio.
-No celular, o chat aparece como um ícone amarelo na lateral direita.
-Arraste para mudar a altura ou estacionar na outra lateral. A área inferior
-fica livre para o carrinho. Um toque abre as duas opções de atendimento.
+Quando o GitHub Pages terminar a publicação, feche e reabra o cardápio.
 
-Na primeira abertura da sessão, aparece o convite "Peça pelo chat".
-Para rever a animação, abra uma nova sessão anônima.
+O convite “Peça pelo chat” aparece uma vez por sessão e se recolhe após
+quatro segundos ou ao rolar a página. No celular, o botão divide a faixa de
+baixo com o carrinho. Arraste o botão para reposicioná-lo numa lateral ou
+leve-o de volta à faixa inferior. Toque para abrir as opções de atendimento.
