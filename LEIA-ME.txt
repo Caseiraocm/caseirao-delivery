@@ -1,3 +1,16 @@
-Cartão Caseirão — novo visual
+Caseirão Burger — Cartão Caseirão Grafite
 
-Substitua os quatro arquivos deste ZIP no repositório caseirao-delivery, mantendo as pastas. Aguarde o GitHub Pages publicar e reabra o cardápio.
+No repositório caseirao-delivery, substitua somente estes dois arquivos,
+mantendo as pastas:
+  css/caseirao-card.css
+  js/caseirao-card.js
+
+Para atualizar a versão dos arquivos no navegador, no index.html existente
+troque o valor de ?v= apenas nas referências a caseirao-card.js e
+caseirao-card.css para 20261123-cartao-grafite-v1. Se o cardápio usa
+o service worker, atualize também o nome da constante CACHE no sw.js
+existente mantendo o prefixo caseirao-delivery-. Por exemplo:
+caseirao-delivery-20261123-cartao-grafite-v1.
+
+Depois que o GitHub Pages publicar, reabra o cardápio conectado à internet
+e selecione o Cartão Caseirão no checkout para conferir o resumo.
