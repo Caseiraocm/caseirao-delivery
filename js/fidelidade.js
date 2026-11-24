@@ -76,35 +76,70 @@
         dialog.className = 'caseiraoPoints';
         dialog.setAttribute('aria-labelledby','pointsTitle');
         dialog.innerHTML = `
-          <header><button type="button" data-exit aria-label="Voltar">←</button><img src="./assets/caseirao-logo-petroleo.webp" alt="Caseirão Burger"></header>
-          <h2 id="pointsTitle">Fidelidade Caseirão</h2><p>Peça pelo cardápio e ganhe pontos</p>
-          <p data-message role="status">Consultando seus pontos…</p>
-          <section class="pointsBalance" hidden><h3>Seu saldo</h3><p><strong data-balance></strong> pontos</p>
-            <progress aria-label="Progresso para o brinde"></progress><p data-remaining></p></section>
-          <section class="pointsReward" hidden><img alt="" hidden>
-            <div><p>Seu próximo brinde</p><h3 data-reward></h3><p data-goal></p>
-            <button type="button" data-redeem>Resgatar brinde</button></div></section>
-          <button type="button" class="pointsInvite" data-order>Fazer pedido e ganhar pontos →</button><p data-rule></p>
-          <section class="pointsHistory" hidden><h3>Últimos pontos</h3><ul></ul></section>
-          <details><summary>Usar meus pontos em outro aparelho</summary>
-            <label>Código pessoal da fidelidade<input type="password" spellcheck="false" autocomplete="off" maxlength="64"></label>
-            <button type="button" data-copy>Copiar meu código</button><button type="button" data-load>Usar este código</button>
-            <small>Guarde seu código e use apenas em aparelhos de confiança.</small></details>
-          <button type="button" data-legacy>Consultar brindes da campanha anterior</button>`;
+          <header class="pointsHeader">
+            <button type="button" data-exit aria-label="Voltar">←</button>
+            <img src="./assets/caseirao-logo-petroleo.webp" alt="" width="221" height="145">
+            <h2 id="pointsTitle">Fidelidade Caseirão</h2>
+          </header>
+          <div class="pointsContent">
+            <p class="pointsNotice" data-message role="status">Consultando seus pontos…</p>
+            <section class="pointsBalance" aria-labelledby="pointsBalanceTitle" hidden>
+              <h3 id="pointsBalanceTitle">Seu saldo</h3>
+              <p class="pointsTotal"><strong data-balance></strong> <span data-unit></span></p>
+              <div class="pointsProgress">
+                <progress aria-label="Progresso para o brinde" value="0"></progress>
+                <span data-percent aria-hidden="true"></span>
+              </div>
+              <p data-remaining></p>
+            </section>
+            <details class="pointsReward" hidden>
+              <summary>
+                <img alt="" width="84" height="84" hidden>
+                <span><strong data-reward></strong><span class="pointsGoal" data-goal></span></span>
+              </summary>
+              <div class="pointsRewardAction">
+                <p data-reward-status></p>
+                <button type="button" data-redeem hidden>Resgatar brinde</button>
+              </div>
+            </details>
+            <details class="pointsHistory" hidden>
+              <summary>Histórico</summary>
+              <p data-empty-history hidden>Seus pontos aparecem aqui quando o pedido for pago e concluído.</p>
+              <ul></ul>
+            </details>
+            <details class="pointsOptions">
+              <summary>Mais opções</summary>
+              <div class="pointsCode">
+                <label>Seu código pessoal<input type="password" spellcheck="false" autocomplete="off" maxlength="64"></label>
+                <small>Para usar seu saldo em outro aparelho, copie o código e cole no outro aparelho.</small>
+                <div><button type="button" data-copy>Copiar código</button><button type="button" data-load>Usar código</button></div>
+              </div>
+              <button type="button" data-legacy>Brindes da campanha anterior</button>
+            </details>
+          </div>
+          <footer class="pointsFooter">
+            <button type="button" class="pointsInvite" data-order>Fazer pedido <span aria-hidden="true">→</span></button>
+            <p data-rule hidden></p>
+          </footer>`;
         const find = selector => dialog.querySelector(selector);
         function show(cfg) {
           if (!dialog.open) return;
-          find('[data-message]').textContent = cfg.active ? '' : 'A campanha está pausada.';
-          find('[data-balance]').textContent = cfg.balance;
+          announce(cfg.active ? '' : 'Campanha pausada. Seu saldo está guardado.');
+          find('[data-balance]').textContent = cfg.balance.toLocaleString('pt-BR');
+          find('[data-unit]').textContent = cfg.balance === 1 ? 'ponto' : 'pontos';
           find('.pointsBalance').hidden = false;
           const progress = find('progress');
+          const percent = Math.min(100, Math.floor(100 * cfg.balance / cfg.goal));
           progress.max = cfg.goal;
-          requestAnimationFrame(() => { progress.value = Math.min(cfg.balance, cfg.goal); });
-          const missing = Math.max(0,cfg.goal - cfg.balance);
+          progress.value = Math.min(cfg.balance, cfg.goal);
+          find('[data-percent]').textContent = percent + '%';
+          const missing = Math.max(0, cfg.goal - cfg.balance);
           find('[data-remaining]').textContent = missing
             ? (missing === 1 ? 'Falta ' : 'Faltam ') + points(missing) + ' para o brinde'
-            : 'Você atingiu a meta do brinde!';
-          find('[data-rule]').textContent = '1 ponto a cada ' + money(cfg.step_cents) + ' em produtos pagos.';
+            : 'Meta de pontos atingida!';
+          const rule = find('[data-rule]');
+          rule.textContent = '1 ponto a cada ' + money(cfg.step_cents) + ' em produtos';
+          rule.hidden = !cfg.active;
           const reward = cfg.reward;
           const section = find('.pointsReward');
           section.hidden = !reward;
@@ -114,9 +149,17 @@
             const photo = section.querySelector('img');
             photo.hidden = !reward.photo;
             if (reward.photo) photo.src = reward.photo;
+            else photo.removeAttribute('src');
             const redeem = find('[data-redeem]');
-            redeem.disabled = !cfg.active || !reward.available || missing > 0;
-            redeem.textContent = (redeem.disabled ? '🔒 ' : '') + 'Resgatar ' + reward.name;
+            const canRedeem = cfg.active && reward.available && missing === 0;
+            redeem.hidden = !canRedeem;
+            redeem.textContent = 'Resgatar ' + reward.name;
+            const rewardStatus = find('[data-reward-status]');
+            rewardStatus.textContent = !cfg.active ? 'Os resgates estão pausados.'
+              : !reward.available ? 'Brinde temporariamente indisponível.'
+              : !canRedeem ? 'Junte ' + points(cfg.goal) + ' para resgatar no seu pedido.' : '';
+            rewardStatus.hidden = canRedeem;
+            if (canRedeem) section.open = true;
             redeem.onclick = () => {
               selected = { goal:cfg.goal, reward:reward.id };
               dialog.close();
@@ -125,7 +168,8 @@
               } else openCart();
             };
           }
-          find('.pointsHistory').hidden = !cfg.history.length;
+          find('.pointsHistory').hidden = false;
+          find('[data-empty-history]').hidden = cfg.history.length > 0;
           find('ul').replaceChildren(...cfg.history.map(entry => {
             const row = document.createElement('li');
             const value = document.createElement('strong');
@@ -134,9 +178,13 @@
             return row;
           }));
         }
+        function announce(message) {
+          find('[data-message]').textContent = message;
+        }
+        find('.pointsReward img').addEventListener('error', event => { event.currentTarget.hidden = true; });
         function refresh() {
           status().then(show).catch(error => {
-            if (dialog.open) find('[data-message]').textContent = error.message;
+            if (dialog.open) announce(error.message);
           });
         }
         find('[data-exit]').onclick = () => dialog.close();
