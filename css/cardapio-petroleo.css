@@ -1,0 +1,400 @@
+/* Paleta do cardápio, dos detalhes do pedido e da finalização. */
+html:has(body.caseiraoPetroleo) {
+  color-scheme: dark !important;
+  background: #06201e !important;
+}
+body.caseiraoPetroleo {
+  --menu-petroleo: #06201e;
+  --menu-fundo: #0a2422;
+  --menu-panel: #112e2b;
+  --menu-raised: #193c36;
+  --menu-borda: #62857b;
+  --menu-texto: #fcf3df;
+  --menu-muted: #c9d8d1;
+  --menu-ambar: #f3c36e;
+  --menu-gold-ink: #142521;
+  --menu-error: #ffd8d2;
+  color: var(--menu-texto) !important;
+  background: var(--menu-fundo) !important;
+}
+
+body.caseiraoPetroleo :focus-visible {
+  outline: 2px solid var(--menu-ambar) !important;
+  outline-offset: 3px;
+}
+.caseiraoPetroleo .top {
+  background: var(--menu-petroleo) !important;
+  border-color: var(--menu-borda) !important;
+  padding-block: 8px !important;
+}
+.caseiraoPetroleo .top .brandLockup {
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.caseiraoPetroleo .top #storeName {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.caseiraoPetroleo .caseiraoPetroleoLogo {
+  display: block;
+  width: clamp(120px, 29vw, 172px);
+  height: auto;
+  mix-blend-mode: lighten;
+}
+.caseiraoPetroleo .top #storeStatus {
+  display: inline-block;
+  max-width: 260px;
+  padding: 3px 8px;
+  border: 1px solid var(--menu-borda);
+  border-radius: 999px;
+  color: var(--menu-texto) !important;
+  font-size: 12px !important;
+  line-height: 1.3;
+}
+.caseiraoPetroleo .top #storeStatus.open { color: #b8f0cd !important; }
+.caseiraoPetroleo .top #storeStatus.closed { color: #ffd3a1 !important; }
+.caseiraoPetroleo .top #trackBtn,
+.caseiraoPetroleo .quick button,
+.caseiraoPetroleo .cats .chip {
+  color: var(--menu-texto) !important;
+  background: var(--menu-panel) !important;
+  border: 1px solid var(--menu-borda) !important;
+}
+.caseiraoPetroleo .quick .quickIcon,
+.caseiraoPetroleo :is(.locationArrow, .locationTrigger > span:first-child) {
+  color: var(--menu-ambar) !important;
+}
+.caseiraoPetroleo .storeTicker,
+.caseiraoPetroleo .searchShell,
+.caseiraoPetroleo .balcaoCatalog #cats {
+  color: var(--menu-texto) !important;
+  background: var(--menu-fundo) !important;
+  border-color: var(--menu-borda) !important;
+}
+.caseiraoPetroleo :is(.locationTrigger strong, .menuHeading h2) { color: var(--menu-texto) !important; }
+.caseiraoPetroleo :is(.locationTrigger small, .siteFooter a) { color: var(--menu-muted) !important; }
+.caseiraoPetroleo .contactLink { color: var(--menu-ambar) !important; }
+.caseiraoPetroleo .searchShell .search {
+  background: transparent !important;
+  color: var(--menu-texto) !important;
+  -webkit-text-fill-color: var(--menu-texto) !important;
+}
+.caseiraoPetroleo .searchShell .search::placeholder {
+  color: var(--menu-muted) !important;
+  -webkit-text-fill-color: var(--menu-muted) !important;
+  opacity: 1;
+}
+.caseiraoPetroleo .searchShell:focus-within { outline: 2px solid var(--menu-ambar); outline-offset: 2px; }
+.caseiraoPetroleo .cats .chip.on {
+  color: var(--menu-gold-ink) !important;
+  background: var(--menu-ambar) !important;
+  border-color: var(--menu-ambar) !important;
+}
+.caseiraoPetroleo #products .card,
+.caseiraoPetroleo #products .card > .body,
+.caseiraoPetroleo #products .card > .cardBottom,
+.caseiraoPetroleo :is(.best, .bestCard, .bestBody) {
+  color: var(--menu-texto) !important;
+  background: var(--menu-panel) !important;
+  border-color: var(--menu-borda) !important;
+}
+.caseiraoPetroleo #products .card .name,
+.caseiraoPetroleo :is(.bestName, .bestHead b) { color: var(--menu-texto) !important; }
+.caseiraoPetroleo #products .card .desc,
+.caseiraoPetroleo :is(.bestMeta, .bestHead small, .imageFallback) {
+  color: var(--menu-muted) !important;
+}
+.caseiraoPetroleo #products .card .price,
+.caseiraoPetroleo :is(.bestPrice, .bestCash) { color: var(--menu-ambar) !important; }
+.caseiraoPetroleo #products .card .old,
+.caseiraoPetroleo .bestPrice .old { color: var(--menu-muted) !important; }
+.caseiraoPetroleo #products .card > .pic,
+.caseiraoPetroleo .bestPic {
+  color: var(--menu-texto) !important;
+  background: var(--menu-raised) !important;
+}
+.caseiraoPetroleo .searchShell > span { color: var(--menu-ambar) !important; }
+.caseiraoPetroleo #bestCash {
+  color: var(--menu-ambar) !important;
+  background: var(--menu-raised) !important;
+  border-color: var(--menu-borda) !important;
+}
+.caseiraoPetroleo #products :is(.loading, .empty) {
+  color: var(--menu-muted) !important;
+  background: var(--menu-fundo) !important;
+  border-color: var(--menu-borda) !important;
+}
+.caseiraoPetroleo #banner :is(.balcao-hero-prev, .balcao-hero-next),
+.caseiraoPetroleo #menuSupport .supportInvite {
+  color: var(--menu-texto) !important;
+  background: var(--menu-panel) !important;
+  border: 1px solid var(--menu-borda) !important;
+}
+
+body.caseiraoPetroleo #cartBtn,
+.caseiraoPetroleo #products .card .primary,
+.caseiraoPetroleo :is(.bestAdd, .balcao-hero-copy button) {
+  background: var(--menu-ambar) !important;
+  border-color: var(--menu-ambar) !important;
+  color: var(--menu-gold-ink) !important;
+}
+body.caseiraoPetroleo :is(#cartLabel, #cartTotal),
+body.caseiraoPetroleo #cartLabel::before { color: var(--menu-gold-ink) !important; }
+body.caseiraoPetroleo #cartTotal { background: #14252117 !important; }
+body.caseiraoPetroleo #cartLabel { white-space: normal !important; }
+
+.caseiraoPetroleo #modal .overlay { background: #00100ee0 !important; }
+.caseiraoPetroleo #modal .sheet {
+  color: var(--menu-texto) !important;
+  background: var(--menu-fundo) !important;
+  border-color: var(--menu-borda) !important;
+  color-scheme: dark;
+}
+.caseiraoPetroleo #modal .sheet :is(.head, .cartSheet, .pixPayment, .productDetail, .checkoutFooter, .detailAction) {
+  color: var(--menu-texto) !important;
+  background: var(--menu-fundo) !important;
+  border-color: var(--menu-borda) !important;
+}
+.caseiraoPetroleo #modal .sheet :is(h2, h3, .field > label, .optionTitle b, .checkoutSectionTitle b,
+  .cartItemName, .cartEmpty b, .sumrow b, .checkoutFooter strong, .locationTitle, .locationAddress, .trackMetrics b, .trackOrderNumber, .trackStep strong) {
+  color: var(--menu-texto) !important;
+}
+.caseiraoPetroleo #modal .sheet :is(.head small, .checkoutIntro, .checkoutSectionTitle span,
+  .productDescription, .optionTitle small, .productNoPhoto, .cartItemMeta, .cartItemNote, .cartHint,
+  .cartEmpty, .cashbackHelp, .scheduleChoice small, #pixEmailField small, .checkoutFooter small,
+  .promoPrices .old, .trackLead, .trackMetrics span, .trackActions, .trackStep small, .locationCopyFeedback, .trackingCodeCard small, .trackingCodeCard span) {
+  color: var(--menu-muted) !important;
+}
+.caseiraoPetroleo #modal .sheet :is(.productDetailPrice b, .cartItemPrice strong, .sumrow.total b,
+  .checkoutEyebrow, .trackTitle, .promoPrices strong, .trackingCodeCard strong, .premiumAddon strong) {
+  color: var(--menu-ambar) !important;
+}
+.caseiraoPetroleo #modal .sheet :is(.productHero, .cartItemPhoto, .promoPhoto) {
+  background: var(--menu-raised) !important;
+}
+.caseiraoPetroleo #modal .sheet :is(.checkoutExtra, #pixEmailField, .field:has(#change), .scheduleChoice,
+  .pickupLocation, .cashbackValue, .cartSummaryTop, .cartItem, .cartTotals, .cartEmpty,
+  .premiumAddon, .promoCard, .sum, .trackingCodeCard, .trackCard, .trackForm, .pixOrderCard, .pixSteps) {
+  color: var(--menu-texto) !important;
+  background: var(--menu-panel) !important;
+  border-color: var(--menu-borda) !important;
+  box-shadow: none !important;
+}
+.caseiraoPetroleo #modal .sheet :is(.cartSummaryTop span, .cartSummaryTop strong, .sumrow, .promoName) {
+  color: var(--menu-texto) !important;
+}
+.caseiraoPetroleo #modal .sheet :is(.cartItemNote, .cartEmptyIcon, .checkoutSectionTitle i) {
+  background: var(--menu-raised) !important;
+  border-color: var(--menu-borda) !important;
+}
+.caseiraoPetroleo #modal .sheet .checkoutSectionTitle i { color: var(--menu-ambar) !important; }
+.caseiraoPetroleo #modal .sheet .trackStep .trackDot {
+  color: var(--menu-texto);
+  background: var(--menu-fundo);
+  border-color: var(--menu-borda);
+  box-shadow: none;
+}
+.caseiraoPetroleo #modal .sheet .trackStep:is(.done, .current) .trackDot {
+  color: var(--menu-gold-ink);
+  background: var(--menu-ambar);
+  border-color: var(--menu-ambar);
+}
+.caseiraoPetroleo #modal .sheet .trackMetrics { border-color: var(--menu-borda); }
+
+.caseiraoPetroleo #modal .sheet :is(.input, .select, .textarea, select[data-combo-drink]) {
+  background: var(--menu-fundo) !important;
+  border-color: var(--menu-borda) !important;
+  color: var(--menu-texto) !important;
+  -webkit-text-fill-color: var(--menu-texto) !important;
+  caret-color: var(--menu-ambar);
+}
+.caseiraoPetroleo #modal .sheet select option {
+  background: var(--menu-fundo) !important;
+  color: var(--menu-texto) !important;
+}
+.caseiraoPetroleo #modal .sheet :is(.input, .textarea)::placeholder {
+  color: var(--menu-muted) !important;
+  -webkit-text-fill-color: var(--menu-muted) !important;
+  opacity: 1;
+}
+.caseiraoPetroleo #modal .sheet :is(.input, .select, .textarea, select[data-combo-drink]):focus {
+  border-color: var(--menu-ambar) !important;
+  box-shadow: 0 0 0 2px var(--menu-ambar) !important;
+}
+.caseiraoPetroleo #modal .sheet :is(input, textarea):autofill {
+  box-shadow: 0 0 0 1000px var(--menu-fundo) inset !important;
+  -webkit-text-fill-color: var(--menu-texto) !important;
+}
+.caseiraoPetroleo #modal .sheet :is(.primary, #send, .checkoutFooter #send, #applyCash, .promoAdd) {
+  color: var(--menu-gold-ink) !important;
+  background: var(--menu-ambar) !important;
+  border-color: var(--menu-ambar) !important;
+  box-shadow: none !important;
+}
+.caseiraoPetroleo #modal .sheet :is(.cartCheckout span, .cartCheckout b, #confirmAdd span) {
+  color: inherit !important;
+}
+.caseiraoPetroleo #modal .sheet :is(.secondary, .x, .productClose, .cashbackRemove, .seg button, .paymentChoices button) {
+  color: var(--menu-texto) !important;
+  background: var(--menu-panel) !important;
+  border: 1px solid var(--menu-borda) !important;
+  box-shadow: none !important;
+}
+.caseiraoPetroleo #modal .sheet :is(.seg button, .paymentChoices button) {
+  position: relative;
+  min-width: 0;
+  min-height: 68px !important;
+  padding: 10px 12px !important;
+  text-align: start;
+}
+.caseiraoPetroleo #modal .sheet :is(.seg button, .paymentChoices button) b {
+  color: inherit !important;
+  font-size: 13px !important;
+  overflow-wrap: anywhere;
+}
+.caseiraoPetroleo #modal .sheet :is(.seg button, .paymentChoices button) small {
+  color: var(--menu-muted) !important;
+  font-size: 12px !important;
+  overflow-wrap: anywhere;
+}
+.caseiraoPetroleo #modal .sheet :is(.seg button.on, .paymentChoices button.on, .premiumAddon:has(input:checked)) {
+  color: var(--menu-texto) !important;
+  background: var(--menu-raised) !important;
+  border-color: var(--menu-ambar) !important;
+  box-shadow: inset 0 0 0 1px var(--menu-ambar) !important;
+}
+.caseiraoPetroleo #modal .sheet :is(.seg button.on, .paymentChoices button.on)::after {
+  content: '✓' / '';
+  position: absolute;
+  top: 5px;
+  right: 7px;
+  color: var(--menu-ambar);
+  font-weight: 800;
+  font-size: 13px;
+}
+.caseiraoPetroleo #modal .sheet :is(.seg button, .paymentChoices button) :is(b, small) {
+  max-width: calc(100% - 12px);
+}
+.caseiraoPetroleo #modal .sheet .premiumAddon { min-height: 48px; }
+.caseiraoPetroleo #modal .sheet .premiumAddon input { accent-color: var(--menu-ambar); }
+.caseiraoPetroleo #modal .sheet .premiumAddon .grow { min-width: 0; overflow-wrap: anywhere; }
+
+.caseiraoPetroleo #modal .sheet :is(.productQtyControl, .cartQty) {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: var(--menu-fundo) !important;
+  border: 1px solid var(--menu-borda) !important;
+}
+.caseiraoPetroleo #modal .sheet :is(.productQtyControl, .cartQty) button {
+  flex: 0 0 44px;
+  width: 44px !important;
+  height: 44px !important;
+  color: var(--menu-texto) !important;
+  background: var(--menu-raised) !important;
+  font-size: 23px !important;
+}
+.caseiraoPetroleo #modal .sheet :is(.productQtyControl, .cartQty) b {
+  min-width: 2.1ch !important;
+  color: var(--menu-texto) !important;
+  font-size: 18px !important;
+  font-variant-numeric: tabular-nums;
+}
+.caseiraoPetroleo #modal .sheet .cartRemove {
+  min-width: 44px;
+  min-height: 44px;
+  color: var(--menu-error) !important;
+}
+.caseiraoPetroleo #modal .sheet :is(.notice, .caseiraoPixCheckoutNotice, .caseiraoPixAttention),
+.caseiraoPetroleo .automaticStoreNotice:not(.hidden) {
+  color: #ffe6b5 !important;
+  background: #382d1b !important;
+  border: 1px solid #ba955b !important;
+}
+.caseiraoPetroleo #modal .sheet :is(.notice, .caseiraoPixCheckoutNotice, .caseiraoPixAttention) :is(b, strong, small, span) {
+  color: inherit !important;
+}
+.caseiraoPetroleo #modal .sheet .error,
+.caseiraoPetroleo .balcaoCatalog .error {
+  color: var(--menu-error) !important;
+  background: #482725 !important;
+  border-color: #e8a398 !important;
+}
+.caseiraoPetroleo #modal .sheet .success,
+.caseiraoPetroleo #modal .sheet .success b {
+  color: #d3f9dc !important;
+  background: #184132 !important;
+  border-color: #79ab93 !important;
+}
+.caseiraoPetroleo #modal .sheet :is(.pixQrWrap, .pixQrCard) {
+  background: #fff !important;
+  color: #142521 !important;
+}
+.caseiraoPetroleo #modal .sheet .pixQrCard img { background: #fff !important; }
+.caseiraoPetroleo #modal .sheet :is(.pixStatusCard, .pixStatusText, .pixOrderCard) :is(b, strong, small, span) {
+  color: inherit;
+}
+.caseiraoPetroleo :is(#products .primary, .bestAdd):disabled,
+.caseiraoPetroleo #modal .sheet :is(.primary, .promoAdd, .productQtyControl button, #send):disabled {
+  color: #d5ddd4 !important;
+  background: #364a43 !important;
+  border-color: #83988d !important;
+  opacity: 1 !important;
+}
+.caseiraoPetroleo #modal .sheet .cartItemBottom { flex-wrap: wrap; gap: 8px; }
+.caseiraoPetroleo :is(.cartItemName, .cartItemNote, .trackingCodeCard, .sumrow) { overflow-wrap: anywhere; }
+
+@media (max-width: 700px) {
+  .caseiraoPetroleo .top .brandLockup {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px !important;
+  }
+  .caseiraoPetroleo .top #storeStatus { max-width: 100%; }
+  .caseiraoPetroleo #products {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .caseiraoPetroleo #products .card {
+    grid-template-columns: minmax(78px, 30%) minmax(0, 1fr) !important;
+    grid-template-rows: auto auto !important;
+  }
+  .caseiraoPetroleo #products .card > .pic {
+    grid-area: 1 / 1 / 3 / 2 !important;
+    align-self: stretch;
+    margin: 0 !important;
+    min-height: 118px !important;
+    aspect-ratio: auto !important;
+  }
+  .caseiraoPetroleo #products .card > .body {
+    grid-area: 1 / 2 / 2 / 3 !important;
+    padding: 10px 10px 4px !important;
+  }
+  .caseiraoPetroleo #products .card > .cardBottom {
+    grid-area: 2 / 2 / 3 / 3 !important;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center !important;
+    justify-content: space-between;
+    gap: 5px !important;
+    margin: 0 !important;
+    padding: 4px 10px 8px !important;
+    border-top: 0;
+  }
+  .caseiraoPetroleo #products .card > .cardBottom .primary {
+    width: auto !important;
+    padding-inline: 12px !important;
+  }
+}
+@media (max-width: 510px) {
+  .caseiraoPetroleo #modal .sheet :is(.seg, .paymentChoices) {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .caseiraoPetroleo #modal .sheet .productInfo { padding-inline: 14px !important; }
+  .caseiraoPetroleo #modal .sheet .checkoutFooter { align-items: center; }
+}
