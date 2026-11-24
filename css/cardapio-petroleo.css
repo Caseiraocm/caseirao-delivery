@@ -357,6 +357,15 @@ body.caseiraoPetroleo #cartLabel { white-space: normal !important; }
   background: #184132 !important;
   border-color: #79ab93 !important;
 }
+/* O campo Copia e Cola usa fundo branco dentro do modal escuro. */
+.caseiraoPetroleo #modal .sheet .pixPayment .pixCopyField {
+  background: #fff !important;
+}
+.caseiraoPetroleo #modal .sheet .pixPayment .pixCopyField label {
+  color: #142521 !important;
+  -webkit-text-fill-color: #142521 !important;
+  opacity: 1 !important;
+}
 .caseiraoPetroleo #modal .sheet .pixQrCard {
   background: #fff !important;
   color: #142521 !important;
