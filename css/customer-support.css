@@ -1,74 +1,243 @@
-#menuSupport,.trackSupport{display:inline-flex;justify-content:center;align-items:center;gap:8px;padding:10px 15px;border:1px solid #0b403d;border-radius:10px;background:#0b403d;color:#fff;font:inherit;font-weight:750;cursor:pointer}
-#menuSupport svg,.trackSupport svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.7}
-#menuSupport{position:relative;margin-inline-start:auto;border-color:#f0c570;background:#ffe1a5;color:#172e2a}
-.supportEntryCopy{font-size:.88rem;line-height:1.2}
-.supportInvite{
-  visibility:hidden;position:absolute;z-index:1;inset-block-start:calc(100% + 9px);inset-inline-end:0;
-  width:max-content;max-width:calc(100vw - 32px);padding:9px 12px;border:1px solid #efb989;border-radius:12px;
-  color:#713000;background:#ffead6;box-shadow:0 4px 14px #65320922;font-size:.84rem;pointer-events:none;
+#menuSupport, .trackSupport {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 13px;
+  border: 1px solid #31534d;
+  border-radius: 12px;
+  background: #143d36;
+  color: #fff;
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
 }
-.supportInvite::after{
-  content:"";position:absolute;right:23px;top:-5px;width:8px;height:8px;
-  background:inherit;border:solid #efb989;border-width:1px 0 0 1px;transform:rotate(45deg);
+
+#menuSupport {
+  position: relative;
+  margin-inline-start: auto;
+  border-color: #e6be72;
+  background: #ffdfa0;
+  color: #12332d;
 }
-#menuSupport.showSupportInvite .supportInvite{animation:supportInvitePop 7s .35s ease-out}
-@keyframes supportInvitePop{
-  0%{visibility:visible;opacity:0;transform:translate(var(--support-pop-x,0),var(--support-pop-y,5px)) scale(.98)}
-  7%{opacity:1;transform:scale(1.02)}
-  15%,92%{opacity:1;transform:none}
-  100%{visibility:hidden;opacity:0;transform:none}
+
+#menuSupport svg, .trackSupport svg, .supportMode svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
-@keyframes supportInviteStill{from{visibility:visible}to{visibility:hidden}}
-@media(prefers-reduced-motion:reduce){
-  #menuSupport.showSupportInvite .supportInvite{animation:supportInviteStill 7s .35s steps(1,end)}
+
+.supportEntryCopy { font-size: .83rem; line-height: 1.2; }
+
+.supportInvite {
+  visibility: hidden;
+  position: absolute;
+  z-index: 1;
+  inset: calc(100% + 8px) 0 auto auto;
+  width: max-content;
+  padding: 7px 11px;
+  border: 1px solid #d9e1db;
+  border-radius: 9px;
+  background: #fff;
+  color: #12332d;
+  box-shadow: 0 3px 12px #0b302b18;
+  font-size: .79rem;
+  line-height: 1.25;
+  pointer-events: none;
 }
-.trackSupport{width:100%;margin-top:12px}
-@media(max-width:700px){
-  #menuSupport{
-    position:fixed;top:clamp(12px,var(--support-y,43dvh),max(12px,calc(100dvh - 128px - env(safe-area-inset-bottom))));
-    right:12px;bottom:auto;left:auto;z-index:22;
-    display:grid;place-items:center;flex:none;width:52px;height:52px;padding:0;margin:0;
-    border:1px solid #e9b652;border-radius:50%;background:#ffc55b;color:#152f2b;
-    box-shadow:0 4px 12px #132a2940;touch-action:none;user-select:none;
+
+#menuSupport.showSupportInvite .supportInvite { visibility: visible; }
+
+@media (prefers-reduced-motion: no-preference) {
+  #menuSupport.showSupportInvite .supportInvite { animation: supportInviteIn .24s ease-out both; }
+  @keyframes supportInviteIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: none; }
   }
-  #menuSupport[data-support-side="left"]{right:auto;left:12px}
-  #menuSupport.isSupportDragging{right:auto;left:var(--support-x);cursor:grabbing}
-  #menuSupport svg{width:25px;height:25px;stroke-width:1.8}
-  #menuSupport .supportEntryCopy{display:none}
-  #menuSupport .supportInvite{
-    inset:auto calc(100% + 9px) auto auto;top:7px;
-    --support-pop-x:5px;--support-pop-y:0;
+}
+
+.trackSupport { width: 100%; margin-top: 12px; }
+
+@media (max-width: 700px) {
+  body.cardapioBalcao { padding-bottom: calc(66px + env(safe-area-inset-bottom)); }
+
+  #menuSupport {
+    --support-size: 46px;
+    --support-edge: 12px;
+    --support-bottom: calc(8px + env(safe-area-inset-bottom));
+    position: fixed;
+    inset: auto var(--support-edge) var(--support-bottom) auto;
+    z-index: 22;
+    display: grid;
+    place-items: center;
+    width: var(--support-size);
+    height: var(--support-size);
+    padding: 0;
+    margin: 0;
+    border-radius: 14px;
+    border-color: #254b42;
+    background: #103831;
+    color: #ffdf9e;
+    box-shadow: 0 3px 12px #12332d30;
+    touch-action: none;
+    user-select: none;
   }
-  #menuSupport .supportInvite::after{inset:13px -5px auto auto;border-width:1px 1px 0 0}
-  body.modal-open #menuSupport{visibility:hidden}
-  body.modal-open #menuSupport .supportInvite{display:none}
+
+  #menuSupport[data-support-side] {
+    top: clamp(8px, var(--support-y), max(8px, calc(100dvh - 106px - env(safe-area-inset-bottom))));
+    bottom: auto;
+  }
+
+  #menuSupport[data-support-side="left"] { right: auto; left: var(--support-edge); }
+
+  #menuSupport.isSupportDragging {
+    right: auto;
+    left: var(--support-x);
+    cursor: grabbing;
+  }
+
+  body.cardapioBalcao:has(#menuSupport:not([data-support-side])) #cartBtn {
+    right: 66px !important;
+  }
+
+  #menuSupport svg { width: 22px; height: 22px; }
+  #menuSupport .supportEntryCopy { display: none; }
+  #menuSupport .supportInvite { inset: auto 0 calc(100% + 8px) auto; }
+  body.modal-open #menuSupport { visibility: hidden; }
+  body.modal-open #menuSupport .supportInvite { display: none; }
 }
-@media(max-width:700px) and (prefers-reduced-motion:no-preference){
-  #menuSupport.showSupportInvite svg{animation:supportIconHello .6s .35s ease-out}
+
+body:has(#customerSupportDialog[open]) #menuSupport { visibility: hidden; }
+
+#customerSupportDialog {
+  width: min(100% - 24px, 500px);
+  max-height: 85dvh;
+  box-sizing: border-box;
+  padding: 0;
+  border: 1px solid #d9e2dc;
+  border-radius: 20px;
+  background: #fcfdfa;
+  color: #13332d;
+  box-shadow: 0 16px 56px #102e2840;
 }
-@keyframes supportIconHello{
-  0%,100%{transform:none}
-  35%{transform:scale(1.16) rotate(-8deg)}
-  65%{transform:rotate(6deg)}
+
+#customerSupportDialog::backdrop { background: #102c2764; }
+
+#customerSupportDialog header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid #e0e7e1;
 }
-#customerSupportDialog{width:min(100% - 24px,500px);max-height:85dvh;box-sizing:border-box;padding:0;border:1px solid #d9d8ce;border-radius:17px;background:#fffdf7;color:#192321;box-shadow:0 20px 70px #182e2a4f}
-#customerSupportDialog::backdrop{background:#15292588}
-#customerSupportDialog header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid #ddd9cd}
-#customerSupportDialog h2{margin:0;font-size:1.1rem}
-#customerSupportDialog [data-chat-close]{font:inherit;font-size:1.45rem;background:none;border:0;color:inherit;cursor:pointer}
-#customerSupportOptions{display:grid;gap:9px;padding:14px 16px 17px}
-.supportMode{
-  display:flex;align-items:center;gap:12px;width:100%;min-height:60px;padding:10px 12px;
-  border:1px solid #e2d8cc;border-radius:12px;background:#fff;color:#30251e;
-  text-align:start;font:inherit;line-height:1.3;cursor:pointer;
+
+#customerSupportDialog h2 { margin: 0; font-size: 1.1rem; }
+
+#customerSupportDialog [data-chat-close] {
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 1.45rem;
+  cursor: pointer;
 }
-.supportModeAssistant{border-color:#efb989;background:#fff0e1}
-.supportMode>span:first-child{flex:none;font-size:1.35rem}
-.supportMode strong,.supportMode small{display:block}
-.supportMode small{margin-top:2px;color:#5b4840}
-.supportOrderExample{margin:0 3px 3px;color:#5b4840;font-size:.82rem;line-height:1.4}
-.supportMode:focus-visible{outline:2px solid #a13b0c;outline-offset:2px}
-#menuSupport:focus-visible{outline:3px solid #143d36;outline-offset:3px}
+
+.supportMenuMark { display: none; }
+
+#customerSupportDialog:has(#customerSupportOptions:not([hidden])) header {
+  justify-content: start;
+  gap: 11px;
+  padding: 16px 17px 10px;
+  border: 0;
+  box-shadow: none;
+}
+
+#customerSupportDialog:has(#customerSupportOptions:not([hidden])) .supportMenuMark {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: #ffe0a0;
+  color: #103831;
+  font-size: .82rem;
+  font-weight: 850;
+}
+
+#customerSupportDialog:has(#customerSupportOptions:not([hidden])) [data-chat-close] {
+  margin-inline-start: auto;
+  background: #edf2ee;
+}
+
+#customerSupportOptions {
+  display: grid;
+  gap: 9px;
+  padding: 4px 17px 17px;
+}
+
+.supportMode {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  min-height: 64px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+  border: 1px solid #d9e2dc;
+  border-radius: 13px;
+  background: #fff;
+  color: #143831;
+  text-align: start;
+  font: inherit;
+  line-height: 1.25;
+  cursor: pointer;
+}
+
+.supportModeAssistant { border-color: #103831; background: #103831; color: #fff; }
+.supportModeIcon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #edf4ef;
+  color: #25554a;
+}
+
+.supportModeAssistant .supportModeIcon { background: #ffe0a0; color: #103831; }
+.supportMode strong, .supportMode small { display: block; }
+.supportMode strong { font-size: .96rem; }
+.supportMode small { margin-top: 3px; color: #49615a; font-size: .79rem; }
+.supportModeAssistant small { color: #d9e9e1; }
+.supportMode .supportModeArrow { width: 16px; height: 16px; }
+.supportModeAssistant .supportModeArrow { color: #ffe0a0; }
+
+.supportMode:focus-visible, #customerSupportDialog [data-chat-close]:focus-visible, #menuSupport:focus-visible {
+  outline: 2px solid #967032;
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  #customerSupportDialog:has(#customerSupportOptions:not([hidden])) {
+    width: calc(100% - 20px);
+    max-width: 480px;
+    margin: auto auto calc(10px + env(safe-area-inset-bottom));
+    padding-bottom: 0;
+  }
+}
 .customerSupportMessages{display:flex;flex-direction:column;gap:10px;overflow:auto;height:min(42dvh,360px);padding:14px 16px}
 .supportBubble{align-self:flex-start;background:#dceee8;border-radius:12px;padding:9px 12px;max-width:85%;overflow-wrap:anywhere}
 .supportBubble.outgoing{align-self:flex-end;background:#f5e8c3}
