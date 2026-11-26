@@ -1,0 +1,66 @@
+dialog.caseiraoPointsReceipt {
+  width: min(calc(100% - 32px), 400px);
+  max-height: calc(100% - 32px);
+  overflow: auto;
+  padding: 24px;
+  border: 1px solid #dce7dc;
+  border-radius: 24px;
+  background: #fff;
+  color: #19372b;
+  box-shadow: 0 18px 65px #102e2140;
+  text-align: center;
+}
+.caseiraoPointsReceipt::backdrop { background: #102e217d; }
+.pointsReceiptStar {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 12px;
+  border-radius: 18px;
+  background: #ffedc3;
+  color: #805108;
+  font-size: 28px;
+}
+.caseiraoPointsReceipt p { margin: 0; color: #52665b; line-height: 1.45; }
+.caseiraoPointsReceipt .pointsReceiptClub {
+  color: #276247;
+  font-size: .75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+}
+.caseiraoPointsReceipt h2 { margin: 7px 0 10px; font-size: clamp(1.5rem, 7.5vw, 2rem); line-height: 1.12; }
+.pointsReceiptBalance {
+  background: #edf5ee;
+  margin: 18px 0;
+  padding: 14px;
+  border-radius: 14px;
+  text-align: left;
+  font-size: .875rem;
+}
+.pointsReceiptBalance > div { display: flex; justify-content: space-between; gap: 10px; }
+.pointsReceiptBalance progress { display: block; width: 100%; height: 10px; margin: 9px 0; accent-color: #2d7652; }
+.caseiraoPointsReceipt [hidden] { display: none; }
+.caseiraoPointsReceipt form button, .pointsTrackingNote button {
+  border: 0;
+  border-radius: 13px;
+  padding: 10px 13px;
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+}
+.caseiraoPointsReceipt form button { width: 100%; min-height: 48px; background: #15533a; color: #fff; }
+.trackCard .pointsTrackingNote {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px 10px;
+  margin: 10px 0;
+  padding: 8px 12px;
+  border-radius: 13px;
+  background: #edf5ee;
+  color: #19372b;
+}
+.pointsTrackingNote button { min-height: 44px; background: transparent; color: #15533a; text-decoration: underline; }
