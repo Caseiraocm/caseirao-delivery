@@ -1,13 +1,12 @@
-FIDELIDADE CASEIRÃO — PETRÓLEO & OURO
+CASEIRÃO BURGER · Clube Pontos nos Destaques
 
-Publique no repositório Caseiraocm/caseirao-delivery, na branch main
-do GitHub Pages. Substitua estes quatro arquivos nos caminhos indicados:
+Publique index.html, sw.js e os arquivos das pastas css e js na
+raiz da branch main do repositório Caseiraocm/caseirao-delivery.
+Mantenha os caminhos css/ e js/. Depois, reabra o cardápio.
 
-  index.html
-  sw.js
-  js/fidelidade.js
-  css/fidelidade.css
+O Clube Pontos entra depois do primeiro destaque quando a campanha
+está ativa. Os destaques de produtos continuam no carrossel.
+O botão abre a mesma tela do atalho Clube Pontos.
 
-Após a publicação, recarregue o cardápio e toque em Fidelidade.
-O layout consulta os saldos, as imagens e as regras atuais da campanha.
-Esta atualização visual é aplicada somente no cardápio.
+Esse pacote é só para o cardápio. A Central e o Supabase dispensam
+atualizações para esta mudança.
