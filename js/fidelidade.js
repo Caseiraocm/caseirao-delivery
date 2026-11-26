@@ -51,7 +51,7 @@
     dialog.innerHTML = `
       <div class="pointsReceiptStar" aria-hidden="true">★</div>
       <p class="pointsReceiptClub">Clube Pontos</p>
-      <h2 id="pointsReceiptTitle"></h2>
+      <h2 id="pointsReceiptTitle">Você ganhou <span data-receipt-earned></span> nessa compra!</h2>
       <p data-receipt-invite>Continue comprando e resgate seu brinde!</p>
       <div class="pointsReceiptBalance">
         <div><strong>Seu saldo</strong><strong data-receipt-balance></strong></div>
@@ -60,7 +60,7 @@
       </div>
       <form method="dialog"><button type="submit" autofocus>Continuar</button></form>`;
     const find = selector => dialog.querySelector(selector);
-    find('h2').textContent = 'Você ganhou ' + points(receipt.earned) + ' nessa compra!';
+    find('[data-receipt-earned]').textContent = '+' + points(receipt.earned);
     find('[data-receipt-invite]').hidden = !receipt.reward;
     find('[data-receipt-balance]').textContent = points(receipt.balance);
     if (receipt.reward) {
@@ -120,9 +120,23 @@
       return;
     }
     const count = Math.floor(Math.max(0, Math.round(net() * 100)) / config.step_cents);
-    box.querySelector('p').textContent = count
-      ? 'Este pedido pode render ' + points(count) + '.'
-      : 'A cada ' + money(config.step_cents) + ' em produtos você ganha 1 ponto.';
+    const amount = box.querySelector('[data-estimated-points]');
+    const hint = box.querySelector('[data-points-hint]');
+    const label = count ? '+' + points(count) : 'Junte pontos';
+    if (amount.textContent !== label) {
+      amount.textContent = label;
+      if (count && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        amount.animate?.([
+          { transform:'scale(.88)' },
+          { transform:'scale(1.08)', offset:.55 },
+          { transform:'scale(1)' }
+        ], { duration:460, easing:'ease-out' });
+      }
+    }
+    const explanation = count
+      ? 'Pontos previstos. Entram após o pagamento e a conclusão.'
+      : 'Ganhe 1 ponto a cada ' + money(config.step_cents) + ' em produtos.';
+    if (hint.textContent !== explanation) hint.textContent = explanation;
     const eligible = rewards(config).filter(reward => canRedeem(config, reward));
     if (selected && !eligible.some(reward => reward.id === selected.reward && reward.goal === selected.goal)) {
       selected = null;
@@ -151,9 +165,19 @@
       box.id = 'pointsCheckout';
       box.className = 'pointsCheckout';
       box.hidden = true;
-      box.innerHTML = '<p></p><label hidden>Brinde do Clube Pontos<select></select></label>';
-      send.closest('.checkoutFooter')?.before(box);
-      if (!box.isConnected) send.before(box);
+      box.innerHTML = `
+        <div class="pointsEstimate">
+          <span class="pointsEstimateIcon" aria-hidden="true">★</span>
+          <div class="pointsEstimateCopy" aria-live="polite" aria-atomic="true">
+            <span class="pointsEstimateName">Clube Pontos</span>
+            <span data-estimated-points></span>
+            <p data-points-hint></p>
+          </div>
+        </div>
+        <label hidden>Brinde do Clube Pontos<select></select></label>`;
+      const footer = send.closest('.checkoutFooter');
+      if (footer) footer.prepend(box);
+      else send.before(box);
       updateCheckout(net);
       status().then(() => updateCheckout(net)).catch(() => {});
     },
