@@ -4,6 +4,24 @@
   let selected;
   let config;
   let call;
+  const claimRequests = new Map();
+  const claimLabels = { pending:'Aguardando retirada', delivered:'Entregue', cancelled:'Cancelado' };
+  const historyLabels = { resgate:'Resgate no pedido', estorno:'Estorno', ajuste:'Ajuste de saldo',
+    brinde:'Resgate de brinde', devolucao:'Pontos devolvidos' };
+  const pickupCode = id => id.slice(0,12).toUpperCase();
+
+  function requestKey(wallet, gift) {
+    const key = 'caseirao_claim_' + wallet + '_' + gift;
+    let id = claimRequests.get(key);
+    try { id ||= localStorage.getItem(key); } catch { /* Keep the request in memory. */ }
+    id ||= crypto.randomUUID();
+    claimRequests.set(key,id);
+    try { localStorage.setItem(key,id); } catch { /* Keep the request in memory. */ }
+    return { id, clear() {
+      claimRequests.delete(key);
+      try { localStorage.removeItem(key); } catch { /* Storage may be unavailable. */ }
+    } };
+  }
 
   function code() {
     if (wallet) return wallet;
@@ -58,7 +76,8 @@
         <progress aria-label="Progresso para o brinde" hidden></progress>
         <p data-receipt-remaining hidden></p>
       </div>
-      <form method="dialog"><button type="submit" autofocus>Continuar</button></form>`;
+      <form method="dialog"><button type="submit" value="close" autofocus>Continuar</button>
+        <button type="submit" value="redeem" data-open-rewards hidden>Resgatar brinde</button></form>`;
     const find = selector => dialog.querySelector(selector);
     find('[data-receipt-earned]').textContent = '+' + points(receipt.earned);
     find('[data-receipt-invite]').hidden = !receipt.reward;
@@ -68,6 +87,9 @@
       const missing = Math.max(0, goal - receipt.balance);
       const bar = find('progress');
       const remaining = find('[data-receipt-remaining]');
+      const redeem = find('[data-open-rewards]');
+      redeem.hidden = missing > 0;
+      redeem.style.display = missing > 0 ? 'none' : '';
       bar.max = goal;
       bar.value = Math.min(receipt.balance, goal);
       bar.hidden = remaining.hidden = false;
@@ -75,7 +97,11 @@
         ? (missing === 1 ? 'Falta ' : 'Faltam ') + points(missing) + ' para resgatar ' + name + '.'
         : 'Você já pode resgatar ' + name + '.';
     }
-    dialog.addEventListener('close', () => dialog.remove(), { once:true });
+    dialog.addEventListener('close', () => {
+      const openRewards = dialog.returnValue === 'redeem';
+      dialog.remove();
+      if (openRewards) document.querySelector('#loyaltyBtn')?.click();
+    }, { once:true });
     document.body.append(dialog);
     try { dialog.showModal(); }
     catch {
@@ -137,7 +163,7 @@
       ? 'Pontos previstos. Entram após o pagamento e a conclusão.'
       : 'Ganhe 1 ponto a cada ' + money(config.step_cents) + ' em produtos.';
     if (hint.textContent !== explanation) hint.textContent = explanation;
-    const eligible = rewards(config).filter(reward => canRedeem(config, reward));
+    const eligible = rewards(config).filter(reward => reward.kind !== 'physical' && canRedeem(config, reward));
     if (selected && !eligible.some(reward => reward.id === selected.reward && reward.goal === selected.goal)) {
       selected = null;
     }
@@ -152,7 +178,7 @@
     choice.closest('label').hidden = eligible.length === 0;
     choice.onchange = () => {
       const reward = eligible.find(item => item.id === choice.value);
-      selected = reward ? { goal:reward.goal, reward:reward.id } : null;
+      selected = reward ? { goal:reward.goal, reward:reward.id, name:reward.name } : null;
     };
   }
 
@@ -182,9 +208,28 @@
       status().then(() => updateCheckout(net)).catch(() => {});
     },
     estimate(net) { updateCheckout(net); },
+    cart(list) {
+      if (!list || !selected) return;
+      const row = document.createElement('article');
+      row.className = 'cartItem';
+      const body = document.createElement('div');
+      body.className = 'cartItemBody';
+      const name = document.createElement('strong');
+      name.textContent = selected.name;
+      const detail = document.createElement('p');
+      detail.textContent = 'Brinde · ' + points(selected.goal) + ' · R$ 0,00';
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'cartRemove';
+      remove.textContent = 'Remover brinde';
+      remove.onclick = () => { selected = null; row.remove(); };
+      body.append(name,detail,remove);
+      row.append(body);
+      list.append(row);
+    },
     payload() {
       const current = code();
-      return current ? { wallet:current, redeem:!!selected, ...selected } : undefined;
+      return current ? { wallet:current, redeem:!!selected, goal:selected?.goal, reward:selected?.reward } : undefined;
     },
     clear() { selected = null; },
     bind(api, openCart) {
@@ -226,7 +271,11 @@
                 </div>
               </details>
             </template>
-            <details class="pointsHistory" hidden>
+            <details class="pointsHistory" data-physical-claims hidden>
+              <summary>Meus brindes solicitados</summary>
+              <ul></ul>
+            </details>
+            <details class="pointsHistory" data-movements hidden>
               <summary>Histórico</summary>
               <p data-empty-history hidden>Seus pontos aparecem aqui quando o pedido for pago e concluído.</p>
               <ul></ul>
@@ -245,6 +294,7 @@
             <p data-rule hidden></p>
           </footer>`;
         const find = selector => dialog.querySelector(selector);
+        let submittingClaim = false;
         function show(cfg) {
           if (!dialog.open) return;
           announce(cfg.active ? '' : 'Campanha pausada. Seu saldo está guardado.');
@@ -286,30 +336,68 @@
             const eligible = canRedeem(cfg, reward);
             const redeem = get('[data-redeem]');
             redeem.hidden = !eligible;
-            redeem.textContent = 'Resgatar ' + reward.name;
+            redeem.textContent = reward.kind === 'physical' ? 'Solicitar ' + reward.name : 'Adicionar ao pedido';
             const rewardStatus = get('[data-reward-status]');
             rewardStatus.textContent = !cfg.active ? 'Os resgates estão pausados.'
               : !reward.available ? 'Brinde temporariamente indisponível.'
-              : 'Junte ' + points(reward.goal) + ' para resgatar no seu pedido.';
+              : 'Junte ' + points(reward.goal) + (reward.kind === 'physical' ? ' para solicitar a retirada.' : ' para resgatar no seu pedido.');
             rewardStatus.hidden = eligible;
             section.open = eligible;
-            redeem.onclick = () => {
-              selected = { goal:reward.goal, reward:reward.id };
+            redeem.onclick = async () => {
+              if (reward.kind === 'physical') {
+                if (submittingClaim || !confirm('Usar ' + points(reward.goal) + ' para solicitar ' + reward.name + '?')) return;
+                const current = code();
+                if (!current) return;
+                const request = requestKey(current,reward.id);
+                submittingClaim = true;
+                redeem.disabled = true;
+                announce('Enviando solicitação…');
+                try {
+                  const claim = await call('caseirao-fidelidade', {
+                    action:'claim', wallet:current, id:request.id, gift:reward.id, goal:reward.goal,
+                  });
+                  request.clear();
+                  if (!dialog.open || current !== code()) return;
+                  const message = 'Solicitação registrada. Código de retirada: ' + pickupCode(claim.id) + '.';
+                  announce(message);
+                  try {
+                    show(await status());
+                    announce(message);
+                    find('[data-physical-claims]').open = true;
+                  } catch { /* Keep the confirmation visible if refreshing fails. */ }
+                } catch (error) {
+                  announce(error.message);
+                } finally {
+                  submittingClaim = false;
+                  redeem.disabled = false;
+                }
+                return;
+              }
+              if (submittingClaim) return;
+              selected = { goal:reward.goal, reward:reward.id, name:reward.name };
               dialog.close();
-              if (document.querySelector('#cartBtn')?.hasAttribute('data-empty')) {
-                document.querySelector('#menuHeading')?.scrollIntoView({ block:'start' });
-              } else openCart();
+              openCart();
             };
             return section;
           }));
-          find('.pointsHistory').hidden = false;
+          const physical = find('[data-physical-claims]');
+          const claims = cfg.claims || [];
+          physical.hidden = !claims.length;
+          physical.querySelector('ul').replaceChildren(...claims.map(claim => {
+            const row = document.createElement('li');
+            row.textContent = claim.gift_name + ' · ' + claimLabels[claim.status] + ' · ' + pickupCode(claim.id);
+            return row;
+          }));
+          const movements = find('[data-movements]');
+          movements.hidden = false;
           find('[data-empty-history]').hidden = cfg.history.length > 0;
-          find('ul').replaceChildren(...cfg.history.map(entry => {
+          movements.querySelector('ul').replaceChildren(...cfg.history.map(entry => {
             const row = document.createElement('li');
             const value = document.createElement('strong');
             value.textContent = (entry.points > 0 ? '+' : '−') + points(Math.abs(entry.points));
-            const kind = { resgate:'Resgate', estorno:'Estorno' }[entry.kind] || 'Pedido';
-            row.append(kind + ' #' + entry.order_number, value);
+            const kind = historyLabels[entry.kind] || 'Pedido';
+            row.append(kind + (entry.order_number == null ? '' : ' #' + entry.order_number)
+              + (entry.detail ? ' · ' + entry.detail : ''), value);
             return row;
           }));
         }
@@ -358,3 +446,4 @@
     },
   };
 })();
+
