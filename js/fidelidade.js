@@ -183,6 +183,9 @@
   }
 
   window.caseiraoPoints = {
+    async campaignActive() {
+      return (await status()).active === true;
+    },
     trackingWallet: readWallet,
     showTrackingCredit,
     checkout(send, net) {
@@ -446,4 +449,5 @@
     },
   };
 })();
+
 
