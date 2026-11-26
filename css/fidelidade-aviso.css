@@ -64,3 +64,92 @@ dialog.caseiraoPointsReceipt {
   color: #19372b;
 }
 .pointsTrackingNote button { min-height: 44px; background: transparent; color: #15533a; text-decoration: underline; }
+
+/* Checkout: place the estimate across both columns, before the payment actions. */
+.checkoutFooter > #pointsCheckout {
+  grid-column: 1 / -1;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+  color-scheme: light;
+  color: #103a2e;
+  background: linear-gradient(120deg, #fff7e4, #ffebbe);
+  border: 2px solid #f2c46d;
+  border-radius: 17px;
+  padding: 14px;
+  margin: 0;
+  box-shadow: 0 4px 16px #061f1b40;
+}
+#pointsCheckout[hidden] { display: none; }
+.pointsEstimate {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+.pointsEstimateIcon {
+  display: grid;
+  place-items: center;
+  width: clamp(42px, 12vw, 56px);
+  aspect-ratio: 1;
+  border-radius: 15px;
+  background: #15533a;
+  color: #ffe2a1;
+  font-size: 1.7rem;
+}
+.pointsEstimateCopy > span { display: block; }
+.pointsEstimateName {
+  color: #254b3e;
+  font-size: .78rem;
+  font-weight: 850;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+.pointsEstimateCopy [data-estimated-points] {
+  width: fit-content;
+  max-width: 100%;
+  margin: 2px 0 5px;
+  color: #103a2e;
+  font-size: clamp(1.85rem, 8.4vw, 2.7rem);
+  font-weight: 900;
+  letter-spacing: -.04em;
+  line-height: 1;
+  overflow-wrap: anywhere;
+  transform-origin: left center;
+}
+#pointsCheckout .pointsEstimateCopy p {
+  color: #33493b;
+  margin: 0;
+  font-size: .9rem;
+  line-height: 1.35;
+}
+#pointsCheckout label { margin-top: 12px; color: #103a2e; }
+.caseiraoPointsReceipt { color-scheme: light; }
+.caseiraoPointsReceipt [data-receipt-earned] {
+  display: block;
+  color: #15533a;
+  font-size: clamp(2.2rem, 10vw, 3.1rem);
+  font-weight: 900;
+  line-height: 1.15;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pointsCheckout:not([hidden]), .caseiraoPointsReceipt[open] {
+    animation: caseiraoPointsEnter .38s ease-out both;
+  }
+  .pointsCheckout:not([hidden]) .pointsEstimateIcon,
+  .caseiraoPointsReceipt[open] .pointsReceiptStar {
+    animation: caseiraoPointsStar .7s ease-out .12s both;
+  }
+  .caseiraoPointsReceipt[open] [data-receipt-earned] {
+    animation: caseiraoPointsStar .55s ease-out .16s both;
+  }
+}
+@keyframes caseiraoPointsEnter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes caseiraoPointsStar {
+  from { transform: scale(.87) rotate(-8deg); }
+  56% { transform: scale(1.1) rotate(4deg); }
+  to { transform: scale(1) rotate(0); }
+}
