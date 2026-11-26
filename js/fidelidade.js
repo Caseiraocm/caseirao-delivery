@@ -29,6 +29,87 @@
 
   const rewards = cfg => cfg.rewards ?? (cfg.reward ? [{ ...cfg.reward, goal:cfg.goal }] : []);
   const canRedeem = (cfg, reward) => cfg.active && reward.available && cfg.balance >= reward.goal;
+  const seenKey = 'caseirao_points_receipts_seen';
+  const seenReceipts = new Set();
+  try {
+    const saved = JSON.parse(localStorage.getItem(seenKey) || '[]');
+    if (Array.isArray(saved)) saved.filter(id => typeof id === 'string').slice(-100).forEach(id => seenReceipts.add(id));
+  } catch { /* The notice still works for the current visit. */ }
+
+  function readWallet() {
+    try {
+      const current = wallet || localStorage.getItem(key);
+      if (/^[0-9a-f]{64}$/.test(current || '')) return current;
+    } catch { /* Tracking remains available without a points wallet. */ }
+  }
+
+  function openPointsReceipt(receipt) {
+    if (document.querySelector('dialog[open]')) return false;
+    const dialog = document.createElement('dialog');
+    dialog.className = 'caseiraoPointsReceipt';
+    dialog.setAttribute('aria-labelledby', 'pointsReceiptTitle');
+    dialog.innerHTML = `
+      <div class="pointsReceiptStar" aria-hidden="true">★</div>
+      <p class="pointsReceiptClub">Clube Pontos</p>
+      <h2 id="pointsReceiptTitle"></h2>
+      <p data-receipt-invite>Continue comprando e resgate seu brinde!</p>
+      <div class="pointsReceiptBalance">
+        <div><strong>Seu saldo</strong><strong data-receipt-balance></strong></div>
+        <progress aria-label="Progresso para o brinde" hidden></progress>
+        <p data-receipt-remaining hidden></p>
+      </div>
+      <form method="dialog"><button type="submit" autofocus>Continuar</button></form>`;
+    const find = selector => dialog.querySelector(selector);
+    find('h2').textContent = 'Você ganhou ' + points(receipt.earned) + ' nessa compra!';
+    find('[data-receipt-invite]').hidden = !receipt.reward;
+    find('[data-receipt-balance]').textContent = points(receipt.balance);
+    if (receipt.reward) {
+      const { name, goal } = receipt.reward;
+      const missing = Math.max(0, goal - receipt.balance);
+      const bar = find('progress');
+      const remaining = find('[data-receipt-remaining]');
+      bar.max = goal;
+      bar.value = Math.min(receipt.balance, goal);
+      bar.hidden = remaining.hidden = false;
+      remaining.textContent = missing
+        ? (missing === 1 ? 'Falta ' : 'Faltam ') + points(missing) + ' para resgatar ' + name + '.'
+        : 'Você já pode resgatar ' + name + '.';
+    }
+    dialog.addEventListener('close', () => dialog.remove(), { once:true });
+    document.body.append(dialog);
+    try { dialog.showModal(); }
+    catch {
+      dialog.remove();
+      return false;
+    }
+    return true;
+  }
+
+  function showTrackingCredit(orderId, receipt, container) {
+    const orderCard = container.querySelector('.trackCard');
+    if (!orderCard) return;
+    let note = orderCard.querySelector('.pointsTrackingNote');
+    if (!Number.isSafeInteger(receipt?.earned) || receipt.earned <= 0) {
+      note?.remove();
+      return;
+    }
+    if (!note) {
+      note = document.createElement('p');
+      note.className = 'pointsTrackingNote';
+      note.innerHTML = '<strong></strong><button type="button">Ver meus pontos</button>';
+      const metrics = orderCard.querySelector('.trackMetrics');
+      if (metrics) metrics.after(note);
+      else orderCard.append(note);
+    }
+    const label = '★ +' + points(receipt.earned) + ' no Clube Pontos';
+    if (note.firstElementChild.textContent !== label) note.firstElementChild.textContent = label;
+    note.querySelector('button').onclick = () => openPointsReceipt(receipt);
+    if (!seenReceipts.has(orderId) && openPointsReceipt(receipt)) {
+      seenReceipts.add(orderId);
+      if (seenReceipts.size > 100) seenReceipts.delete(seenReceipts.values().next().value);
+      try { localStorage.setItem(seenKey, JSON.stringify([...seenReceipts])); } catch { /* Visit-only deduplication. */ }
+    }
+  }
 
   function updateCheckout(net) {
     const box = document.querySelector('#pointsCheckout');
@@ -62,6 +143,8 @@
   }
 
   window.caseiraoPoints = {
+    trackingWallet: readWallet,
+    showTrackingCredit,
     checkout(send, net) {
       if (!send || !call) return;
       const box = document.createElement('section');
@@ -201,7 +284,8 @@
             const row = document.createElement('li');
             const value = document.createElement('strong');
             value.textContent = (entry.points > 0 ? '+' : '−') + points(Math.abs(entry.points));
-            row.append((entry.kind === 'resgate' ? 'Resgate' : 'Pedido') + ' #' + entry.order_number, value);
+            const kind = { resgate:'Resgate', estorno:'Estorno' }[entry.kind] || 'Pedido';
+            row.append(kind + ' #' + entry.order_number, value);
             return row;
           }));
         }
